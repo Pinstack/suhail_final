@@ -1,0 +1,21 @@
+zoom: 15
+center_x: 20636
+center_y: 14069
+grid_w: 2
+grid_h: 2
+layers:
+  parcels: parcel_id
+  parcels-base: parcel_id
+  parcels-centroids: parcel_id
+  neighborhoods: neighborhood_id
+  neighborhoods-centroids: neighborhood_id
+  subdivisions: subdivision_id
+  dimensions: parcel_objectid
+  streets: auto
+  sb_area: null
+  metro_lines: track_name
+  bus_lines: busroute
+  metro_stations: station_code
+  riyadh_bus_stations: station_code
+  qi_population_metrics: grid_id
+  qi_stripes: strip_id 
