@@ -46,6 +46,9 @@ class Settings(BaseSettings):
     max_concurrent_downloads: int = Field(
         20, description="Maximum number of concurrent tile download requests."
     )
+    db_chunk_size: int = Field(
+        5000, description="Number of rows to write to the database in a single batch."
+    )
     request_delay_seconds: float = Field(
         0.05, description="Small delay between download requests to avoid overwhelming the server."
     )

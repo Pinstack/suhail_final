@@ -18,6 +18,7 @@ class PostGISPersister:
         with self.engine.connect() as conn:
             try:
                 conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis"))
+                conn.commit()  # Make sure the extension creation is committed
             except Exception as exc:
                 logger.error("Failed to ensure PostGIS extension: %s", exc)
                 raise
@@ -39,17 +40,27 @@ class PostGISPersister:
         self.engine = create_engine(self.database_url, future=True)
         with self.engine.connect() as conn:
             conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis"))
+            conn.commit()
         logger.info("Database %s recreated", db_name)
 
     # ------------------------------------------------------------------
-    def write(self, gdf: gpd.GeoDataFrame, table: str, schema: str = "public", if_exists: str = "replace") -> None:
+    def write(self, gdf: gpd.GeoDataFrame, table: str, schema: str = "public", if_exists: str = "replace", chunksize: int = 5000) -> None:
         if gdf.empty:
             logger.warning("%s: GeoDataFrame empty, skipping write", table)
             return
-        gdf.to_postgis(table, self.engine, schema=schema, if_exists=if_exists, index=False)
+        gdf.to_postgis(table, self.engine, schema=schema, if_exists=if_exists, index=False, chunksize=chunksize)
         logger.info("Persisted %d features to %s.%s", len(gdf), schema, table)
+
+    def read_sql(self, sql: str, geom_col: str = "geometry") -> gpd.GeoDataFrame:
+        """Executes a SQL query and returns the result as a GeoDataFrame."""
+        return gpd.read_postgis(sql, self.engine, geom_col=geom_col)
 
     # Convenience -------------------------------------------------------
     def drop_table(self, table: str, schema: str = "public") -> None:
         with self.engine.begin() as conn:
-            conn.execute(text(f'DROP TABLE IF EXISTS {schema}.{table} CASCADE')) 
+            conn.execute(text(f'DROP TABLE IF EXISTS {schema}."{table}" CASCADE'))
+
+    def execute(self, sql: str) -> None:
+        """Executes a raw SQL statement."""
+        with self.engine.begin() as conn:
+            conn.execute(text(sql)) 

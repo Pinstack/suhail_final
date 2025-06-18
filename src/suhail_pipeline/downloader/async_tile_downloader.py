@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Sequence, Tuple
 
 import aiohttp
+from tqdm.asyncio import tqdm_asyncio
 
 from ..config import settings
 
@@ -67,9 +68,12 @@ class AsyncTileDownloader:
     async def download_many(
         self, tiles: Sequence[Tuple[int, int, int]]
     ) -> dict[Tuple[int, int, int], bytes]:
-        """Downloads a sequence of tiles concurrently."""
+        """Downloads a sequence of tiles concurrently with a progress bar."""
         tasks = [self.fetch_tile(z, x, y) for z, x, y in tiles]
-        results = await asyncio.gather(*tasks)
+        
+        results = await tqdm_asyncio.gather(
+            *tasks, desc=f"Downloading {len(tiles)} tiles", unit="tile"
+        )
         
         # Filter out tiles that failed to download
         downloaded_tiles = {
