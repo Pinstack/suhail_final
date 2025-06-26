@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "suhail-pipeline"
+version = "0.1.0"
+authors = [
+  { name="Suhail.AI", email="engineering@suhail.ai" },
+]
+description = "Suhail.AI data processing pipeline"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "psycopg2-binary==2.9.9",
+    "SQLAlchemy==2.0.29",
+    "geoalchemy2==0.17.1",
+    "mapbox-vector-tile==1.2.0",
+    "mercantile==1.2.1",
+    "pydantic==2.7.1",
+    "pydantic-settings==2.2.1",
+    "tqdm==4.66.4",
+    "typer==0.12.3",
+    "aiohttp==3.9.5",
+    "pytest==8.2.0",
+    "pytest-asyncio==0.23.6",
+    "protobuf<=3.20.0",
+    "geopandas==0.13.2",
+    "fiona==1.9.4",
+    "pyproj==3.5.0",
+    "shapely==2.0.1",
+    "numpy<2.0",
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest-env",
+    "pytest-postgresql",
+]
+
+[project.scripts]
+check_db = "suhail_pipeline.utils.db_checker:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+env = [
+    "DATABASE_URL=postgresql://testuser:testpass@localhost:5432/test_suhail_db"
+] 

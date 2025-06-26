@@ -145,3 +145,19 @@ cython_debug/
 /temp_tiles/
 /stitched/
 /pipeline.log
+/stitched_cache/
+
+# Editor-specific ignore
+.cursorignore
+
+# Ignore built PDF documentation
+*.pdf
+
+# Ignore all GeoJSON files
+*.geojson
+
+# Caches and temporary files
+stitched/
+stitched_cache/
+temp_tiles/
+tiles_cache/
