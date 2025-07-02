@@ -1,80 +1,180 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Sequence, Tuple
+import logging
+from typing import Any, Dict, List, Sequence
+import re
 
 import mapbox_vector_tile
 import mercantile
-from shapely.geometry import shape, mapping  # type: ignore
+import geopandas as gpd
+from shapely.geometry import shape
 from shapely.geometry.base import BaseGeometry
 from pyproj import Transformer
+from shapely.ops import transform
+
+logger = logging.getLogger(__name__)
 
 
 class MVTDecoder:
-    """Decode raw Mapbox Vector Tile bytes and convert pixel coords → EPSG:4326 geometries."""
+    """A highly optimized decoder for Mapbox Vector Tiles with data type validation."""
 
-    def _transform_geometry(
-        self,
-        geom: dict[str, Any],
-        mx_min: float,
-        my_min: float,
-        scale_x: float,
-        scale_y: float,
-        to_wgs84,
-    ) -> BaseGeometry:
-        """Recursively scale & project coordinate tuples and return Shapely geom."""
+    # Define expected integer ID fields for type casting
+    INTEGER_ID_FIELDS = {
+        'parcel_id', 'zoning_id', 'subdivision_id', 'neighborhood_id', 
+        'province_id', 'municipality_id', 'region_id'
+    }
+    
+    # Define expected string ID fields (parcel_objectid comes as string but gets converted downstream)
+    STRING_ID_FIELDS = {
+        'parcel_objectid', 'rule_id', 'station_code', 'grid_id', 'strip_id'
+    }
 
-        g_type = geom["type"]
-        coords = geom["coordinates"]
+    def __init__(self, target_crs="EPSG:4326"):
+        """
+        Initializes the decoder and creates a reusable transformer.
+        
+        Args:
+            target_crs (str): The target CRS for the output geometries.
+        """
+        self.target_crs = target_crs
+        # Create a single, reusable transformer for all operations.
+        # This is much more efficient than creating one per tile.
+        self.transformer = Transformer.from_crs(
+            "EPSG:3857", self.target_crs, always_xy=True
+        ).transform
 
-        def tx_pt(pt: Tuple[float, float]):
-            x, y = pt
-            return to_wgs84(mx_min + x * scale_x, my_min + y * scale_y)
+    def _cast_property_types(self, properties: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Cast property values to expected types to prevent downstream type inconsistencies.
+        
+        Args:
+            properties: Raw properties from MVT feature
+            
+        Returns:
+            Properties dict with properly cast types
+        """
+        cast_properties = {}
+        
+        for key, value in properties.items():
+            if value is None:
+                cast_properties[key] = value
+                continue
+                
+            try:
+                if key in self.INTEGER_ID_FIELDS:
+                    # Cast to integer for ID fields that should be integers
+                    if isinstance(value, (int, float)):
+                        cast_properties[key] = int(value)
+                    elif isinstance(value, str) and value.isdigit():
+                        cast_properties[key] = int(value)
+                    else:
+                        logger.warning(f"Cannot cast {key}={value} to integer, keeping as string")
+                        cast_properties[key] = str(value)
+                        
+                elif key in self.STRING_ID_FIELDS:
+                    # Ensure string ID fields are strings
+                    cast_properties[key] = str(value)
+                    
+                else:
+                    # Keep other fields as-is
+                    cast_properties[key] = value
+                    
+            except (ValueError, TypeError) as e:
+                logger.warning(f"Type casting error for {key}={value}: {e}, keeping original value")
+                cast_properties[key] = value
+        
+        return cast_properties
 
-        def recurse(obj):
-            if not obj:
-                return obj
-            if isinstance(obj[0], (int, float)):
-                # point tuple
-                return tx_pt(obj)  # type: ignore[arg-type]
-            return [recurse(o) for o in obj]
-
-        new_coords = recurse(coords)
-        return shape({"type": g_type, "coordinates": new_coords})
-
-    def decode_bytes(
-        self,
-        tile_data: bytes,
-        *,
-        z: int,
-        x: int,
-        y: int,
-        layers: Sequence[str] | None = None,
-    ) -> Dict[str, List[dict[str, Any]]]:
-        """Decode a single tile and return dict[layer] -> list of feature dicts with Shapely geometry."""
-
-        raw = mapbox_vector_tile.decode(tile_data)
-        tile_bounds = mercantile.xy_bounds(x, y, z)
-        mx_min, my_min, mx_max, my_max = tile_bounds
-        # extent from any layer (all share)
-        some_layer = next(iter(raw.values()))
-        extent = some_layer.get("extent", 4096)
+    def _create_transform_function(
+        self, z: int, x: int, y: int, extent: int
+    ) -> callable:
+        """
+        Creates a single function that scales tile-local coordinates
+        directly to the target CRS (e.g., EPSG:4326).
+        This avoids intermediate transformations and is highly efficient.
+        """
+        mx_min, my_min, mx_max, my_max = mercantile.xy_bounds(x, y, z)
         scale_x = (mx_max - mx_min) / extent
         scale_y = (my_max - my_min) / extent
 
-        to_wgs84 = Transformer.from_crs(3857, 4326, always_xy=True).transform
+        def transform_coords(lon, lat, z=None):
+            # Scale from tile-local coords to Web Mercator (EPSG:3857)
+            mercator_x = mx_min + lon * scale_x
+            mercator_y = my_min + lat * scale_y
+            # Project from Web Mercator to the target CRS
+            return self.transformer(mercator_x, mercator_y)
 
-        out: Dict[str, List[dict[str, Any]]] = {}
-        for layer_name, layer_dict in raw.items():
-            if layers is not None and layer_name not in layers:
+        return transform_coords
+
+    def decode_bytes(
+        self, tile_data: bytes, z: int, x: int, y: int, layers: List[str] | None = None
+    ) -> Dict[str, List[Dict[str, Any]]]:
+        """
+        Decodes a single MVT tile into a dictionary of features with geometries
+        projected to the target CRS and properties with validated types.
+        """
+        if not tile_data:
+            return {}
+            
+        decoded_tile = mapbox_vector_tile.decode(tile_data)
+        output_layers: Dict[str, List[Dict[str, Any]]] = {}
+
+        # Get the extent from the first available layer (it's typically consistent)
+        first_layer = next(iter(decoded_tile.values()), None)
+        if not first_layer:
+            return {}
+        
+        extent = first_layer.get("extent", 4096)
+        coord_transformer = self._create_transform_function(z, x, y, extent)
+
+        for layer_name, layer_content in decoded_tile.items():
+            if layers and layer_name not in layers:
                 continue
-            feats_out: List[dict[str, Any]] = []
-            for feat in layer_dict.get("features", []):
-                geom = self._transform_geometry(
-                    feat["geometry"], mx_min, my_min, scale_x, scale_y, to_wgs84
-                )
-                if geom.is_empty:
+            
+            features_out = []
+            for feature in layer_content.get("features", []):
+                try:
+                    # Create the initial Shapely geometry from raw tile coords
+                    geom: BaseGeometry = shape(feature["geometry"])
+                    
+                    if geom.is_empty:
+                        continue
+
+                    # Apply the combined scale + project transformation in one step.
+                    # This is significantly faster than multiple transforms.
+                    projected_geom = transform(coord_transformer, geom)
+
+                    if not projected_geom.is_empty:
+                        # Cast properties to expected types for consistency
+                        properties = self._cast_property_types(feature["properties"])
+                        # Convert camelCase property keys to snake_case to match DB schema
+                        properties = {
+                            re.sub(r'(?<!^)(?=[A-Z])', '_', key).lower(): value
+                            for key, value in properties.items()
+                        }
+                        features_out.append({"geometry": projected_geom, **properties})
+
+                except Exception as e:
+                    # Skip features with invalid geometries or properties
+                    logger.warning(f"Skipping feature in layer {layer_name}: {e}")
                     continue
-                props = dict(feat["properties"])
-                feats_out.append({**props, "geometry": geom})
-            out[layer_name] = feats_out
-        return out 
+            
+            if features_out:
+                output_layers[layer_name] = features_out
+        
+        return output_layers
+
+    def decode_to_gdf(
+        self, tile_data: bytes, z: int, x: int, y: int, layers: List[str] | None = None
+    ) -> Dict[str, gpd.GeoDataFrame]:
+        """Decodes tile bytes directly into a dictionary of GeoDataFrames."""
+        decoded_layers = self.decode_bytes(tile_data, z, x, y, layers)
+        gdfs = {}
+        for layer_name, features in decoded_layers.items():
+            if features:
+                gdfs[layer_name] = gpd.GeoDataFrame(
+                    features, geometry="geometry", crs=self.target_crs
+                )
+        return gdfs
+
+ 

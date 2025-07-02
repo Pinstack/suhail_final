@@ -3,12 +3,12 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "suhail-pipeline"
+name = "meshic-pipeline"
 version = "0.1.0"
 authors = [
   { name="Suhail.AI", email="engineering@suhail.ai" },
 ]
-description = "Suhail.AI data processing pipeline"
+description = "Meshic data processing pipeline"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
@@ -17,40 +17,59 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "psycopg2-binary==2.9.9",
-    "SQLAlchemy==2.0.29",
-    "geoalchemy2==0.17.1",
-    "mapbox-vector-tile==1.2.0",
-    "mercantile==1.2.1",
-    "pydantic==2.7.1",
-    "pydantic-settings==2.2.1",
-    "tqdm==4.66.4",
-    "typer==0.12.3",
-    "aiohttp==3.9.5",
-    "pytest==8.2.0",
-    "pytest-asyncio==0.23.6",
-    "protobuf<=3.20.0",
-    "geopandas==0.13.2",
-    "fiona==1.9.4",
-    "pyproj==3.5.0",
-    "shapely==2.0.1",
+    "aiohttp",
+    "alembic",
+    "fastapi",
+    "geoalchemy2",
+    "geopandas",
+    "h3",
+    "h3pandas",
+    "mapbox-vector-tile",
+    "mercantile",
     "numpy<2.0",
+    "pandas",
+    "psycopg2-binary",
+    "pydantic",
+    "pydantic-settings",
     "PyYAML>=6.0",
+    "shapely",
+    "sqlalchemy",
+    "tqdm",
+    "typer",
+    "uvicorn",
+    "asyncpg",
+    "greenlet",
 ]
 
 [project.optional-dependencies]
 test = [
-    "pytest-env",
+    "pytest",
+    "pytest-asyncio",
     "pytest-postgresql",
+    "aioresponses",
 ]
 
 [project.scripts]
-check_db = "suhail_pipeline.utils.db_checker:app"
+check_db = "meshic_pipeline.utils.db_checker:app"
+meshic-pipeline = "meshic_pipeline.cli:app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.pytest.ini_options]
-env = [
-    "DATABASE_URL=postgresql://testuser:testpass@localhost:5432/test_suhail_db"
-] 
+pythonpath = ["src", "scripts"]
+asyncio_mode = "auto"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "real_data: marks tests that use real data (deselect with '-m \"not real_data\"')",
+]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pandas = "^2.2.0"
+sqlalchemy = "^2.0.25"
+psycopg2-binary = "^2.9.9"
+geoalchemy2 = "^0.14.4"
+alembic = "^1.13.1"
+
+[tool.poetry.group.dev.dependencies]

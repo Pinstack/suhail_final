@@ -3,6 +3,8 @@ from __future__ import annotations
 import os
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
+from enum import Enum
+import yaml
 
 from pydantic import Field, PostgresDsn, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -10,6 +12,67 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 # Define project root independently
 # Resolves to the parent directory of 'src', which is the project's root.
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# Load pipeline configuration
+PIPELINE_CONFIG_PATH = PROJECT_ROOT / 'pipeline_config.yaml'
+PIPELINE_CFG = yaml.safe_load(PIPELINE_CONFIG_PATH.read_text())
+
+
+class Environment(str, Enum):
+    """Environment types for configuration management."""
+    DEVELOPMENT = "development"
+    TESTING = "testing"
+    STAGING = "staging"
+    PRODUCTION = "production"
+
+class MemoryConfig(BaseSettings):
+    """Configuration for in-memory caching and performance monitoring."""
+    max_cached_objects: int = Field(
+        1000,
+        description="Maximum number of objects to hold in memory for performance logging.",
+    )
+
+class RetryConfig(BaseSettings):
+    """Configuration for network request retries."""
+    max_attempts: int = Field(3, description="Maximum number of retry attempts.")
+    base_delay: int = Field(1, description="Base delay in seconds for exponential backoff.")
+    max_delay: int = Field(60, description="Maximum delay in seconds between retries.")
+
+class DBPoolConfig(BaseSettings):
+    """Configuration for the database connection pool."""
+    min_size: int = Field(5, description="Minimum number of connections in the pool.")
+    max_size: int = Field(20, description="Maximum number of connections in the pool.")
+    timeout: int = Field(30, description="Connection acquisition timeout in seconds.")
+    command_timeout: int = Field(60, description="Timeout for individual DB commands.")
+    pool_pre_ping: bool = Field(True, description="Enable connection health checks.")
+    pool_recycle: int = Field(3600, description="Recycle connections after this many seconds.")
+    echo_pool: bool = Field(False, description="Log connection pool events.")
+
+class ApiConfig(BaseSettings):
+    """Configuration for external Suhail API endpoints."""
+    model_config = SettingsConfigDict(
+        env_file=PROJECT_ROOT / ".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore",
+    )
+
+    base_url: str = Field("https://api2.suhail.ai", env="SUHAIL_API_BASE_URL", description="Base URL for the Suhail API")
+    timeout: int = Field(60, description="Total timeout in seconds for API calls")
+    api_key: Optional[str] = Field(None, env="SUHAIL_API_KEY", description="API key for authentication")
+    transactions_url: Optional[str] = Field(None, description="Full Transactions API URL")
+    building_rules_url: Optional[str] = Field(None, description="Full Building Rules API URL")
+    price_metrics_url: Optional[str] = Field(None, description="Full Price Metrics API URL")
+
+    @model_validator(mode="after")
+    def build_urls(self) -> "ApiConfig":
+        """Populate full endpoint URLs based on the base_url if not explicitly provided."""
+        if not self.transactions_url:
+            self.transactions_url = f"{self.base_url}/transactions"
+        if not self.building_rules_url:
+            self.building_rules_url = f"{self.base_url}/parcel/buildingRules"
+        if not self.price_metrics_url:
+            self.price_metrics_url = f"{self.base_url}/api/parcel/metrics/priceOfMeter"
+        return self
 
 class Settings(BaseSettings):
     """
@@ -25,16 +88,36 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    # --- Nested Configurations ---
+    memory_config: MemoryConfig = Field(default_factory=MemoryConfig)
+    retry_config: RetryConfig = Field(default_factory=RetryConfig)
+    db_pool: DBPoolConfig = Field(default_factory=DBPoolConfig)
+    api_config: ApiConfig = Field(default_factory=ApiConfig)
+
+    # --- Environment Configuration ---
+    environment: Environment = Field(
+        Environment.DEVELOPMENT,
+        description="Current environment (development, testing, staging, production)"
+    )
+    debug: bool = Field(False, description="Enable debug mode")
+
     # --- Core Settings ---
     database_url: PostgresDsn = Field(
         ...,
         description="Full database connection string (e.g., postgresql://user:pass@host/db)",
     )
     tile_base_url: str = Field(
-        "https://tiles.suhail.ai/maps/riyadh",
+        "https://tiles.suhail.ai/maps/eastern_region",
+        env="TILE_BASE_URL",
         description="Base URL for the MVT tile server, without /z/x/y.",
     )
     default_crs: str = Field("EPSG:4326", description="Default CRS for all GeoDataFrames")
+    # --- Pipeline Grid Configuration (loaded from pipeline_config.yaml) ---
+    zoom: int = Field(PIPELINE_CFG.get('zoom', 15), description="Tile zoom level from pipeline_config.yaml")
+    center_x: int = Field(PIPELINE_CFG.get('center_x'), description="Tile grid center x coordinate")
+    center_y: int = Field(PIPELINE_CFG.get('center_y'), description="Tile grid center y coordinate")
+    grid_w: int = Field(PIPELINE_CFG.get('grid_w'), description="Tile grid width from pipeline_config.yaml")
+    grid_h: int = Field(PIPELINE_CFG.get('grid_h'), description="Tile grid height from pipeline_config.yaml")
 
     # --- Caching and Directories ---
     project_root: Path = PROJECT_ROOT
@@ -62,12 +145,17 @@ class Settings(BaseSettings):
     # --- Layer-specific Behavior ---
     id_column_per_layer: Dict[str, str] = Field(
         default_factory=lambda: {
-            "parcels": "parcel_id",
-            "parcels-base": "parcel_id",
+            "parcels": "parcel_objectid",
             "parcels-centroids": "parcel_id",
             "subdivisions": "subdivision_id",
             "neighborhoods": "neighborhood_id",
             "neighborhoods-centroids": "neighborhood_id",
+            "dimensions": "parcel_objectid",
+            "metro_lines": "busroute",
+            "bus_lines": "busroute", 
+            "metro_stations": "station_code",
+            "riyadh_bus_stations": "station_code",
+            "qi_population_metrics": "grid_id",
             "qi_stripes": "strip_id",
             "sb_area": "name",  # Use the 'name' field as the unique identifier
         },
@@ -76,16 +164,43 @@ class Settings(BaseSettings):
 
     aggregation_rules_per_layer: Dict[str, Dict[str, str]] = Field(
         default_factory=lambda: {
-            "parcels": {"area_sqm": "first", "district_id": "first"},
-            "subdivisions": {"name": "first", "area_sqm": "first"},
-            "neighborhoods": {"name": "first", "area_sqm": "first"},
+            "parcels": {
+                "shape_area": "first",
+                "transaction_price": "first",
+                "price_of_meter": "first", 
+                "neighborhood_id": "first",
+                "province_id": "first",
+                "landuseagroup": "first",
+                "landuseadetailed": "first",
+                "zoning_id": "first",
+                "subdivision_id": "first",
+                "block_no": "first",
+                "neighborhaname": "first",
+                "municipality_aname": "first",
+                "parcel_no": "first",
+                "subdivision_no": "first",
+                "zoning_color": "first",
+                "ruleid": "first",
+                "parcel_id": "first"
+            },
+            "parcels-centroids": {
+                "parcel_no": "first",
+                "neighborhood_id": "first", 
+                "province_id": "first",
+                "transactions_count": "first",
+                "transaction_date": "first",
+                "transaction_price": "first", 
+                "price_of_meter": "first"
+            },
+            "subdivisions": {"shape_area": "first"},
+            "neighborhoods": {"shape_area": "first"},
         },
         description="Attribute aggregation rules for GeoPandas dissolve, per layer.",
     )
 
     table_name_mapping: Dict[str, str] = Field(
         default_factory=lambda: {
-            "parcels-base": "parcels_base",
+            "parcels": "parcels",  # Main parcels layer goes to parcels table  
             "parcels-centroids": "parcels_centroids",
             "neighborhoods-centroids": "neighborhoods_centroids",
             "metro_lines": "metro_lines",
@@ -101,7 +216,6 @@ class Settings(BaseSettings):
     layers_to_process: List[str] = Field(
         default_factory=lambda: [
             "parcels",
-            "parcels-base",
             "parcels-centroids",
             "neighborhoods",
             "neighborhoods-centroids",
@@ -123,6 +237,10 @@ class Settings(BaseSettings):
         """Constructs the cache path for a specific tile."""
         tile_dir = self.cache_dir / str(z) / str(x)
         return tile_dir / f"{y}.pbf"
+
+    def is_production(self) -> bool:
+        """Check if the current environment is production."""
+        return self.environment == Environment.PRODUCTION
 
     @model_validator(mode="after")
     def ensure_dirs(self) -> "Settings":

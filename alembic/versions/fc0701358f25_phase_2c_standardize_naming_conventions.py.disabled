@@ -1,0 +1,48 @@
+"""Phase 2C: Standardize naming conventions
+
+Revision ID: fc0701358f25
+Revises: 411b7d986fe1
+Create Date: 2025-07-01 11:39:03.887659
+
+"""
+from typing import Sequence, Union
+
+from alembic import op
+import sqlalchemy as sa
+
+
+# revision identifiers, used by Alembic.
+revision: str = 'fc0701358f25'
+down_revision: Union[str, Sequence[str], None] = '411b7d986fe1'
+branch_labels: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = None
+
+
+def upgrade() -> None:
+    """Upgrade schema: rename columns to standardized names."""
+    # parcels table renames
+    op.alter_column('parcels', 'neighborha_name', new_column_name='neighborhood_name', existing_type=sa.String())
+    op.alter_column('parcels', 'landuse_agroup', new_column_name='landuse_group', existing_type=sa.String())
+    op.alter_column('parcels', 'landuse_adetailed', new_column_name='landuse_detailed', existing_type=sa.String())
+    op.alter_column('parcels', 'municipality_aname', new_column_name='municipality_name', existing_type=sa.String())
+    # municipalities table rename
+    op.alter_column('municipalities', 'municipality_aname', new_column_name='municipality_name', existing_type=sa.String())
+    # land_use_groups table rename
+    op.alter_column('land_use_groups', 'landuseagroup', new_column_name='landuse_group', existing_type=sa.String())
+    # zoning_rules table rename
+    op.alter_column('zoning_rules', 'ruleid', new_column_name='rule_id', existing_type=sa.String())
+
+
+def downgrade() -> None:
+    """Downgrade schema: revert column names to original."""
+    # zoning_rules table revert
+    op.alter_column('zoning_rules', 'rule_id', new_column_name='ruleid', existing_type=sa.String())
+    # land_use_groups table revert
+    op.alter_column('land_use_groups', 'landuse_group', new_column_name='landuseagroup', existing_type=sa.String())
+    # municipalities table revert
+    op.alter_column('municipalities', 'municipality_name', new_column_name='municipality_aname', existing_type=sa.String())
+    # parcels table reverts
+    op.alter_column('parcels', 'municipality_name', new_column_name='municipality_aname', existing_type=sa.String())
+    op.alter_column('parcels', 'landuse_detailed', new_column_name='landuse_adetailed', existing_type=sa.String())
+    op.alter_column('parcels', 'landuse_group', new_column_name='landuse_agroup', existing_type=sa.String())
+    op.alter_column('parcels', 'neighborhood_name', new_column_name='neighborha_name', existing_type=sa.String())

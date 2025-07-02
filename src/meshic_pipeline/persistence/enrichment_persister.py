@@ -23,7 +23,7 @@ async def fast_store_batch_data(
         tx_values = [
             {
                 "transaction_id": tx.transaction_id,
-                "parcel_objectid": tx.parcel_objectid,
+                "parcel_objectid": int(tx.parcel_objectid),
                 "transaction_price": tx.transaction_price,
                 "price_of_meter": tx.price_of_meter,
                 "transaction_date": tx.transaction_date,
@@ -43,7 +43,7 @@ async def fast_store_batch_data(
         unique_rules = {rule.parcel_objectid: rule for rule in rules}
         rules_values = [
             {
-                "parcel_objectid": r.parcel_objectid,
+                "parcel_objectid": int(r.parcel_objectid),
                 "building_rule_id": r.building_rule_id,
                 "zoning_id": r.zoning_id,
                 "zoning_color": r.zoning_color,
@@ -74,7 +74,7 @@ async def fast_store_batch_data(
     if metrics:
         metrics_values = [
             {
-                "parcel_objectid": m.parcel_objectid,
+                "parcel_objectid": int(m.parcel_objectid),
                 "month": m.month,
                 "year": m.year,
                 "metrics_type": m.metrics_type,
@@ -94,12 +94,12 @@ async def fast_store_batch_data(
         processed_parcel_ids = set()
         if transactions:
             processed_parcel_ids.update(
-                tx.parcel_objectid for tx in transactions
+                int(tx.parcel_objectid) for tx in transactions
             )
         if rules:
-            processed_parcel_ids.update(r.parcel_objectid for r in rules)
+            processed_parcel_ids.update(int(r.parcel_objectid) for r in rules)
         if metrics:
-            processed_parcel_ids.update(m.parcel_objectid for m in metrics)
+            processed_parcel_ids.update(int(m.parcel_objectid) for m in metrics)
 
         if processed_parcel_ids:
             # Update enriched_at timestamp

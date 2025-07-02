@@ -105,6 +105,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+.env
 .venv/
 env/
 venv/
@@ -160,3 +161,14 @@ stitched/
 stitched_cache/
 temp_tiles/
 tiles_cache/
+
+# Generated artifacts
+temp_tiles/
+stitched/
+stitched_cache/
+tiles_cache/
+test_tile_*.pbf
+tile_list.txt
+
+# Package metadata
+*.egg-info/

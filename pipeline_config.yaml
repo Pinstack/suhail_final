@@ -1,20 +1,20 @@
 zoom: 15
-center_x: 20636
-center_y: 14069
-grid_w: 2
-grid_h: 2
+center_x: 20632
+center_y: 14061
+grid_w: 3
+grid_h: 3
 layers:
-  parcels: parcel_id
-  parcels-base: parcel_id
-  parcels-centroids: parcel_id
+  parcels: parcel_no
+  parcels-base: parcel_no
+  parcels-centroids: parcel_no
   neighborhoods: neighborhood_id
   neighborhoods-centroids: neighborhood_id
   subdivisions: subdivision_id
   dimensions: parcel_objectid
-  streets: auto
-  sb_area: null
-  metro_lines: track_name
-  bus_lines: busroute
+  streets: null  # No ID field in MVT (only street_width, geometry)
+  sb_area: name
+  metro_lines: null  # No ID field in MVT (only track_name, track_color, track_length)
+  bus_lines: null  # No ID field in MVT (only busroute, color, origin, originar, type)
   metro_stations: station_code
   riyadh_bus_stations: station_code
   qi_population_metrics: grid_id

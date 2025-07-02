@@ -1,42 +1,54 @@
-import argparse
 import asyncio
-from src.suhail_pipeline.pipeline_orchestrator import run_pipeline
+import logging
+from typing import List, Tuple
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Suhail.AI MVT Processing Pipeline")
-    parser.add_argument(
+import typer
+
+from meshic_pipeline.pipeline_orchestrator import run_pipeline
+from meshic_pipeline.config import settings
+
+# Setup logging
+logger = logging.getLogger(__name__)
+
+app = typer.Typer()
+
+@app.command()
+def main(
+    bbox: List[float] = typer.Option(
+        None,
         "--bbox",
-        nargs=4,
-        type=float,
-        required=True,
-        metavar=("W", "S", "E", "N"),
-        help="Bounding box (W S E N) in EPSG:4326 coordinates.",
-    )
-    parser.add_argument(
-        "--zoom",
-        type=int,
-        default=15,
-        help="Zoom level to download tiles for.",
-    )
-    parser.add_argument(
-        "--layers",
-        type=str,
-        help="Optional comma-separated list of layers to process, overriding config.",
-    )
-    parser.add_argument(
-        "--recreate-db",
-        action="store_true",
-        help="Drop and recreate the target database before writing data.",
-    )
-    args = parser.parse_args()
+        "-b",
+        help="Bounding box in 'min_lon min_lat max_lon max_lat' format. Overrides the config grid.",
+    ),
+    recreate_db: bool = typer.Option(
+        False, "--recreate-db", help="Drop and recreate the database schema."
+    ),
+    save_as_temp: str = typer.Option(
+        None,
+        "--save-as-temp",
+        help="Save the downloaded parcels to a temporary table with this name.",
+    ),
+):
+    """
+    Run the geometric processing pipeline to download and stitch MVT data.
+    By default, it uses the grid defined in pipeline_config.yaml.
+    """
+    if bbox and len(bbox) != 4:
+        logger.error("Bounding box must be 4 floats: min_lon min_lat max_lon max_lat")
+        raise typer.Exit(code=1)
 
-    layer_list_override = args.layers.split(",") if args.layers else None
+    aoi_bbox = tuple(bbox) if bbox else None
 
+    # The orchestrator will handle discovery based on whether a bbox is provided
     asyncio.run(
         run_pipeline(
-            aoi_bbox=tuple(args.bbox),
-            zoom=args.zoom,
-            layers_override=layer_list_override,
-            recreate_db=args.recreate_db,
+            aoi_bbox=aoi_bbox,
+            zoom=settings.zoom,
+            layers_override=settings.layers_to_process,
+            recreate_db=recreate_db,
+            save_as_temp=save_as_temp,
         )
-    ) 
+    )
+
+if __name__ == "__main__":
+    app() 

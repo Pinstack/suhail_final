@@ -1,8 +1,22 @@
 """A simple script to connect to the database and list all tables."""
 
 import typer
+import sys
+import os
+from pathlib import Path
+
+# Add the src directory to the Python path
+src_path = Path(__file__).parent.parent / "src"
+sys.path.insert(0, str(src_path))
+
 from sqlalchemy import create_engine, inspect, text, exc
-from src.suhail_pipeline.config import settings
+from meshic_pipeline.config import settings
+from rich.table import Table
+from rich.console import Console
+from sqlalchemy.exc import NoSuchTableError
+from meshic_pipeline.decoder.mvt_decoder import MVTDecoder
+import pandas as pd
+from geoalchemy2.types import Geometry
 
 app = typer.Typer()
 
@@ -127,20 +141,22 @@ def list_distinct(
 
     if is_json:
         # Use JSON operator ->> to extract text field from the 'raw_data' column
-        query = text(f"""
-            SELECT 
-                raw_data->>'{column_name}' AS value, 
-                COUNT(*) AS count
-            FROM 
-                {schema}."{table}" 
-            GROUP BY 
-                value
-            ORDER BY 
-                count DESC
-        """)
+        column_expression = f"raw_data->>'{column_name}'"
     else:
         # Standard query for a regular column
-        query = text(f'SELECT "{column_name}", COUNT(*) FROM {schema}."{table}" GROUP BY "{column_name}" ORDER BY COUNT(*) DESC')
+        column_expression = f'"{column_name}"'
+
+    query = text(f"""
+        SELECT 
+            {column_expression} AS value, 
+            COUNT(*) AS count
+        FROM 
+            {schema}."{table}" 
+        GROUP BY 
+            value
+        ORDER BY 
+            count DESC
+    """)
 
     try:
         with engine.connect() as connection:
@@ -196,6 +212,97 @@ def summarize_parcels():
         raise typer.Exit(code=1)
     finally:
         typer.echo(typer.style("----------------------", fg=typer.colors.CYAN, bold=True))
+
+@app.command(name="verify-tile-schema")
+def verify_tile_schema_command(
+    tile_path: str = typer.Argument(..., help="Path to the MVT tile file (e.g., tiles_cache/15/20636/14069.pbf).")
+):
+    """Compares an MVT tile's schema against the live PostGIS database."""
+    from pathlib import Path
+    
+    tile_p = Path(tile_path)
+    if not tile_p.exists():
+        typer.echo(typer.style(f"❌ Error: Tile file not found at '{tile_path}'", fg=typer.colors.RED, bold=True))
+        raise typer.Exit(code=1)
+
+    typer.echo(typer.style(f"--- Verifying schema for tile: {tile_path} ---", fg=typer.colors.BLUE, bold=True))
+
+    # 1. Decode Tile
+    with open(tile_p, "rb") as f:
+        tile_data = f.read()
+    
+    try:
+        z, x, y = map(int, [tile_p.parent.parent.name, tile_p.parent.name, tile_p.stem])
+    except (ValueError, AttributeError):
+        typer.echo(typer.style("❌ Error: Could not determine tile Z/X/Y from path structure.", fg=typer.colors.RED, bold=True))
+        raise typer.Exit(code=1)
+
+    decoder = MVTDecoder()
+    decoded_layers = decoder.decode_to_gdf(tile_data, z, x, y)
+
+    # 2. Connect to DB
+    engine = get_engine()
+    inspector = inspect(engine)
+
+    # 3. Compare Schemas
+    for layer_name, gdf in decoded_layers.items():
+        if layer_name == 'streets':
+            continue
+
+        table_name = settings.table_name_mapping.get(layer_name, layer_name)
+        typer.echo(typer.style(f"\n🔎 Verifying Layer '{layer_name}' -> Table 'public.{table_name}'", fg=typer.colors.GREEN, bold=True))
+
+        if gdf.empty:
+            typer.echo(typer.style("  - GDF is empty, skipping schema check.", fg=typer.colors.YELLOW))
+            continue
+
+        try:
+            db_columns = inspector.get_columns(table_name, schema="public")
+            db_schema = {col['name']: col['type'] for col in db_columns}
+        except NoSuchTableError:
+            typer.echo(typer.style(f"  - ⚠️  Warning: Table 'public.{table_name}' not found.", fg=typer.colors.YELLOW))
+            continue
+
+        gdf_schema = {col: gdf[col].dtype for col in gdf.columns}
+
+        # Compare
+        table = Table(title="Column Type Comparison")
+        table.add_column("Column Name", style="cyan")
+        table.add_column("MVT-derived Type", style="magenta")
+        table.add_column("DB Type", style="yellow")
+        table.add_column("Status", style="bold")
+
+        all_cols = sorted(set(gdf_schema.keys()) | set(db_schema.keys()))
+        
+        for col_name in all_cols:
+            gdf_type_str = str(gdf_schema.get(col_name, 'N/A'))
+            db_type_obj = db_schema.get(col_name)
+            db_type_str = str(db_type_obj).split('(')[0] if db_type_obj is not None else 'N/A'
+            
+            status = ""
+            if col_name not in gdf_schema:
+                status = "✅ DB only"
+            elif col_name not in db_schema:
+                status = "❌ MVT only"
+            else: # Both exist, compare types
+                 if col_name == 'geometry':
+                    if isinstance(db_type_obj, Geometry):
+                        status = "✅ OK"
+                    else:
+                        status = "❌ MISMATCH"
+                 elif pd.api.types.is_integer_dtype(gdf_schema[col_name]) and "INT" in db_type_str:
+                    status = "✅ OK"
+                 elif pd.api.types.is_float_dtype(gdf_schema[col_name]) and ("FLOAT" in db_type_str or "DOUBLE" in db_type_str):
+                    status = "✅ OK"
+                 elif pd.api.types.is_object_dtype(gdf_schema[col_name]) and "VARCHAR" in db_type_str or "TEXT" in db_type_str:
+                    status = "✅ OK"
+                 else:
+                    status = "❌ MISMATCH"
+
+            table.add_row(col_name, gdf_type_str, db_type_str, status)
+        
+        console = Console()
+        console.print(table)
 
 if __name__ == "__main__":
     app() 
