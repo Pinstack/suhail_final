@@ -125,5 +125,72 @@ def monitor(
     cmd = [sys.executable, str(script), action]
     subprocess.run(cmd, check=True)
 
+@app.command()
+def province_geometric(
+    province: str = typer.Argument(..., help="Province name: al_qassim, riyadh, madinah, asir, eastern, makkah"),
+    strategy: str = typer.Option("optimal", "--strategy", "-s", help="Discovery strategy: optimal, efficient, comprehensive"),
+    recreate_db: bool = typer.Option(False, "--recreate-db", help="Drop and recreate the database schema"),
+    save_as_temp: Optional[str] = typer.Option(None, "--save-as-temp", help="Save parcels to a temporary table"),
+):
+    """🏛️ Run geometric pipeline for a specific Saudi province using enhanced discovery."""
+    script = SCRIPT_ROOT / "scripts" / "run_geometric_pipeline.py"
+    cmd = [sys.executable, str(script), "--province", province, "--strategy", strategy]
+    if recreate_db:
+        cmd.append("--recreate-db")
+    if save_as_temp:
+        cmd += ["--save-as-temp", save_as_temp]
+    subprocess.run(cmd, check=True)
+
+@app.command()
+def saudi_arabia_geometric(
+    strategy: str = typer.Option("optimal", "--strategy", "-s", help="Discovery strategy: optimal, efficient, comprehensive"),
+    recreate_db: bool = typer.Option(False, "--recreate-db", help="Drop and recreate the database schema"),
+    save_as_temp: Optional[str] = typer.Option(None, "--save-as-temp", help="Save parcels to a temporary table"),
+):
+    """🇸🇦 Run geometric pipeline for ALL Saudi provinces (comprehensive coverage)."""
+    script = SCRIPT_ROOT / "scripts" / "run_geometric_pipeline.py"
+    cmd = [sys.executable, str(script), "--saudi-arabia", "--strategy", strategy]
+    if recreate_db:
+        cmd.append("--recreate-db")
+    if save_as_temp:
+        cmd += ["--save-as-temp", save_as_temp]
+    subprocess.run(cmd, check=True)
+
+@app.command()
+def discovery_summary():
+    """📊 Show enhanced province discovery capabilities and statistics."""
+    script = SCRIPT_ROOT / "scripts" / "show_discovery_summary.py"
+    cmd = [sys.executable, str(script)]
+    subprocess.run(cmd, check=True)
+
+@app.command()
+def province_pipeline(
+    province: str = typer.Argument(..., help="Province name: al_qassim, riyadh, madinah, asir, eastern, makkah"),
+    strategy: str = typer.Option("optimal", "--strategy", "-s", help="Discovery strategy"),
+    batch_size: int = typer.Option(300, "--batch-size", help="Enrichment batch size"),
+    geometric_first: bool = typer.Option(True, "--geometric-first", help="Run geometric pipeline first"),
+):
+    """🚀 Complete province pipeline: geometric + enrichment for specific province."""
+    script = SCRIPT_ROOT / "scripts" / "run_enrichment_pipeline.py"
+    cmd = [sys.executable, str(script), "province-pipeline", 
+           "--province", province, "--strategy", strategy, "--batch-size", str(batch_size)]
+    if not geometric_first:
+        cmd += ["--no-geometric-first"]
+    subprocess.run(cmd, check=True)
+
+@app.command()
+def saudi_pipeline(
+    strategy: str = typer.Option("efficient", "--strategy", "-s", help="Discovery strategy (efficient recommended for full country)"),
+    batch_size: int = typer.Option(500, "--batch-size", help="Enrichment batch size"),
+    geometric_first: bool = typer.Option(True, "--geometric-first", help="Run geometric pipeline first"),
+):
+    """🇸🇦 Complete Saudi Arabia pipeline: ALL provinces geometric + enrichment."""
+    script = SCRIPT_ROOT / "scripts" / "run_enrichment_pipeline.py"
+    cmd = [sys.executable, str(script), "saudi-pipeline", 
+           "--strategy", strategy, "--batch-size", str(batch_size)]
+    if not geometric_first:
+        cmd += ["--no-geometric-first"]
+    subprocess.run(cmd, check=True)
+
 if __name__ == "__main__":
     app()

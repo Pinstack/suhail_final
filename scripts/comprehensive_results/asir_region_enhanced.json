@@ -1,0 +1,34 @@
+{
+  "name": "Asir",
+  "server": "asir_region",
+  "total_parcels": 0,
+  "optimal_zoom": 11,
+  "data_hotspots": [],
+  "zoom_analysis": [
+    {
+      "zoom": 11,
+      "parcels": 0,
+      "size_kb": 0.0,
+      "data_found": false
+    },
+    {
+      "zoom": 12,
+      "parcels": 0,
+      "size_kb": 0.0,
+      "data_found": false
+    },
+    {
+      "zoom": 13,
+      "parcels": 0,
+      "size_kb": 0.0,
+      "data_found": false
+    },
+    {
+      "zoom": 14,
+      "parcels": 0,
+      "size_kb": 0.0,
+      "data_found": false
+    }
+  ],
+  "neighborhood_data": {}
+}

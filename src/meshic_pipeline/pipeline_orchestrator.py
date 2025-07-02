@@ -14,6 +14,7 @@ from tqdm import tqdm
 
 from .config import settings
 from .discovery.tile_endpoint_discovery import get_tile_coordinates_for_bounds, get_tile_coordinates_for_grid
+from .discovery.enhanced_province_discovery import get_enhanced_tile_coordinates, get_saudi_arabia_tiles, EnhancedProvinceDiscovery
 from .downloader.async_tile_downloader import AsyncTileDownloader
 from .decoder.mvt_decoder import MVTDecoder
 from .geometry.validator import validate_geometries
@@ -89,11 +90,14 @@ def decode_and_validate_tile(
 
 
 async def run_pipeline(
-    aoi_bbox: Tuple[float, float, float, float],
-    zoom: int,
+    aoi_bbox: Tuple[float, float, float, float] = None,
+    zoom: int = None,
     layers_override: List[str] | None = None,
     recreate_db: bool = False,
     save_as_temp: str | None = None,
+    province: str | None = None,
+    strategy: str = "optimal",
+    saudi_arabia_mode: bool = False,
 ) -> None:
     """
     Orchestrates the full pipeline from tile discovery to data persistence.
@@ -104,26 +108,54 @@ async def run_pipeline(
         layers_override: Optional list of layers to process instead of default
         recreate_db: Whether to recreate the database
         save_as_temp: Optional temp table name to save parcels data for delta comparison
+        province: Optional province name for enhanced discovery (al_qassim, riyadh, etc.)
+        strategy: Discovery strategy ("optimal", "efficient", "comprehensive")
+        saudi_arabia_mode: If True, process all Saudi provinces
     """
     layers_to_process = layers_override or settings.layers_to_process
-    logger.info("Starting pipeline run for AOI: %s at zoom %d", aoi_bbox, zoom)
+    zoom = zoom or settings.zoom
+    
+    logger.info("Starting pipeline run for AOI: %s at zoom %d", aoi_bbox or province or "grid", zoom)
     logger.debug("Using settings: %s", settings.model_dump_json(indent=2))
 
-    # 1. Discover tiles (grid if no bbox, else bounding box)
-    if aoi_bbox:
+    # Enhanced tile discovery with multiple modes
+    if saudi_arabia_mode:
+        # Process all Saudi Arabia provinces
+        tiles = get_saudi_arabia_tiles(strategy=strategy)
+        logger.info("🇸🇦 Saudi Arabia mode: Discovered %d tiles across all provinces", len(tiles))
+    elif province:
+        # Enhanced province discovery
+        tiles = get_enhanced_tile_coordinates(province=province, zoom=zoom, strategy=strategy)
+        logger.info("🏛️ Province mode (%s): Discovered %d tiles using %s strategy", province, len(tiles), strategy)
+    elif aoi_bbox:
+        # Traditional bbox discovery
         tiles = get_tile_coordinates_for_bounds(aoi_bbox, zoom)
+        logger.info("📦 Bbox mode: Discovered %d tiles for AOI", len(tiles))
     else:
+        # Default grid discovery
         tiles = get_tile_coordinates_for_grid(
             settings.center_x,
             settings.center_y,
             settings.grid_w,
             settings.grid_h,
-            settings.zoom,
+            zoom,
         )
-    logger.info("Discovered %d tiles to process at z%d", len(tiles), zoom)
+        logger.info("🔢 Grid mode: Discovered %d tiles for %dx%d grid", len(tiles), settings.grid_w, settings.grid_h)
 
-    # 2. Download tiles
-    async with AsyncTileDownloader() as dl:
+    # 2. Download tiles with province-specific server
+    # Determine the correct tile server based on mode
+    if province:
+        # Use province-specific server
+        tile_server = EnhancedProvinceDiscovery.get_province_server(province)
+        tile_base_url = f"https://tiles.suhail.ai/maps/{tile_server}"
+        logger.info("🌐 Using province-specific tile server: %s", tile_base_url)
+    else:
+        # Use default server from settings
+        tile_base_url = settings.tile_base_url
+        logger.info("🌐 Using default tile server: %s", tile_base_url)
+    
+    # Create downloader with correct base URL
+    async with AsyncTileDownloader(base_url=tile_base_url) as dl:
         raw_tiles = await dl.download_many(tiles)
 
     # Filter out empty tiles once to avoid re-checking in the loop

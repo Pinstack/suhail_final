@@ -1,0 +1,407 @@
+{
+  "timestamp": 1751472918.7145972,
+  "provinces": [
+    {
+      "name": "Al_Qassim",
+      "server": "al_qassim",
+      "total_parcels": 17484,
+      "optimal_zoom": 13,
+      "data_hotspots": [
+        [
+          11,
+          1273,
+          868
+        ],
+        [
+          11,
+          1274,
+          868
+        ],
+        [
+          12,
+          2546,
+          1736
+        ],
+        [
+          12,
+          2547,
+          1736
+        ],
+        [
+          12,
+          2548,
+          1736
+        ],
+        [
+          12,
+          2549,
+          1736
+        ],
+        [
+          12,
+          2546,
+          1737
+        ],
+        [
+          12,
+          2547,
+          1737
+        ],
+        [
+          12,
+          2548,
+          1737
+        ],
+        [
+          12,
+          2549,
+          1737
+        ],
+        [
+          13,
+          5094,
+          3473
+        ],
+        [
+          13,
+          5095,
+          3473
+        ],
+        [
+          13,
+          5096,
+          3473
+        ],
+        [
+          13,
+          5094,
+          3474
+        ],
+        [
+          13,
+          5095,
+          3474
+        ],
+        [
+          13,
+          5096,
+          3474
+        ],
+        [
+          14,
+          10190,
+          6947
+        ],
+        [
+          14,
+          10191,
+          6947
+        ],
+        [
+          14,
+          10192,
+          6947
+        ],
+        [
+          15,
+          20381,
+          13894
+        ],
+        [
+          15,
+          20382,
+          13894
+        ],
+        [
+          15,
+          20383,
+          13894
+        ],
+        [
+          15,
+          20381,
+          13895
+        ],
+        [
+          15,
+          20382,
+          13895
+        ],
+        [
+          15,
+          20383,
+          13895
+        ]
+      ],
+      "zoom_analysis": [
+        {
+          "zoom": 11,
+          "parcels": 1773,
+          "size_kb": 626.7705078125,
+          "data_found": true
+        },
+        {
+          "zoom": 12,
+          "parcels": 1840,
+          "size_kb": 690.7021484375,
+          "data_found": true
+        },
+        {
+          "zoom": 13,
+          "parcels": 8192,
+          "size_kb": 730.830078125,
+          "data_found": true
+        },
+        {
+          "zoom": 14,
+          "parcels": 1233,
+          "size_kb": 400.7001953125,
+          "data_found": true
+        },
+        {
+          "zoom": 15,
+          "parcels": 4446,
+          "size_kb": 1738.1162109375,
+          "data_found": true
+        }
+      ],
+      "neighborhood_data": {
+        "41000834": {
+          "totalMetricData": {
+            "landUseGroup": null,
+            "totalCount": 5.0,
+            "totalPrice": 1481843.0,
+            "totalCountGrowthIndicator": "UP",
+            "totalPriceGrowthIndicator": "UP",
+            "totalPriceGrowthValue": 121.17,
+            "totalCountGrowthValue": 150.0,
+            "median": null
+          },
+          "neighborhoodId": 41000834,
+          "neighborhoodName": "\u0627\u0644\u0635\u0641\u0631\u0627\u0621",
+          "provinceName": "\u0628\u0631\u064a\u062f\u0629",
+          "provinceId": 41000,
+          "landUseGroup": [
+            {
+              "landUseGroup": "\u0623\u0631\u0636 \u062a\u062c\u0627\u0631\u064a \u0633\u0643\u0646\u064a",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-05-07T00:00:00",
+                "priceOfMeter": 3201.0
+              },
+              "median": 1476.0
+            },
+            {
+              "landUseGroup": "\u0623\u0631\u0636 \u0633\u0643\u0646\u064a",
+              "totalCount": 4,
+              "totalPrice": 884200.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-06-22T00:00:00",
+                "priceOfMeter": 636.0
+              },
+              "median": 639.0
+            },
+            {
+              "landUseGroup": "\u0634\u0642\u0642",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-04-23T00:00:00",
+                "priceOfMeter": 1326.0
+              },
+              "median": 2163.0
+            },
+            {
+              "landUseGroup": "\u0641\u0644\u0644",
+              "totalCount": 1,
+              "totalPrice": 597643.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-06-25T00:00:00",
+                "priceOfMeter": 1470.0
+              },
+              "median": 1414.0
+            },
+            {
+              "landUseGroup": "\u0645\u0628\u0646\u0649 \u062a\u062c\u0627\u0631\u064a \u0633\u0643\u0646\u064a",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2024-12-04T00:00:00",
+                "priceOfMeter": 6366.0
+              },
+              "median": 4091.0
+            },
+            {
+              "landUseGroup": "\u0645\u0631\u0627\u0641\u0642",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-04-02T00:00:00",
+                "priceOfMeter": 550.0
+              },
+              "median": 1648.0
+            }
+          ],
+          "presentDate": "2025-06-30T00:00:00",
+          "pastDate": "2025-06-30T00:00:00",
+          "orgPastDate": "2024-07-31T00:00:00"
+        },
+        "41000778": {
+          "totalMetricData": {
+            "landUseGroup": null,
+            "totalCount": 0.0,
+            "totalPrice": 0.0,
+            "totalCountGrowthIndicator": "DOWN",
+            "totalPriceGrowthIndicator": "DOWN",
+            "totalPriceGrowthValue": 100.0,
+            "totalCountGrowthValue": 100.0,
+            "median": null
+          },
+          "neighborhoodId": 41000778,
+          "neighborhoodName": "\u0627\u0644\u062d\u0645\u0631\u0627\u0621",
+          "provinceName": "\u0628\u0631\u064a\u062f\u0629",
+          "provinceId": 41000,
+          "landUseGroup": [
+            {
+              "landUseGroup": "\u0623\u0631\u0636 \u062a\u062c\u0627\u0631\u064a",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2017-12-18T00:00:00",
+                "priceOfMeter": 1512.0
+              },
+              "median": 1512.0
+            },
+            {
+              "landUseGroup": "\u0623\u0631\u0636 \u062a\u062c\u0627\u0631\u064a \u0633\u0643\u0646\u064a",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-01-20T00:00:00",
+                "priceOfMeter": 1800.0
+              },
+              "median": 1880.0
+            },
+            {
+              "landUseGroup": "\u0623\u0631\u0636 \u0633\u0643\u0646\u064a",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-02-27T00:00:00",
+                "priceOfMeter": 1075.0
+              },
+              "median": 792.0
+            },
+            {
+              "landUseGroup": "\u0634\u0642\u0642",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2024-11-20T00:00:00",
+                "priceOfMeter": 2941.0
+              },
+              "median": 2445.0
+            },
+            {
+              "landUseGroup": "\u0641\u0644\u0644",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-03-17T00:00:00",
+                "priceOfMeter": 1568.0
+              },
+              "median": 2250.0
+            },
+            {
+              "landUseGroup": "\u0645\u0628\u0646\u0649 \u062a\u062c\u0627\u0631\u064a \u0633\u0643\u0646\u064a",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2023-09-12T00:00:00",
+                "priceOfMeter": 6716.0
+              },
+              "median": 6716.0
+            },
+            {
+              "landUseGroup": "\u0645\u0631\u0627\u0641\u0642",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-05-21T00:00:00",
+                "priceOfMeter": 1200.0
+              },
+              "median": 1380.0
+            }
+          ],
+          "presentDate": "2025-06-30T00:00:00",
+          "pastDate": "2025-06-30T00:00:00",
+          "orgPastDate": "2024-07-31T00:00:00"
+        },
+        "41000892": {
+          "totalMetricData": {
+            "landUseGroup": null,
+            "totalCount": 0.0,
+            "totalPrice": 0.0,
+            "totalCountGrowthIndicator": "UP",
+            "totalPriceGrowthIndicator": "UP",
+            "totalPriceGrowthValue": 0.0,
+            "totalCountGrowthValue": 0.0,
+            "median": null
+          },
+          "neighborhoodId": 41000892,
+          "neighborhoodName": "\u0627\u0644\u0645\u0646\u0627\u0631",
+          "provinceName": "\u0628\u0631\u064a\u062f\u0629",
+          "provinceId": 41000,
+          "landUseGroup": [
+            {
+              "landUseGroup": "\u0623\u0631\u0636 \u062a\u062c\u0627\u0631\u064a \u0633\u0643\u0646\u064a",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-02-05T00:00:00",
+                "priceOfMeter": 1667.0
+              },
+              "median": 900.0
+            },
+            {
+              "landUseGroup": "\u0623\u0631\u0636 \u0633\u0643\u0646\u064a",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-05-27T00:00:00",
+                "priceOfMeter": 759.0
+              },
+              "median": 650.0
+            },
+            {
+              "landUseGroup": "\u0634\u0642\u0642",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2024-09-22T00:00:00",
+                "priceOfMeter": 6862.0
+              },
+              "median": 2069.0
+            },
+            {
+              "landUseGroup": "\u0645\u0631\u0627\u0641\u0642",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-03-23T00:00:00",
+                "priceOfMeter": 1235.0
+              },
+              "median": 1466.0
+            }
+          ],
+          "presentDate": "2025-06-30T00:00:00",
+          "pastDate": "2025-06-30T00:00:00",
+          "orgPastDate": "2024-07-31T00:00:00"
+        }
+      }
+    }
+  ],
+  "total_parcels": 17484,
+  "total_hotspots": 25
+}

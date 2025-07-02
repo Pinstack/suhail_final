@@ -1,0 +1,81 @@
+# Enhanced Pipeline Configuration with Province Discovery
+# This extends the original pipeline_config.yaml with province-level discovery
+
+# Original grid settings (for backward compatibility)
+zoom: 15
+center_x: 20632  # Riyadh center
+center_y: 14061
+grid_w: 3
+grid_h: 3
+
+# Enhanced Province Discovery Settings
+enhanced_discovery:
+  enabled: true
+  default_strategy: "optimal"  # optimal, efficient, comprehensive
+  
+  # Province-specific configurations
+  provinces:
+    al_qassim:
+      total_parcels: 17484
+      server_name: "al_qassim"
+      optimal_zoom: 13
+    riyadh:
+      total_parcels: 13155
+      server_name: "riyadh"
+      optimal_zoom: 13
+    madinah:
+      total_parcels: 12429
+      server_name: "al_madenieh"
+      optimal_zoom: 13
+    asir:
+      total_parcels: 15417
+      server_name: "asir_region"
+      optimal_zoom: 13
+    eastern:
+      total_parcels: 8118
+      server_name: "eastern_region"
+      optimal_zoom: 13
+    makkah:
+      total_parcels: 7430
+      server_name: "makkah_region"
+      optimal_zoom: 13
+  
+  # Strategy definitions
+  strategies:
+    efficient:
+      description: "Zoom 11 discovery - 4x fewer HTTP requests"
+      zoom_level: 11
+      use_case: "Large area discovery, initial surveys"
+    optimal:
+      description: "Zoom 13 discovery - balanced performance/detail"
+      zoom_level: 13
+      use_case: "Production processing, most use cases"
+    comprehensive:
+      description: "Zoom 15 discovery - maximum detail"
+      zoom_level: 15
+      use_case: "High-precision extraction, final processing"
+
+# Layer configurations (unchanged)
+layers:
+  parcels: parcel_no
+  parcels-base: parcel_no
+  parcels-centroids: parcel_no
+  neighborhoods: neighborhood_id
+  neighborhoods-centroids: neighborhood_id
+  subdivisions: subdivision_id
+  dimensions: parcel_objectid
+  streets: null
+  sb_area: name
+  metro_lines: null
+  bus_lines: null
+  metro_stations: station_code
+  riyadh_bus_stations: station_code
+  qi_population_metrics: grid_id
+  qi_stripes: strip_id
+
+# Integration examples (documentation)
+usage_examples:
+  single_province: "python -m meshic_pipeline.cli province-geometric riyadh"
+  all_saudi: "python -m meshic_pipeline.cli saudi-arabia-geometric"
+  efficient_mode: "python -m meshic_pipeline.cli saudi-arabia-geometric --strategy efficient"
+  complete_pipeline: "python -m meshic_pipeline.cli province-pipeline al_qassim" 

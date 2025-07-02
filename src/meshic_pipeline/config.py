@@ -146,7 +146,7 @@ class Settings(BaseSettings):
     id_column_per_layer: Dict[str, str] = Field(
         default_factory=lambda: {
             "parcels": "parcel_objectid",
-            "parcels-centroids": "parcel_id",
+            "parcels-centroids": "parcel_no",
             "subdivisions": "subdivision_id",
             "neighborhoods": "neighborhood_id",
             "neighborhoods-centroids": "neighborhood_id",
@@ -165,35 +165,45 @@ class Settings(BaseSettings):
     aggregation_rules_per_layer: Dict[str, Dict[str, str]] = Field(
         default_factory=lambda: {
             "parcels": {
+                # Fields that actually exist in parcels layer at zoom 15
                 "shape_area": "first",
                 "transaction_price": "first",
                 "price_of_meter": "first", 
-                "neighborhood_id": "first",
-                "province_id": "first",
                 "landuseagroup": "first",
-                "landuseadetailed": "first",
                 "zoning_id": "first",
                 "subdivision_id": "first",
-                "block_no": "first",
                 "neighborhaname": "first",
                 "municipality_aname": "first",
                 "parcel_no": "first",
                 "subdivision_no": "first",
-                "zoning_color": "first",
-                "ruleid": "first",
-                "parcel_id": "first"
+                "zoning_color": "first"
             },
             "parcels-centroids": {
-                "parcel_no": "first",
-                "neighborhood_id": "first", 
-                "province_id": "first",
-                "transactions_count": "first",
+                # Fields that actually exist in parcels-centroids layer at zoom 15
                 "transaction_date": "first",
                 "transaction_price": "first", 
                 "price_of_meter": "first"
             },
-            "subdivisions": {"shape_area": "first"},
-            "neighborhoods": {"shape_area": "first"},
+            "neighborhoods": {
+                # Fields that actually exist in neighborhoods layer  
+                "shape_area": "first",
+                "region_id": "first",
+                "province_id": "first", 
+                "zoning_id": "first",
+                "zoning_color": "first",
+                "neighborh_aname": "first",
+                "transaction_price": "first",
+                "price_of_meter": "first"
+            },
+            "subdivisions": {
+                # Fields that actually exist in subdivisions layer
+                "shape_area": "first",
+                "subdivision_no": "first",
+                "zoning_id": "first",
+                "zoning_color": "first",
+                "transaction_price": "first",
+                "price_of_meter": "first"
+            },
         },
         description="Attribute aggregation rules for GeoPandas dissolve, per layer.",
     )

@@ -16,12 +16,17 @@ logger = logging.getLogger(__name__)
 class AsyncTileDownloader:
     """Manages asynchronous download and caching of MVT tiles."""
 
-    def __init__(self):
-        """Initializes the downloader using global application settings."""
+    def __init__(self, base_url: str = None):
+        """
+        Initializes the downloader using global application settings.
+        
+        Args:
+            base_url: Optional custom base URL for tiles. If None, uses settings.tile_base_url
+        """
         self.cache_dir = settings.cache_dir
         self.semaphore = asyncio.Semaphore(settings.max_concurrent_downloads)
         self.session: aiohttp.ClientSession | None = None
-        self.base_url = settings.tile_base_url.rstrip("/")
+        self.base_url = (base_url or settings.tile_base_url).rstrip("/")
 
     async def __aenter__(self):
         self.session = aiohttp.ClientSession()

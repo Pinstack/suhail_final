@@ -17,6 +17,16 @@ class PostGISPersister:
         'parcel_id', 'zoning_id', 'subdivision_id', 'neighborhood_id', 
         'province_id', 'municipality_id', 'region_id', 'parcel_objectid'
     }
+    
+    # Define expected numeric/float fields for proper schema creation
+    NUMERIC_FIELDS = {
+        'shape_area', 'transaction_price', 'price_of_meter', 'area', 'price'
+    }
+    
+    # Define string/varchar fields that should remain as large IDs (but as strings)
+    STRING_ID_FIELDS = {
+        'parcel_no', 'subdivision_no', 'block_no', 'cluster_id'
+    }
 
     def __init__(self, database_url: str):
         self.database_url = database_url
@@ -85,6 +95,38 @@ class PostGISPersister:
                         
                 except Exception as e:
                     logger.warning(f"Failed to cast {column} to integer: {e}")
+                    
+            elif column in self.NUMERIC_FIELDS:
+                # Cast numeric fields to float
+                try:
+                    # Convert to numeric, handling mixed types
+                    numeric_series = pd.to_numeric(
+                        validated_gdf[column], 
+                        errors='coerce'
+                    )
+                    
+                    # Use float64 type for numeric precision
+                    validated_gdf[column] = numeric_series.astype('float64')
+                    
+                    # Check for conversion failures
+                    null_count = validated_gdf[column].isna().sum()
+                    original_null_count = gdf[column].isna().sum()
+                    
+                    if null_count > original_null_count:
+                        logger.warning(
+                            f"Column {column}: {null_count - original_null_count} values "
+                            f"could not be converted to numeric and were set to null"
+                        )
+                        
+                except Exception as e:
+                    logger.warning(f"Failed to cast {column} to numeric: {e}")
+                    
+            elif column in self.STRING_ID_FIELDS:
+                # Ensure string ID fields are properly converted to string
+                try:
+                    validated_gdf[column] = validated_gdf[column].astype('string')
+                except Exception as e:
+                    logger.warning(f"Failed to cast {column} to string: {e}")
         
         return validated_gdf
 
@@ -126,9 +168,14 @@ class PostGISPersister:
             elif col_name in self.INTEGER_ID_FIELDS:
                 # Use BIGINT for integer ID fields
                 column_defs.append(f'"{col_name}" BIGINT')
+            elif col_name in self.NUMERIC_FIELDS:
+                # Use DOUBLE PRECISION for numeric fields (price, area, etc.)
+                column_defs.append(f'"{col_name}" DOUBLE PRECISION')
+            elif col_name in self.STRING_ID_FIELDS:
+                # Use VARCHAR for string-based identifiers
+                column_defs.append(f'"{col_name}" VARCHAR(50)')
             else:
-                # Default to TEXT for simplicity in a temp table.
-                # PostgreSQL is flexible with casting from TEXT.
+                # Default to TEXT for other fields (names, descriptions, etc.)
                 column_defs.append(f'"{col_name}" TEXT')
 
         create_sql = f'CREATE TABLE {schema}."{table_name}" ({", ".join(column_defs)});'

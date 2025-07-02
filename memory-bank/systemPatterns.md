@@ -12,13 +12,16 @@ MVT Tiles → PostGIS              PostGIS → API Enrichment → PostGIS
 ### **Modular Architecture**
 ```
 src/meshic_pipeline/
+├── discovery/         # ENHANCED: Province discovery + original tile discovery
+│   ├── tile_endpoint_discovery.py      # Original grid/bbox discovery
+│   └── enhanced_province_discovery.py  # NEW: Province-level discovery
 ├── geometry/          # Tile stitching and validation
 ├── decoder/           # MVT processing and type casting
 ├── downloader/        # Async tile downloading
 ├── enrichment/        # API client and async strategies
 ├── persistence/       # Database models and async operations
 ├── monitoring/        # Status tracking and recommendations
-└── cli.py            # Unified command interface
+└── cli.py            # ENHANCED: Unified command interface with province support
 ```
 
 ## Key Technical Decisions
@@ -84,6 +87,40 @@ async for tx_batch, rules_batch, metrics_batch in fast_worker(parcel_ids, batch_
 - **Implementation**: Pydantic settings with environment overrides
 - **Benefits**: Easy deployment across environments
 - **API Configuration**: Real Suhail endpoints with proper URL structure
+
+### **6. Enhanced Command-Line Interface** ⭐ **ENHANCED COMPONENT**
+- **Choice**: Unified CLI with province-level discovery capabilities
+- **Implementation**: Typer-based CLI with backward compatibility
+- **Enhancement**: 5 new commands for province and Saudi Arabia processing
+- **Benefits**: Streamlined operations from single grid to complete country
+
+**Original Commands (Unchanged)**:
+```bash
+# Existing geometric and enrichment commands work exactly as before
+python -m meshic_pipeline.cli geometric --bbox 46.5 24.0 47.0 24.5
+python -m meshic_pipeline.cli fast-enrich --batch-size 200
+python -m meshic_pipeline.cli smart-pipeline
+```
+
+**Enhanced Discovery Commands (New)**:
+```bash
+# Province-specific processing
+python -m meshic_pipeline.cli province-geometric riyadh --strategy efficient
+python -m meshic_pipeline.cli province-pipeline al_qassim
+
+# Complete Saudi Arabia processing  
+python -m meshic_pipeline.cli saudi-arabia-geometric --strategy optimal
+python -m meshic_pipeline.cli saudi-pipeline --strategy efficient
+
+# Discovery capabilities
+python -m meshic_pipeline.cli discovery-summary
+```
+
+**Command Integration Patterns**:
+- **Backward Compatibility**: All existing commands unchanged
+- **Progressive Enhancement**: New capabilities added without breaking changes
+- **Strategy Selection**: Configurable performance vs. detail optimization
+- **Scale Flexibility**: From single province to complete country processing
 
 ## Component Relationships
 
@@ -206,3 +243,41 @@ Province (1:N) → Neighborhood (1:N) → Parcel (1:N) → Transaction
 - **Maintainability**: Clear separation of concerns with async patterns
 - **Debugging**: Simpler call stacks and error tracing
 - **Resource Safety**: Automatic cleanup with async context managers 
+
+### **Enhanced Province Discovery System** ⭐ **NEW MAJOR COMPONENT**
+- **Purpose**: Comprehensive Saudi Arabia coverage with optimized tile discovery
+- **Location**: `src/meshic_pipeline/discovery/enhanced_province_discovery.py`
+- **Capability**: 74,033 parcels across 6 provinces vs. original 2,000 (37x increase)
+- **Integration**: Fully backward compatible with existing pipeline
+
+**Enhanced Discovery Architecture**:
+```
+Province Discovery → Hotspot Database → Strategy Selection → Tile Coordinates
+       ↓                    ↓                    ↓                    ↓
+Al-Qassim (17,484)   Pre-computed        Efficient (Zoom 11)    184 Total
+Asir (15,417)        Coordinates         Optimal (Zoom 13)      Hotspots
+Riyadh (13,155)      Browser Traffic     Comprehensive (Z15)    Verified
+Madinah (12,429)     Integration         Performance            Working
+Eastern (8,118)      Pattern Matching    Optimization           Coordinates
+Makkah (7,430)       Validation          Strategy               
+```
+
+**Discovery Strategies**:
+- **Efficient**: Zoom 11 (4x fewer HTTP requests) - Large area discovery
+- **Optimal**: Zoom 13 (balanced performance/detail) - Production processing  
+- **Comprehensive**: Zoom 15 (maximum granularity) - High-precision extraction
+
+**Integration Points**:
+```python
+# Enhanced pipeline orchestrator integration
+async def run_pipeline(
+    province: str = None,           # NEW: Province-specific discovery
+    strategy: str = "optimal",      # NEW: Strategy selection
+    saudi_arabia_mode: bool = False # NEW: Complete country processing
+):
+    if saudi_arabia_mode:
+        tiles = get_saudi_arabia_tiles(strategy=strategy)
+    elif province:
+        tiles = get_enhanced_tile_coordinates(province=province, strategy=strategy)
+    # Existing bbox and grid discovery unchanged
+``` 

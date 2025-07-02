@@ -1,0 +1,1506 @@
+{
+  "timestamp": 1751474484.032683,
+  "provinces": [
+    {
+      "name": "Al_Qassim",
+      "server": "al_qassim",
+      "total_parcels": 17484,
+      "optimal_zoom": 13,
+      "data_hotspots": [
+        [
+          11,
+          1273,
+          868
+        ],
+        [
+          11,
+          1274,
+          868
+        ],
+        [
+          12,
+          2546,
+          1736
+        ],
+        [
+          12,
+          2547,
+          1736
+        ],
+        [
+          12,
+          2548,
+          1736
+        ],
+        [
+          12,
+          2549,
+          1736
+        ],
+        [
+          12,
+          2546,
+          1737
+        ],
+        [
+          12,
+          2547,
+          1737
+        ],
+        [
+          12,
+          2548,
+          1737
+        ],
+        [
+          12,
+          2549,
+          1737
+        ],
+        [
+          13,
+          5094,
+          3473
+        ],
+        [
+          13,
+          5095,
+          3473
+        ],
+        [
+          13,
+          5096,
+          3473
+        ],
+        [
+          13,
+          5094,
+          3474
+        ],
+        [
+          13,
+          5095,
+          3474
+        ],
+        [
+          13,
+          5096,
+          3474
+        ],
+        [
+          14,
+          10190,
+          6947
+        ],
+        [
+          14,
+          10191,
+          6947
+        ],
+        [
+          14,
+          10192,
+          6947
+        ],
+        [
+          15,
+          20381,
+          13894
+        ],
+        [
+          15,
+          20382,
+          13894
+        ],
+        [
+          15,
+          20383,
+          13894
+        ],
+        [
+          15,
+          20381,
+          13895
+        ],
+        [
+          15,
+          20382,
+          13895
+        ],
+        [
+          15,
+          20383,
+          13895
+        ]
+      ],
+      "zoom_analysis": [
+        {
+          "zoom": 11,
+          "parcels": 1773,
+          "size_kb": 626.7705078125,
+          "data_found": true
+        },
+        {
+          "zoom": 12,
+          "parcels": 1840,
+          "size_kb": 690.7021484375,
+          "data_found": true
+        },
+        {
+          "zoom": 13,
+          "parcels": 8192,
+          "size_kb": 730.830078125,
+          "data_found": true
+        },
+        {
+          "zoom": 14,
+          "parcels": 1233,
+          "size_kb": 400.7001953125,
+          "data_found": true
+        },
+        {
+          "zoom": 15,
+          "parcels": 4446,
+          "size_kb": 1738.1162109375,
+          "data_found": true
+        }
+      ],
+      "neighborhood_data": {
+        "41000834": {
+          "totalMetricData": {
+            "landUseGroup": null,
+            "totalCount": 5.0,
+            "totalPrice": 1481843.0,
+            "totalCountGrowthIndicator": "UP",
+            "totalPriceGrowthIndicator": "UP",
+            "totalPriceGrowthValue": 121.17,
+            "totalCountGrowthValue": 150.0,
+            "median": null
+          },
+          "neighborhoodId": 41000834,
+          "neighborhoodName": "\u0627\u0644\u0635\u0641\u0631\u0627\u0621",
+          "provinceName": "\u0628\u0631\u064a\u062f\u0629",
+          "provinceId": 41000,
+          "landUseGroup": [
+            {
+              "landUseGroup": "\u0623\u0631\u0636 \u062a\u062c\u0627\u0631\u064a \u0633\u0643\u0646\u064a",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-05-07T00:00:00",
+                "priceOfMeter": 3201.0
+              },
+              "median": 1476.0
+            },
+            {
+              "landUseGroup": "\u0623\u0631\u0636 \u0633\u0643\u0646\u064a",
+              "totalCount": 4,
+              "totalPrice": 884200.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-06-22T00:00:00",
+                "priceOfMeter": 636.0
+              },
+              "median": 639.0
+            },
+            {
+              "landUseGroup": "\u0634\u0642\u0642",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-04-23T00:00:00",
+                "priceOfMeter": 1326.0
+              },
+              "median": 2163.0
+            },
+            {
+              "landUseGroup": "\u0641\u0644\u0644",
+              "totalCount": 1,
+              "totalPrice": 597643.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-06-25T00:00:00",
+                "priceOfMeter": 1470.0
+              },
+              "median": 1414.0
+            },
+            {
+              "landUseGroup": "\u0645\u0628\u0646\u0649 \u062a\u062c\u0627\u0631\u064a \u0633\u0643\u0646\u064a",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2024-12-04T00:00:00",
+                "priceOfMeter": 6366.0
+              },
+              "median": 4091.0
+            },
+            {
+              "landUseGroup": "\u0645\u0631\u0627\u0641\u0642",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-04-02T00:00:00",
+                "priceOfMeter": 550.0
+              },
+              "median": 1648.0
+            }
+          ],
+          "presentDate": "2025-06-30T00:00:00",
+          "pastDate": "2025-06-30T00:00:00",
+          "orgPastDate": "2024-07-31T00:00:00"
+        },
+        "41000778": {
+          "totalMetricData": {
+            "landUseGroup": null,
+            "totalCount": 0.0,
+            "totalPrice": 0.0,
+            "totalCountGrowthIndicator": "DOWN",
+            "totalPriceGrowthIndicator": "DOWN",
+            "totalPriceGrowthValue": 100.0,
+            "totalCountGrowthValue": 100.0,
+            "median": null
+          },
+          "neighborhoodId": 41000778,
+          "neighborhoodName": "\u0627\u0644\u062d\u0645\u0631\u0627\u0621",
+          "provinceName": "\u0628\u0631\u064a\u062f\u0629",
+          "provinceId": 41000,
+          "landUseGroup": [
+            {
+              "landUseGroup": "\u0623\u0631\u0636 \u062a\u062c\u0627\u0631\u064a",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2017-12-18T00:00:00",
+                "priceOfMeter": 1512.0
+              },
+              "median": 1512.0
+            },
+            {
+              "landUseGroup": "\u0623\u0631\u0636 \u062a\u062c\u0627\u0631\u064a \u0633\u0643\u0646\u064a",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-01-20T00:00:00",
+                "priceOfMeter": 1800.0
+              },
+              "median": 1880.0
+            },
+            {
+              "landUseGroup": "\u0623\u0631\u0636 \u0633\u0643\u0646\u064a",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-02-27T00:00:00",
+                "priceOfMeter": 1075.0
+              },
+              "median": 792.0
+            },
+            {
+              "landUseGroup": "\u0634\u0642\u0642",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2024-11-20T00:00:00",
+                "priceOfMeter": 2941.0
+              },
+              "median": 2445.0
+            },
+            {
+              "landUseGroup": "\u0641\u0644\u0644",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-03-17T00:00:00",
+                "priceOfMeter": 1568.0
+              },
+              "median": 2250.0
+            },
+            {
+              "landUseGroup": "\u0645\u0628\u0646\u0649 \u062a\u062c\u0627\u0631\u064a \u0633\u0643\u0646\u064a",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2023-09-12T00:00:00",
+                "priceOfMeter": 6716.0
+              },
+              "median": 6716.0
+            },
+            {
+              "landUseGroup": "\u0645\u0631\u0627\u0641\u0642",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-05-21T00:00:00",
+                "priceOfMeter": 1200.0
+              },
+              "median": 1380.0
+            }
+          ],
+          "presentDate": "2025-06-30T00:00:00",
+          "pastDate": "2025-06-30T00:00:00",
+          "orgPastDate": "2024-07-31T00:00:00"
+        },
+        "41000892": {
+          "totalMetricData": {
+            "landUseGroup": null,
+            "totalCount": 0.0,
+            "totalPrice": 0.0,
+            "totalCountGrowthIndicator": "UP",
+            "totalPriceGrowthIndicator": "UP",
+            "totalPriceGrowthValue": 0.0,
+            "totalCountGrowthValue": 0.0,
+            "median": null
+          },
+          "neighborhoodId": 41000892,
+          "neighborhoodName": "\u0627\u0644\u0645\u0646\u0627\u0631",
+          "provinceName": "\u0628\u0631\u064a\u062f\u0629",
+          "provinceId": 41000,
+          "landUseGroup": [
+            {
+              "landUseGroup": "\u0623\u0631\u0636 \u062a\u062c\u0627\u0631\u064a \u0633\u0643\u0646\u064a",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-02-05T00:00:00",
+                "priceOfMeter": 1667.0
+              },
+              "median": 900.0
+            },
+            {
+              "landUseGroup": "\u0623\u0631\u0636 \u0633\u0643\u0646\u064a",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-05-27T00:00:00",
+                "priceOfMeter": 759.0
+              },
+              "median": 650.0
+            },
+            {
+              "landUseGroup": "\u0634\u0642\u0642",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2024-09-22T00:00:00",
+                "priceOfMeter": 6862.0
+              },
+              "median": 2069.0
+            },
+            {
+              "landUseGroup": "\u0645\u0631\u0627\u0641\u0642",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-03-23T00:00:00",
+                "priceOfMeter": 1235.0
+              },
+              "median": 1466.0
+            }
+          ],
+          "presentDate": "2025-06-30T00:00:00",
+          "pastDate": "2025-06-30T00:00:00",
+          "orgPastDate": "2024-07-31T00:00:00"
+        }
+      }
+    },
+    {
+      "name": "Eastern",
+      "server": "eastern_region",
+      "total_parcels": 8118,
+      "optimal_zoom": 13,
+      "data_hotspots": [
+        [
+          11,
+          1307,
+          867
+        ],
+        [
+          11,
+          1307,
+          868
+        ],
+        [
+          11,
+          1307,
+          869
+        ],
+        [
+          11,
+          1308,
+          867
+        ],
+        [
+          11,
+          1308,
+          868
+        ],
+        [
+          11,
+          1308,
+          869
+        ],
+        [
+          11,
+          1309,
+          867
+        ],
+        [
+          11,
+          1309,
+          868
+        ],
+        [
+          11,
+          1309,
+          869
+        ],
+        [
+          12,
+          2616,
+          1736
+        ],
+        [
+          12,
+          2616,
+          1737
+        ],
+        [
+          12,
+          2616,
+          1738
+        ],
+        [
+          12,
+          2617,
+          1736
+        ],
+        [
+          12,
+          2617,
+          1737
+        ],
+        [
+          12,
+          2617,
+          1738
+        ],
+        [
+          12,
+          2618,
+          1736
+        ],
+        [
+          12,
+          2618,
+          1737
+        ],
+        [
+          12,
+          2618,
+          1738
+        ],
+        [
+          13,
+          5233,
+          3474
+        ],
+        [
+          13,
+          5233,
+          3475
+        ],
+        [
+          13,
+          5233,
+          3476
+        ],
+        [
+          13,
+          5234,
+          3474
+        ],
+        [
+          13,
+          5234,
+          3475
+        ],
+        [
+          13,
+          5234,
+          3476
+        ],
+        [
+          13,
+          5235,
+          3474
+        ],
+        [
+          13,
+          5235,
+          3475
+        ],
+        [
+          13,
+          5235,
+          3476
+        ],
+        [
+          14,
+          10468,
+          6949
+        ],
+        [
+          14,
+          10468,
+          6950
+        ],
+        [
+          14,
+          10468,
+          6951
+        ],
+        [
+          14,
+          10469,
+          6949
+        ],
+        [
+          14,
+          10469,
+          6950
+        ],
+        [
+          14,
+          10469,
+          6951
+        ],
+        [
+          14,
+          10470,
+          6949
+        ],
+        [
+          14,
+          10470,
+          6950
+        ],
+        [
+          14,
+          10470,
+          6951
+        ]
+      ],
+      "zoom_analysis": [
+        {
+          "zoom": 11,
+          "parcels": 2723,
+          "size_kb": 941.5341796875,
+          "data_found": true
+        },
+        {
+          "zoom": 12,
+          "parcels": 1411,
+          "size_kb": 411.3603515625,
+          "data_found": true
+        },
+        {
+          "zoom": 13,
+          "parcels": 3122,
+          "size_kb": 272.7509765625,
+          "data_found": true
+        },
+        {
+          "zoom": 14,
+          "parcels": 862,
+          "size_kb": 302.56640625,
+          "data_found": true
+        }
+      ],
+      "neighborhood_data": {}
+    },
+    {
+      "name": "Madinah",
+      "server": "al_madenieh",
+      "total_parcels": 12429,
+      "optimal_zoom": 13,
+      "data_hotspots": [
+        [
+          11,
+          1248,
+          879
+        ],
+        [
+          11,
+          1248,
+          880
+        ],
+        [
+          11,
+          1248,
+          881
+        ],
+        [
+          11,
+          1249,
+          879
+        ],
+        [
+          11,
+          1249,
+          880
+        ],
+        [
+          11,
+          1249,
+          881
+        ],
+        [
+          11,
+          1250,
+          879
+        ],
+        [
+          11,
+          1250,
+          880
+        ],
+        [
+          11,
+          1250,
+          881
+        ],
+        [
+          12,
+          2498,
+          1759
+        ],
+        [
+          12,
+          2498,
+          1760
+        ],
+        [
+          12,
+          2498,
+          1761
+        ],
+        [
+          12,
+          2499,
+          1759
+        ],
+        [
+          12,
+          2499,
+          1760
+        ],
+        [
+          12,
+          2499,
+          1761
+        ],
+        [
+          12,
+          2500,
+          1759
+        ],
+        [
+          12,
+          2500,
+          1760
+        ],
+        [
+          12,
+          2500,
+          1761
+        ],
+        [
+          13,
+          4997,
+          3519
+        ],
+        [
+          13,
+          4997,
+          3520
+        ],
+        [
+          13,
+          4997,
+          3521
+        ],
+        [
+          13,
+          4998,
+          3519
+        ],
+        [
+          13,
+          4998,
+          3520
+        ],
+        [
+          13,
+          4998,
+          3521
+        ],
+        [
+          13,
+          4999,
+          3519
+        ],
+        [
+          13,
+          4999,
+          3520
+        ],
+        [
+          13,
+          4999,
+          3521
+        ],
+        [
+          14,
+          9995,
+          7041
+        ],
+        [
+          14,
+          9995,
+          7042
+        ],
+        [
+          14,
+          9996,
+          7040
+        ],
+        [
+          14,
+          9996,
+          7041
+        ],
+        [
+          14,
+          9996,
+          7042
+        ],
+        [
+          14,
+          9997,
+          7040
+        ],
+        [
+          14,
+          9997,
+          7041
+        ],
+        [
+          14,
+          9997,
+          7042
+        ]
+      ],
+      "zoom_analysis": [
+        {
+          "zoom": 11,
+          "parcels": 2016,
+          "size_kb": 1147.8955078125,
+          "data_found": true
+        },
+        {
+          "zoom": 12,
+          "parcels": 1310,
+          "size_kb": 1052.16015625,
+          "data_found": true
+        },
+        {
+          "zoom": 13,
+          "parcels": 7011,
+          "size_kb": 998.7236328125,
+          "data_found": true
+        },
+        {
+          "zoom": 14,
+          "parcels": 2092,
+          "size_kb": 788.7119140625,
+          "data_found": true
+        }
+      ],
+      "neighborhood_data": {}
+    },
+    {
+      "name": "Makkah",
+      "server": "makkah_region",
+      "total_parcels": 7430,
+      "optimal_zoom": 13,
+      "data_hotspots": [
+        [
+          11,
+          1246,
+          897
+        ],
+        [
+          11,
+          1246,
+          898
+        ],
+        [
+          11,
+          1246,
+          899
+        ],
+        [
+          11,
+          1247,
+          897
+        ],
+        [
+          11,
+          1247,
+          898
+        ],
+        [
+          11,
+          1247,
+          899
+        ],
+        [
+          11,
+          1248,
+          899
+        ],
+        [
+          12,
+          2493,
+          1795
+        ],
+        [
+          12,
+          2493,
+          1796
+        ],
+        [
+          12,
+          2493,
+          1797
+        ],
+        [
+          12,
+          2494,
+          1795
+        ],
+        [
+          12,
+          2494,
+          1796
+        ],
+        [
+          12,
+          2494,
+          1797
+        ],
+        [
+          12,
+          2495,
+          1795
+        ],
+        [
+          12,
+          2495,
+          1796
+        ],
+        [
+          12,
+          2495,
+          1797
+        ],
+        [
+          13,
+          4988,
+          3591
+        ],
+        [
+          13,
+          4988,
+          3592
+        ],
+        [
+          13,
+          4988,
+          3593
+        ],
+        [
+          13,
+          4989,
+          3591
+        ],
+        [
+          13,
+          4989,
+          3592
+        ],
+        [
+          13,
+          4989,
+          3593
+        ],
+        [
+          13,
+          4990,
+          3592
+        ],
+        [
+          13,
+          4990,
+          3593
+        ],
+        [
+          14,
+          9978,
+          7184
+        ],
+        [
+          14,
+          9978,
+          7185
+        ],
+        [
+          14,
+          9978,
+          7186
+        ],
+        [
+          14,
+          9979,
+          7184
+        ],
+        [
+          14,
+          9979,
+          7185
+        ],
+        [
+          14,
+          9979,
+          7186
+        ],
+        [
+          14,
+          9980,
+          7185
+        ],
+        [
+          14,
+          9980,
+          7186
+        ]
+      ],
+      "zoom_analysis": [
+        {
+          "zoom": 11,
+          "parcels": 2168,
+          "size_kb": 648.439453125,
+          "data_found": true
+        },
+        {
+          "zoom": 12,
+          "parcels": 982,
+          "size_kb": 405.810546875,
+          "data_found": true
+        },
+        {
+          "zoom": 13,
+          "parcels": 3541,
+          "size_kb": 297.2470703125,
+          "data_found": true
+        },
+        {
+          "zoom": 14,
+          "parcels": 739,
+          "size_kb": 317.9638671875,
+          "data_found": true
+        }
+      ],
+      "neighborhood_data": {}
+    },
+    {
+      "name": "Asir",
+      "server": "asir_region",
+      "total_parcels": 15417,
+      "optimal_zoom": 13,
+      "data_hotspots": [
+        [
+          11,
+          1267,
+          917
+        ],
+        [
+          11,
+          1266,
+          917
+        ],
+        [
+          11,
+          1267,
+          918
+        ],
+        [
+          11,
+          1266,
+          918
+        ],
+        [
+          12,
+          2534,
+          1835
+        ],
+        [
+          12,
+          2533,
+          1835
+        ],
+        [
+          12,
+          2534,
+          1836
+        ],
+        [
+          12,
+          2533,
+          1836
+        ],
+        [
+          13,
+          5068,
+          3672
+        ],
+        [
+          13,
+          5069,
+          3671
+        ],
+        [
+          13,
+          5069,
+          3672
+        ],
+        [
+          13,
+          5068,
+          3671
+        ],
+        [
+          13,
+          5067,
+          3671
+        ],
+        [
+          13,
+          5067,
+          3672
+        ],
+        [
+          14,
+          10137,
+          7343
+        ],
+        [
+          14,
+          10136,
+          7343
+        ],
+        [
+          14,
+          10135,
+          7343
+        ],
+        [
+          15,
+          20273,
+          14687
+        ],
+        [
+          15,
+          20274,
+          14687
+        ],
+        [
+          15,
+          20272,
+          14687
+        ]
+      ],
+      "zoom_analysis": [
+        {
+          "zoom": 11,
+          "parcels": 1120,
+          "size_kb": 374.2255859375,
+          "data_found": true
+        },
+        {
+          "zoom": 12,
+          "parcels": 854,
+          "size_kb": 327.1142578125,
+          "data_found": true
+        },
+        {
+          "zoom": 13,
+          "parcels": 9173,
+          "size_kb": 701.35546875,
+          "data_found": true
+        },
+        {
+          "zoom": 14,
+          "parcels": 1804,
+          "size_kb": 327.3193359375,
+          "data_found": true
+        },
+        {
+          "zoom": 15,
+          "parcels": 2466,
+          "size_kb": 1008.212890625,
+          "data_found": true
+        }
+      ],
+      "neighborhood_data": {
+        "610012216": {
+          "totalMetricData": {
+            "landUseGroup": null,
+            "totalCount": 0.0,
+            "totalPrice": 0.0,
+            "totalCountGrowthIndicator": "DOWN",
+            "totalPriceGrowthIndicator": "DOWN",
+            "totalPriceGrowthValue": 100.0,
+            "totalCountGrowthValue": 100.0,
+            "median": null
+          },
+          "neighborhoodId": 610012216,
+          "neighborhoodName": "\u0627\u0644\u0639\u0632\u064a\u0632\u064a\u0629",
+          "provinceName": "\u062e\u0645\u064a\u0633 \u0645\u0634\u064a\u0637",
+          "provinceId": 61001,
+          "landUseGroup": [
+            {
+              "landUseGroup": "\u0623\u0631\u0636 \u0633\u0643\u0646\u064a",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-05-13T00:00:00",
+                "priceOfMeter": 1667.0
+              },
+              "median": 1220.0
+            },
+            {
+              "landUseGroup": "\u0634\u0642\u0642",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2024-10-03T00:00:00",
+                "priceOfMeter": 1082.0
+              },
+              "median": 1603.0
+            },
+            {
+              "landUseGroup": "\u0641\u0644\u0644",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-06-29T00:00:00",
+                "priceOfMeter": 2597.0
+              },
+              "median": 2235.0
+            }
+          ],
+          "presentDate": "2025-06-30T00:00:00",
+          "pastDate": "2025-06-30T00:00:00",
+          "orgPastDate": "2024-07-31T00:00:00"
+        },
+        "610012263": {
+          "totalMetricData": {
+            "landUseGroup": null,
+            "totalCount": 0.0,
+            "totalPrice": 0.0,
+            "totalCountGrowthIndicator": "DOWN",
+            "totalPriceGrowthIndicator": "DOWN",
+            "totalPriceGrowthValue": 100.0,
+            "totalCountGrowthValue": 100.0,
+            "median": null
+          },
+          "neighborhoodId": 610012263,
+          "neighborhoodName": "\u0634\u0628\u0627\u0639\u0629",
+          "provinceName": "\u062e\u0645\u064a\u0633 \u0645\u0634\u064a\u0637",
+          "provinceId": 61001,
+          "landUseGroup": [
+            {
+              "landUseGroup": "\u0623\u0631\u0636 \u062a\u062c\u0627\u0631\u064a \u0633\u0643\u0646\u064a",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2024-11-28T00:00:00",
+                "priceOfMeter": 1412.0
+              },
+              "median": 802.0
+            },
+            {
+              "landUseGroup": "\u0623\u0631\u0636 \u0633\u0643\u0646\u064a",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-06-22T00:00:00",
+                "priceOfMeter": 923.0
+              },
+              "median": 1343.0
+            },
+            {
+              "landUseGroup": "\u0634\u0642\u0642",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2023-12-21T00:00:00",
+                "priceOfMeter": 631.0
+              },
+              "median": 1235.0
+            },
+            {
+              "landUseGroup": "\u0641\u0644\u0644",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2025-05-26T00:00:00",
+                "priceOfMeter": 1987.0
+              },
+              "median": 2383.0
+            },
+            {
+              "landUseGroup": "\u0645\u0628\u0646\u0649 \u062a\u062c\u0627\u0631\u064a \u0633\u0643\u0646\u064a",
+              "totalCount": 0,
+              "totalPrice": 0.0,
+              "lastExecutionPrice": {
+                "transactionDate": "2019-04-22T00:00:00",
+                "priceOfMeter": 4706.0
+              },
+              "median": 4706.0
+            }
+          ],
+          "presentDate": "2025-06-30T00:00:00",
+          "pastDate": "2025-06-30T00:00:00",
+          "orgPastDate": "2024-07-31T00:00:00"
+        }
+      }
+    },
+    {
+      "name": "Riyadh",
+      "server": "riyadh",
+      "total_parcels": 13155,
+      "optimal_zoom": 13,
+      "data_hotspots": [
+        [
+          11,
+          1289,
+          876
+        ],
+        [
+          11,
+          1289,
+          877
+        ],
+        [
+          11,
+          1289,
+          878
+        ],
+        [
+          11,
+          1290,
+          876
+        ],
+        [
+          11,
+          1290,
+          877
+        ],
+        [
+          11,
+          1290,
+          878
+        ],
+        [
+          11,
+          1291,
+          876
+        ],
+        [
+          11,
+          1291,
+          877
+        ],
+        [
+          11,
+          1291,
+          878
+        ],
+        [
+          12,
+          2579,
+          1754
+        ],
+        [
+          12,
+          2579,
+          1755
+        ],
+        [
+          12,
+          2579,
+          1756
+        ],
+        [
+          12,
+          2580,
+          1754
+        ],
+        [
+          12,
+          2580,
+          1755
+        ],
+        [
+          12,
+          2580,
+          1756
+        ],
+        [
+          12,
+          2581,
+          1754
+        ],
+        [
+          12,
+          2581,
+          1755
+        ],
+        [
+          12,
+          2581,
+          1756
+        ],
+        [
+          13,
+          5160,
+          3510
+        ],
+        [
+          13,
+          5160,
+          3511
+        ],
+        [
+          13,
+          5160,
+          3512
+        ],
+        [
+          13,
+          5161,
+          3510
+        ],
+        [
+          13,
+          5161,
+          3511
+        ],
+        [
+          13,
+          5161,
+          3512
+        ],
+        [
+          13,
+          5162,
+          3510
+        ],
+        [
+          13,
+          5162,
+          3511
+        ],
+        [
+          13,
+          5162,
+          3512
+        ],
+        [
+          14,
+          10321,
+          7021
+        ],
+        [
+          14,
+          10321,
+          7022
+        ],
+        [
+          14,
+          10321,
+          7023
+        ],
+        [
+          14,
+          10322,
+          7021
+        ],
+        [
+          14,
+          10322,
+          7022
+        ],
+        [
+          14,
+          10322,
+          7023
+        ],
+        [
+          14,
+          10323,
+          7021
+        ],
+        [
+          14,
+          10323,
+          7022
+        ],
+        [
+          14,
+          10323,
+          7023
+        ]
+      ],
+      "zoom_analysis": [
+        {
+          "zoom": 11,
+          "parcels": 2832,
+          "size_kb": 2595.103515625,
+          "data_found": true
+        },
+        {
+          "zoom": 12,
+          "parcels": 1357,
+          "size_kb": 919.345703125,
+          "data_found": true
+        },
+        {
+          "zoom": 13,
+          "parcels": 7443,
+          "size_kb": 848.408203125,
+          "data_found": true
+        },
+        {
+          "zoom": 14,
+          "parcels": 1523,
+          "size_kb": 955.072265625,
+          "data_found": true
+        }
+      ],
+      "neighborhood_data": {}
+    }
+  ],
+  "total_parcels": 74033,
+  "total_hotspots": 184
+}
