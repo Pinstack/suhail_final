@@ -1,47 +1,56 @@
 # Project Brief: Suhail Geospatial Data Pipeline
 
 ## Project Overview
-The Suhail Final project is a sophisticated **two-stage geospatial data processing pipeline** designed for the Saudi real estate markets.
+Comprehensive MVT-based geospatial data processing and API enrichment pipeline for Riyadh real estate parcels. Currently processing central Riyadh region with plans for metropolitan area expansion.
 
-## Core Requirements
+## Core Specifications
 
-### Stage 1: Geometric Pipeline
-- Download and process geospatial shapes from Mapbox Vector Tiles (MVT)
-- Source: `https://tiles.suhail.ai/maps/riyadh/{z}/{x}/{y}.vector.pbf`
-- Coverage: Riyadh metropolitan area (15 layers, 1M+ parcels)
-- Output: PostGIS database with geometric features
+### **Current Scale (Development/Testing)**
+- **Coverage**: Central Riyadh test region (3x3 tile grid)
+- **Data Volume**: 9,007 land parcels with complete geometry
+- **Processing**: 9 MVT tiles at zoom level 15
+- **Geographic Area**: ~3.7 km² test coverage
 
-### Stage 2: Enrichment Pipeline
-- Fetch business intelligence data from external APIs
-- Transaction data: Historical real estate transactions
-- Building rules: Zoning and construction regulations
-- Price metrics: Market analysis and pricing trends
-- Smart processing with multiple enrichment strategies
+### **Production Scale Goals**
+- **Target Coverage**: Full Riyadh metropolitan area
+- **Future Grid**: Larger tile coverage (TBD based on testing)
+- **Projected Volume**: Scale up from current 9K parcels
+- **Layers**: 15 geospatial layers (parcels, neighborhoods, transport, etc.)
 
-## Key Goals
-1. **Performance**: High-speed asynchronous processing with 200+ concurrent connections
-2. **Efficiency**: 93.3% efficiency gain by only processing parcels with `transaction_price > 0`
-3. **Data Integrity**: Robust schema with foreign keys and referential integrity
-4. **Operational Excellence**: Comprehensive monitoring, CLI tools, and automated workflows
-5. **Scalability**: Handle 1M+ parcels with sub-second spatial queries
+## Requirements
 
-## Success Metrics
-- **Parcels**: 1,032,380 land parcels with geometric boundaries
-- **Transactions**: 45,526+ real estate transactions with enrichment data
-- **Building Rules**: 68,396+ zoning and construction regulations
-- **Price Metrics**: 752,963+ market analysis data points
-- **Processing Speed**: 1,000+ parcels/minute with optimized settings
+1. **MVT Processing**: Decode Mapbox Vector Tiles to PostGIS geometries
+2. **API Enrichment**: Integrate with Suhail API for transaction and zoning data  
+3. **Data Integrity**: Maintain referential integrity with proper foreign keys
+4. **Performance**: Sub-second spatial queries on current dataset
+5. **Scalability**: Architecture ready for metropolitan area expansion
 
-## Technology Stack
-- **Backend**: Python 3.9+, SQLAlchemy, Alembic
-- **Database**: PostgreSQL with PostGIS extension
-- **Geospatial**: GeoPandas, MVT tiles processing
-- **Async**: aiohttp for concurrent API processing
-- **CLI**: Multiple command-line interfaces for operations
+## Technical Constraints
 
-## Project Phases
-- ✅ Phase 1: Codebase restructuring and refactoring (COMPLETED)
-- ✅ Phase 2: Database schema and data integrity (COMPLETED)
-- ✅ Phase 2B: Pipeline source-level data type fixes (COMPLETED)
-- ✅ Delta Enrichment: MVT-based change detection (COMPLETED)
-- 🔄 Phase 2C: Standardize naming conventions (FUTURE) 
+- **Database**: PostgreSQL with PostGIS spatial extensions
+- **API Endpoint**: api2.suhail.ai for enrichment data
+- **Tile Server**: tiles.suhail.ai for MVT data
+- **Processing**: Python/SQLAlchemy with async capabilities
+- **Deployment**: Development environment with production readiness
+
+## Success Criteria
+
+### **Phase 1 (Current - Complete)**
+- ✅ 9,007 parcels successfully processed and stored
+- ✅ All 15 geospatial layers integrated
+- ✅ PostGIS spatial indexing operational
+- ✅ Foreign key relationships established
+
+### **Phase 2 (Next)**
+- 🎯 Expand tile grid coverage
+- 🎯 Process additional Riyadh districts
+- 🎯 Optimize for larger datasets
+- 🎯 Production deployment preparation
+
+## Deliverables
+
+1. **Geometric Pipeline**: Complete MVT processing system
+2. **Enrichment Pipeline**: API integration with 5 strategies
+3. **Database Schema**: 19 tables with proper relationships
+4. **CLI Tools**: Operational command interface
+5. **Documentation**: Comprehensive setup and operation guides 

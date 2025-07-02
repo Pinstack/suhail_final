@@ -1,47 +1,64 @@
-# Product Context: Suhail Geospatial Data Pipeline
+# Product Context: Suhail Geospatial Pipeline
 
-## Why This Project Exists
+## Vision
+Scalable geospatial data processing pipeline for Riyadh real estate parcels, currently operating at development scale with plans for metropolitan area expansion.
 
-The Suhail pipeline addresses critical needs in the Riyadh real estate market by providing comprehensive, accurate, and timely geospatial data processing for over 1 million land parcels.
+## Problem Statement
+- **Current State**: Manual, disconnected processing of geospatial parcel data
+- **Challenge**: Need efficient automated pipeline for MVT tiles and API enrichment
+- **Scale**: Starting with central Riyadh test region (9K parcels), preparing for city-wide expansion
 
-## Problems It Solves
+## Solution Overview
 
-### 1. **Data Integration Challenge**
-- **Problem**: Fragmented real estate data across multiple sources
-- **Solution**: Unified pipeline combining geometric data (MVT tiles) with business intelligence (APIs)
+### **Current Implementation**
+- **Development Scale**: 3x3 tile grid covering central Riyadh test area
+- **Data Processing**: 9,007 parcels with complete spatial and attribute data
+- **Integration**: API enrichment for transactions, zoning, and price metrics
+- **Architecture**: Two-stage pipeline (geometric + enrichment)
 
-### 2. **Scale and Performance**
-- **Problem**: Processing 1M+ parcels efficiently
-- **Solution**: Two-stage architecture with intelligent parcel selection (93.3% efficiency gain)
-
-### 3. **Data Freshness and Accuracy**
-- **Problem**: Keeping transaction data current and complete
-- **Solution**: Multiple enrichment strategies including delta detection and incremental updates
-
-### 4. **Operational Complexity**
-- **Problem**: Complex data pipelines requiring manual intervention
-- **Solution**: Automated monitoring, smart recommendations, and comprehensive CLI tools
+### **Target State**
+- **Production Scale**: Expanded coverage across Riyadh metropolitan area
+- **Enhanced Processing**: Larger tile grids with optimized performance
+- **Comprehensive Data**: Full city coverage with all enrichment sources
 
 ## How It Should Work
 
-### **Geometric Pipeline (Stage 1)**
-1. Download MVT tiles for Riyadh metropolitan area
-2. Process 15 different layers (parcels, neighborhoods, subdivisions, etc.)
-3. Stitch tile boundaries and validate geometries
-4. Store in PostGIS with spatial indexes
-5. **Key Insight**: Reveals parcels with `transaction_price > 0` for efficient enrichment
+### **User Experience Goals**
+1. **Simplified Operation**: Single CLI commands for entire workflows
+2. **Real-time Monitoring**: Status tracking and automated recommendations
+3. **Flexible Strategies**: Multiple enrichment approaches for different needs
+4. **Reliable Processing**: Robust error handling and recovery mechanisms
 
-### **Enrichment Pipeline (Stage 2)**
-1. **Smart Selection**: Only process parcels that need enrichment
-2. **Concurrent Processing**: 200+ API connections for maximum throughput
-3. **Multiple Strategies**:
-   - **Delta Enrichment**: MVT-based change detection (most precise)
-   - **Trigger-Based**: Process parcels with `transaction_price > 0` (maximum efficiency)
-   - **Incremental**: Time-based updates for new transactions
-   - **Full Refresh**: Complete data validation (quarterly)
+### **Technical Experience Goals**
+1. **Performance**: Sub-second spatial queries regardless of scale
+2. **Scalability**: Linear scaling from 9K to city-wide parcel coverage
+3. **Maintainability**: Clear modular architecture with proper abstractions
+4. **Observability**: Comprehensive logging and monitoring integration
 
-### **Monitoring and Operations**
-1. Real-time status tracking
-2. Automated scheduling recommendations
-3. Performance metrics and optimization
-4. Data integrity validation
+## Success Metrics
+
+### **Development Phase (Current)**
+- ✅ **Data Coverage**: 9,007 parcels successfully processed
+- ✅ **Quality**: 100% data completeness for current scope
+- ✅ **Integration**: 5 enrichment strategies operational
+- ✅ **Performance**: Sub-second queries on current dataset
+
+### **Production Phase (Future)**
+- 🎯 **Scale**: Expanded to full metropolitan area
+- 🎯 **Performance**: Maintained sub-second query times at scale
+- 🎯 **Reliability**: 99.9% uptime for processing operations
+- 🎯 **Efficiency**: Optimized resource usage for larger datasets
+
+## Business Value
+
+### **Current Value**
+- **Proof of Concept**: Validated technical approach with real data
+- **Foundation**: Established architecture for future scaling
+- **Integration**: Working API connections and data enrichment
+- **Quality**: Proper referential integrity and spatial accuracy
+
+### **Future Value**
+- **Scale Economics**: Automated processing for entire city
+- **Data Insights**: Comprehensive real estate analytics
+- **Decision Support**: Enriched spatial data for planning
+- **Operational Efficiency**: Reduced manual processing overhead
