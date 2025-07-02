@@ -1,0 +1,67 @@
+"""restore_foreign_keys_to_populated_tables
+
+Revision ID: [REVISION_ID]
+Revises: 645f4d2cad7f
+Create Date: [DATE]
+
+"""
+from typing import Sequence, Union
+
+from alembic import op
+import sqlalchemy as sa
+
+
+# revision identifiers, used by Alembic.
+revision: str = '[REVISION_ID]'
+down_revision: Union[str, Sequence[str], None] = '645f4d2cad7f'
+branch_labels: Union[str, Sequence[str], None] = None
+depends_on: Union[str, Sequence[str], None] = None
+
+
+def upgrade() -> None:
+    """Restore foreign keys now that reference tables are populated."""
+    
+    # Add foreign key constraints that are now valid
+    op.create_foreign_key(
+        'parcels_province_id_fkey',
+        'parcels', 'provinces',
+        ['province_id'], ['province_id'],
+        ondelete='SET NULL'
+    )
+    
+    op.create_foreign_key(
+        'parcels_ruleid_fkey', 
+        'parcels', 'zoning_rules',
+        ['ruleid'], ['ruleid'],
+        ondelete='SET NULL'
+    )
+    
+    op.create_foreign_key(
+        'neighborhoods_province_id_fkey',
+        'neighborhoods', 'provinces', 
+        ['province_id'], ['province_id'],
+        ondelete='SET NULL'
+    )
+    
+    op.create_foreign_key(
+        'municipalities_province_id_fkey',
+        'municipalities', 'provinces',
+        ['province_id'], ['province_id'], 
+        ondelete='SET NULL'
+    )
+    
+    op.create_foreign_key(
+        'subdivisions_province_id_fkey',
+        'subdivisions', 'provinces',
+        ['province_id'], ['province_id'],
+        ondelete='SET NULL'
+    )
+
+
+def downgrade() -> None:
+    """Remove the foreign key constraints."""
+    op.drop_constraint('parcels_province_id_fkey', 'parcels', type_='foreignkey')
+    op.drop_constraint('parcels_ruleid_fkey', 'parcels', type_='foreignkey') 
+    op.drop_constraint('neighborhoods_province_id_fkey', 'neighborhoods', type_='foreignkey')
+    op.drop_constraint('municipalities_province_id_fkey', 'municipalities', type_='foreignkey')
+    op.drop_constraint('subdivisions_province_id_fkey', 'subdivisions', type_='foreignkey') 

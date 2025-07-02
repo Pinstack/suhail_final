@@ -37,8 +37,8 @@ class Parcel(Base):
     price_of_meter = Column(Float)
     shape_area = Column(Float)
     zoning_color = Column(String)
-    ruleid = Column(String, nullable=True)  # Remove FK to empty zoning_rules table
-    province_id = Column(BigInteger, nullable=True)  # Remove FK to empty provinces table
+    ruleid = Column(String, ForeignKey('zoning_rules.ruleid'), nullable=True)
+    province_id = Column(BigInteger, ForeignKey('provinces.province_id'), nullable=True)
     municipality_aname = Column(String)
     parcel_id = Column(BigInteger)
     parcel_no = Column(String)
@@ -51,7 +51,8 @@ class Parcel(Base):
     enriched_at = Column(DateTime(timezone=True))
 
     neighborhood = relationship("Neighborhood", back_populates="parcels")
-    # province relationship removed - provinces table is empty
+    province = relationship("Province", back_populates="parcels")
+    zoning_rule = relationship("ZoningRule", back_populates="parcels")
     transactions = relationship("Transaction", back_populates="parcel")
     price_metrics = relationship("ParcelPriceMetric", back_populates="parcel")
     building_rules = relationship("BuildingRule", back_populates="parcel")
@@ -128,7 +129,7 @@ class Neighborhood(Base):
     geometry = Column(Geometry('GEOMETRY', srid=4326))
     neighborhood_name = Column(String)
     region_id = Column(BigInteger)
-    province_id = Column(BigInteger, nullable=True)  # Remove FK to empty provinces table
+    province_id = Column(BigInteger, ForeignKey('provinces.province_id'), nullable=True)
     price_of_meter = Column(Float)
     shape_area = Column(Float)
     transaction_price = Column(Float)
@@ -138,7 +139,7 @@ class Neighborhood(Base):
 
     parcels = relationship("Parcel", back_populates="neighborhood")
     price_metrics = relationship("ParcelPriceMetric", back_populates="neighborhood")
-    # province relationship removed - provinces table is empty
+    province = relationship("Province", back_populates="neighborhoods")
 
 class Province(Base):
     __tablename__ = 'provinces'
@@ -146,20 +147,19 @@ class Province(Base):
     province_name = Column(String)
     geometry = Column(Geometry('MULTIPOLYGON', srid=4326))
 
-    # Relationships commented out - this table is empty and not actively used
-    # parcels = relationship("Parcel", back_populates="province")
-    # neighborhoods = relationship("Neighborhood", back_populates="province")
-    # municipalities = relationship("Municipality", back_populates="province")
-    # subdivisions = relationship("Subdivision", back_populates="province")
+    parcels = relationship("Parcel", back_populates="province")
+    neighborhoods = relationship("Neighborhood", back_populates="province")
+    municipalities = relationship("Municipality", back_populates="province")
+    subdivisions = relationship("Subdivision", back_populates="province")
 
 class Municipality(Base):
     __tablename__ = 'municipalities'
     municipality_id = Column(BigInteger, primary_key=True)
     municipality_name = Column(String)
-    province_id = Column(BigInteger, nullable=True)  # Remove FK to empty provinces table
+    province_id = Column(BigInteger, ForeignKey('provinces.province_id'), nullable=True)
     geometry = Column(Geometry('MULTIPOLYGON', srid=4326))
 
-    # province relationship removed - provinces table is empty
+    province = relationship("Province", back_populates="municipalities")
 
 class Subdivision(Base):
     __tablename__ = 'subdivisions'
@@ -171,9 +171,9 @@ class Subdivision(Base):
     price_of_meter = Column(Float)
     zoning_id = Column(BigInteger)
     zoning_color = Column(String)
-    province_id = Column(BigInteger, nullable=True)  # Remove FK to empty provinces table
+    province_id = Column(BigInteger, ForeignKey('provinces.province_id'), nullable=True)
 
-    # province relationship removed - provinces table is empty
+    province = relationship("Province", back_populates="subdivisions")
 
 class ParcelsBase(Base):
     __tablename__ = 'parcels_base'
@@ -189,6 +189,8 @@ class ZoningRule(Base):
     __tablename__ = 'zoning_rules'
     ruleid = Column(String, primary_key=True)
     description = Column(String)
+    
+    parcels = relationship("Parcel", back_populates="zoning_rule")
 
 class LandUseGroup(Base):
     __tablename__ = 'land_use_groups'
