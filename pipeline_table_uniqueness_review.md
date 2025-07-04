@@ -1,6 +1,37 @@
-# Pipeline Table Uniqueness & Upsert Review
+# Pipeline Table Uniqueness & Upsert/Replace Review (July 2025)
 
-This document provides a comprehensive overview of all tables written to by the pipeline, their schemas, and the current state of unique/primary key constraints. It is intended for a developer unfamiliar with the project to make informed recommendations for upsert, replace, or append strategies for each table.
+## Current State (Post-Migration & Pipeline Test)
+
+### Tables with Unique Constraints (Upsert Enabled)
+- **parcels_centroids.parcel_no**: Unique constraint added, upsert works
+- **metro_stations.station_code**: Unique constraint added, upsert attempted (geometry type mismatch issue)
+- **riyadh_bus_stations.station_code**: Unique constraint added, upsert works
+- **qi_population_metrics.grid_id**: Unique constraint added, upsert works
+- **qi_stripes.strip_id**: Unique constraint added, upsert works
+
+### Tables in Replace Mode (No Unique Constraint)
+- **metro_lines**
+- **bus_lines**
+- **neighborhoods_centroids** (no unique id column)
+- Any other table not listed above
+
+### Known Issues
+- **neighborhoods_centroids**: No `neighborhood_id` column exists; pipeline and migration skip/err on this layer.
+- **metro_stations**: Geometry type mismatch (Polygon vs. Point) during upsert; upsert fails for this table until data/schema are aligned.
+- **metro_lines, bus_lines**: Pipeline attempts to group by None (no id column), resulting in errors; replace mode is correct, but code needs to skip grouping.
+
+### Recent Changes
+- Config and orchestrator updated to only upsert tables with unique constraints (see WHAT_TO_DO_NEXT_PIPELINE_TABLES.md)
+- Alembic migration applied: unique constraints added to all upsertable tables/columns that exist
+- Pipeline tested: upsert/replace logic confirmed for most tables
+
+### Next Steps
+- Update pipeline code to:
+  - Skip or handle layers where the expected ID column does not exist
+  - Ensure geometry types match schema for upsertable tables
+  - Avoid grouping by None for replace-mode tables
+- Communicate these issues and fixes to the team
+- See WHAT_TO_DO_NEXT_PIPELINE_TABLES.md for the full action plan and rationale
 
 ---
 

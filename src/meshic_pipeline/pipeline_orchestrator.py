@@ -191,8 +191,13 @@ async def run_pipeline(
 
             for result_list in pbar:
                 # Cache the results for the next pass
-                decoded_gdfs_cache.append(result_list)
+                patched_result_list = []
                 for _layer_name, gdf in result_list:
+                    # Apply Arabic column mapping centrally
+                    gdf = MVTDecoder.apply_arabic_column_mapping(None, gdf)
+                    patched_result_list.append((_layer_name, gdf))
+                decoded_gdfs_cache.append(patched_result_list)
+                for _layer_name, gdf in patched_result_list:
                     all_columns.update(gdf.columns)
 
         if not all_columns:
@@ -238,20 +243,16 @@ async def run_pipeline(
             "Persisting %d features for layer '%s' to table '%s'",
             len(stitched_gdf), layer, table_name
         )
-        
-        # Save to temp table if requested and this is the parcels layer
-        if save_as_temp and layer == "parcels":
-            logger.info(
-                "Saving parcels data to temporary table '%s' for delta comparison",
-                save_as_temp
-            )
+
+        # Determine write mode: upsert if id_col is set, else replace (see WHAT_TO_DO_NEXT_PIPELINE_TABLES.md)
+        if id_col:
             persister.write(
-                stitched_gdf, table=save_as_temp, if_exists="replace", chunksize=settings.db_chunk_size
+                stitched_gdf, layer, table_name, id_column=id_col, chunksize=settings.db_chunk_size
             )
-        
-        persister.write(
-            stitched_gdf, table=table_name, chunksize=settings.db_chunk_size
-        )
+        else:
+            persister.write(
+                stitched_gdf, layer, table_name, if_exists="replace", id_column=None, chunksize=settings.db_chunk_size
+            )
         logger.info("--- Finished processing for layer: %s ---", layer)
 
     logger.info("🎉 Pipeline finished successfully. 🎉") 

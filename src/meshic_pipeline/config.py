@@ -157,21 +157,25 @@ class Settings(BaseSettings):
     # --- Layer-specific Behavior ---
     id_column_per_layer: Dict[str, str] = Field(
         default_factory=lambda: {
+            # Only include tables with a unique constraint or primary key (see WHAT_TO_DO_NEXT_PIPELINE_TABLES.md)
             "parcels": "parcel_objectid",
             "parcels-centroids": "parcel_no",
             "subdivisions": "subdivision_id",
             "neighborhoods": "neighborhood_id",
             "neighborhoods-centroids": "neighborhood_id",
             "dimensions": "parcel_objectid",
-            "metro_lines": "busroute",
-            "bus_lines": "busroute", 
+            # The following are removed due to lack of reliable uniqueness:
+            # "metro_lines": "busroute",
+            # "bus_lines": "busroute",
+            # "sb_area": "name",
+            # ...
+            # Only add back if/when a unique constraint is added via Alembic
             "metro_stations": "station_code",
             "riyadh_bus_stations": "station_code",
             "qi_population_metrics": "grid_id",
             "qi_stripes": "strip_id",
-            "sb_area": "name",  # Use the 'name' field as the unique identifier
         },
-        description="Column to use as the unique ID for dissolving geometries, per layer.",
+        description="Column to use as the unique ID for dissolving geometries, per layer. Only tables with unique constraints should be listed here.",
     )
 
     aggregation_rules_per_layer: Dict[str, Dict[str, str]] = Field(
