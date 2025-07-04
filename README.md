@@ -312,6 +312,10 @@ python monitor_enrichment.py status
 - Use incremental enrichment for efficiency
 - Monitor with built-in tools for optimal scheduling
 
+## Clean Slate Protocol
+
+See [`CLEAN_SLATE_PROTOCOL.md`](./CLEAN_SLATE_PROTOCOL.md) for a step-by-step, safety-focused guide to resetting and rebuilding the spatial database environment for this project. **Use with caution: this protocol is destructive and intended for development environments only.**
+
 ---
 
 **🎯 This pipeline ensures comprehensive capture of all transaction data while maintaining high performance and operational reliability.**
