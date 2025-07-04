@@ -15,8 +15,7 @@ def mock_api_client():
     client.fetch_price_metrics.return_value = [ParcelPriceMetric(parcel_objectid=1, average_price_of_meter=100.0)]
     return client
 
-@pytest.mark.asyncio
-async def test_fast_worker_success(mock_api_client):
+def test_fast_worker_success(mock_api_client):
     parcel_ids = ["parcel1", "parcel2", "parcel3"]
     batch_size = 2
 
@@ -40,10 +39,13 @@ async def test_fast_worker_success(mock_api_client):
     all_rules = []
     all_metrics = []
 
-    async for transactions, rules, metrics in fast_worker(parcel_ids, batch_size, mock_api_client):
-        all_transactions.extend(transactions)
-        all_rules.extend(rules)
-        all_metrics.extend(metrics)
+    async def run():
+        async for transactions, rules, metrics in fast_worker(parcel_ids, batch_size, mock_api_client):
+            all_transactions.extend(transactions)
+            all_rules.extend(rules)
+            all_metrics.extend(metrics)
+
+    asyncio.run(run())
 
     assert len(all_transactions) == 3
     assert len(all_rules) == 3
@@ -54,8 +56,7 @@ async def test_fast_worker_success(mock_api_client):
     assert mock_api_client.fetch_building_rules.call_count == 3
     assert mock_api_client.fetch_price_metrics.call_count == 2
 
-@pytest.mark.asyncio
-async def test_fast_worker_api_error(mock_api_client):
+def test_fast_worker_api_error(mock_api_client):
     parcel_ids = ["parcel1"]
     batch_size = 1
 
@@ -67,10 +68,13 @@ async def test_fast_worker_api_error(mock_api_client):
     all_rules = []
     all_metrics = []
 
-    async for transactions, rules, metrics in fast_worker(parcel_ids, batch_size, mock_api_client):
-        all_transactions.extend(transactions)
-        all_rules.extend(rules)
-        all_metrics.extend(metrics)
+    async def run():
+        async for transactions, rules, metrics in fast_worker(parcel_ids, batch_size, mock_api_client):
+            all_transactions.extend(transactions)
+            all_rules.extend(rules)
+            all_metrics.extend(metrics)
+
+    asyncio.run(run())
 
     assert len(all_transactions) == 0
     assert len(all_rules) == 0

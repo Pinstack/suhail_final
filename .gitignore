@@ -172,3 +172,4 @@ tile_list.txt
 
 # Package metadata
 *.egg-info/
+src/meshic-pipeline/

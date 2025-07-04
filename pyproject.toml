@@ -59,6 +59,7 @@ where = ["src"]
 [tool.pytest.ini_options]
 pythonpath = ["src", "scripts"]
 asyncio_mode = "auto"
+testpaths = ["tests"]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "real_data: marks tests that use real data (deselect with '-m \"not real_data\"')",
