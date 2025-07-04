@@ -33,6 +33,14 @@
 - Communicate these issues and fixes to the team
 - See WHAT_TO_DO_NEXT_PIPELINE_TABLES.md for the full action plan and rationale
 
+## July 2025 Update: Geometry & Type Casting Issues Resolved
+
+- Geometry type mismatches for `metro_stations` and `riyadh_bus_stations` are fully resolved: only Point geometries are written to the database for these layers.
+- `subdivision_id` is now robustly handled: values are cast to integer where possible, and fallback to string with a warning if not. No pipeline interruptions or excessive warnings occur.
+- All other layers process as expected.
+- The pipeline is now stable, robust, and ready for further development, production runs, or handoff.
+- **Merge to main is now appropriate if all tests pass.**
+
 ---
 
 ## Table of Contents

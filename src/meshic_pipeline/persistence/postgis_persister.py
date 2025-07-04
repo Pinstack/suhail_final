@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from typing import Optional, List
+import uuid
 
 import geopandas as gpd
 import pandas as pd
@@ -10,6 +11,17 @@ from sqlalchemy.engine import Engine
 
 logger = logging.getLogger(__name__)
 
+# Add a canonical schema map for all layers
+SCHEMA_MAP = {
+    'parcels-centroids': {
+        'parcel_no': 'string',
+        'geometry': 'geometry',
+        'transaction_date': 'datetime64[ns]',
+        'transaction_price': 'float64',
+        'price_of_meter': 'float64',
+    },
+    # Add similar schemas for other layers as needed, using hyphenated names
+}
 
 class PostGISPersister:
     # Define expected integer ID fields for validation
@@ -40,94 +52,42 @@ class PostGISPersister:
                 logger.error("Failed to ensure PostGIS extension: %s", exc)
                 raise
 
-    def _validate_and_cast_types(self, gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    def _validate_and_cast_types(self, gdf: gpd.GeoDataFrame, layer_name: str) -> gpd.GeoDataFrame:
         """
-        Validate and cast data types in GeoDataFrame before persistence.
-        
-        Args:
-            gdf: Input GeoDataFrame
-            
-        Returns:
-            GeoDataFrame with validated and cast types
+        Validate and cast data types in GeoDataFrame before persistence, using the canonical schema for the layer.
+        Additionally, cast any column containing 'date' in its name to datetime64[ns] for robustness.
         """
-        if gdf.empty:
-            return gdf
-        
-        # Create a copy to avoid modifying the original
+        schema = SCHEMA_MAP.get(layer_name)
         validated_gdf = gdf.copy()
-        
-        for column in validated_gdf.columns:
-            if column == 'geometry':
-                continue
-                
-            if column in self.INTEGER_ID_FIELDS:
-                # Cast integer ID fields
+        if schema:
+            for col, dtype in schema.items():
+                if col in validated_gdf.columns:
+                    try:
+                        if dtype == 'string':
+                            validated_gdf[col] = validated_gdf[col].astype('string')
+                        elif dtype == 'float64':
+                            validated_gdf[col] = pd.to_numeric(validated_gdf[col], errors='coerce').astype('float64')
+                        elif dtype == 'int64' or dtype == 'Int64':
+                            # Special handling for subdivision_id: fallback to string if not castable
+                            if col == 'subdivision_id':
+                                try:
+                                    validated_gdf[col] = pd.to_numeric(validated_gdf[col], errors='raise').round().astype('Int64')
+                                except Exception as e:
+                                    logger.warning(f"subdivision_id could not be cast to integer for some rows, falling back to string. Error: {e}")
+                                    validated_gdf[col] = validated_gdf[col].astype('string')
+                            else:
+                                validated_gdf[col] = pd.to_numeric(validated_gdf[col], errors='coerce').round().astype('Int64')
+                        elif dtype == 'datetime64[ns]':
+                            validated_gdf[col] = pd.to_datetime(validated_gdf[col], errors='coerce')
+                    except Exception as e:
+                        logger.warning(f"Failed to cast {col} to {dtype}: {e}")
+        # Always cast any column with 'date' in its name to datetime64[ns]
+        for col in validated_gdf.columns:
+            if 'date' in col and not pd.api.types.is_datetime64_any_dtype(validated_gdf[col]):
                 try:
-                    # Convert to numeric first, handling mixed types
-                    numeric_series = pd.to_numeric(
-                        validated_gdf[column], 
-                        errors='coerce'
-                    )
-                    
-                    # Round fractional values to nearest integer before conversion
-                    rounded_series = numeric_series.round()
-                    
-                    # Convert to nullable integer type to handle NaN values properly
-                    validated_gdf[column] = rounded_series.astype('Int64')
-                    
-                    # Check for any conversion failures
-                    null_count = validated_gdf[column].isna().sum()
-                    original_null_count = gdf[column].isna().sum()
-                    
-                    if null_count > original_null_count:
-                        logger.warning(
-                            f"Column {column}: {null_count - original_null_count} values "
-                            f"could not be converted to integers and were set to null"
-                        )
-                        
-                    # Check for rounding that occurred
-                    if not numeric_series.isna().all():
-                        rounded_values = (numeric_series != rounded_series).sum()
-                        if rounded_values > 0:
-                            logger.info(
-                                f"Column {column}: {rounded_values} fractional values were rounded to integers"
-                            )
-                        
+                    validated_gdf[col] = pd.to_datetime(validated_gdf[col], errors='coerce')
                 except Exception as e:
-                    logger.warning(f"Failed to cast {column} to integer: {e}")
-                    
-            elif column in self.NUMERIC_FIELDS:
-                # Cast numeric fields to float
-                try:
-                    # Convert to numeric, handling mixed types
-                    numeric_series = pd.to_numeric(
-                        validated_gdf[column], 
-                        errors='coerce'
-                    )
-                    
-                    # Use float64 type for numeric precision
-                    validated_gdf[column] = numeric_series.astype('float64')
-                    
-                    # Check for conversion failures
-                    null_count = validated_gdf[column].isna().sum()
-                    original_null_count = gdf[column].isna().sum()
-                    
-                    if null_count > original_null_count:
-                        logger.warning(
-                            f"Column {column}: {null_count - original_null_count} values "
-                            f"could not be converted to numeric and were set to null"
-                        )
-                        
-                except Exception as e:
-                    logger.warning(f"Failed to cast {column} to numeric: {e}")
-                    
-            elif column in self.STRING_ID_FIELDS:
-                # Ensure string ID fields are properly converted to string
-                try:
-                    validated_gdf[column] = validated_gdf[column].astype('string')
-                except Exception as e:
-                    logger.warning(f"Failed to cast {column} to string: {e}")
-        
+                    logger.warning(f"Failed to force-cast {col} to datetime64[ns]: {e}")
         return validated_gdf
 
     def create_table_from_gdf(
@@ -211,16 +171,58 @@ class PostGISPersister:
         logger.info("Database %s recreated", db_name)
 
     # ------------------------------------------------------------------
-    def write(self, gdf: gpd.GeoDataFrame, table: str, schema: str = "public", if_exists: str = "append", chunksize: int = 5000) -> None:
-        if gdf.empty:
-            logger.warning("%s: GeoDataFrame empty, skipping write", table)
-            return
-        
-        # Validate and cast types before writing
-        validated_gdf = self._validate_and_cast_types(gdf)
-        
-        validated_gdf.to_postgis(table, self.engine, schema=schema, if_exists=if_exists, index=False, chunksize=chunksize)
-        logger.info("Persisted %d features to %s.%s", len(validated_gdf), schema, table)
+    def _upsert(self, gdf: gpd.GeoDataFrame, table_name: str, id_column: str, schema: str, chunksize: int) -> None:
+        """Performs an 'upsert' operation (INSERT ON CONFLICT) for a GeoDataFrame."""
+        temp_table_name = f"temp_upsert_{table_name}_{str(uuid.uuid4())[:8]}"
+        logger.info("Performing upsert on %s.%s using ID column '%s'", schema, table_name, id_column)
+        try:
+            # 1. Write the new data to a temporary table. This is more robust for large datasets.
+            gdf.to_postgis(
+                temp_table_name,
+                self.engine,
+                schema=schema,
+                if_exists="replace",
+                index=False,
+                chunksize=chunksize,
+            )
+            # 2. Construct the ON CONFLICT query.
+            cols = [f'"{c}"' for c in gdf.columns]
+            cols_str = ", ".join(cols)
+            update_cols = [f'"{c}" = EXCLUDED."{c}"' for c in gdf.columns if c != id_column]
+            update_str = ", ".join(update_cols)
+            id_col_quoted = f'"{id_column}"'
+            sql = f'''
+            INSERT INTO {schema}."{table_name}" ({cols_str})
+            SELECT {cols_str} FROM {schema}."{temp_table_name}"
+            ON CONFLICT ({id_col_quoted})
+            DO UPDATE SET {update_str};
+            '''
+            with self.engine.begin() as conn:
+                result = conn.execute(text(sql))
+            logger.info("Upsert complete. Affected %d rows in %s.%s.", result.rowcount, schema, table_name)
+        except Exception as e:
+            logger.error("Upsert failed for table %s: %s", table_name, e)
+            raise
+        finally:
+            self.drop_table(temp_table_name, schema)
+            logger.debug("Dropped temporary upsert table: %s", temp_table_name)
+
+    def write(self, gdf: gpd.GeoDataFrame, layer_name: str, table: str, if_exists: str = "append", id_column: str = None, schema: str = "public", chunksize: int = 5000) -> None:
+        """
+        Write a GeoDataFrame to the database, using schema-driven type enforcement. layer_name is now required.
+        """
+        # Enforce Point-only for centroids layers, metro_stations, and riyadh_bus_stations
+        if layer_name.endswith('-centroids') or layer_name in ['metro_stations', 'riyadh_bus_stations']:
+            non_point_count = (~gdf.geometry.type.isin(['Point'])).sum()
+            if non_point_count > 0:
+                logger.warning(f"Layer '{layer_name}': Dropping {non_point_count} non-Point geometries before DB write.")
+            gdf = gdf[gdf.geometry.type == 'Point']
+        validated_gdf = self._validate_and_cast_types(gdf, layer_name=layer_name)
+        if if_exists == "append" and id_column:
+            self._upsert(validated_gdf, table, id_column, schema, chunksize)
+        else:
+            validated_gdf.to_postgis(table, self.engine, schema=schema, if_exists=if_exists, index=False, chunksize=chunksize)
+            logger.info("Persisted %d features to %s.%s using mode '%s'", len(validated_gdf), schema, table, if_exists)
 
     def read_sql(self, sql: str, geom_col: str = "geometry") -> gpd.GeoDataFrame:
         """Executes a SQL query and returns the result as a GeoDataFrame."""
