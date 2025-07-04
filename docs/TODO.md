@@ -25,7 +25,7 @@ This document outlines the implementation plan for the Meshic Geospatial Data Pi
 - ✅ **Testing Branch**: `test/3x3-riyadh-baseline` ready for validation
 - ✅ **Cleanup**: All outdated files removed (27 files, 5,756 deletions)
 
-### **1.2 3x3 Riyadh Baseline Test** 🔄 **IN PROGRESS**
+### **1.2 3x3 Riyadh Baseline Test** ✅ **COMPLETED**
 **Priority**: HIGH - Validate basic pipeline with fresh database
 
 **Scope**: 
@@ -34,17 +34,18 @@ This document outlines the implementation plan for the Meshic Geospatial Data Pi
 - **Purpose**: Confirm pipeline + database integration works
 
 **Tasks**:
-- [ ] **Source Environment**: Activate `.venv` before running commands
-- [ ] **Run Geometric Pipeline**: `meshic-pipeline geometric` (or `python -m meshic_pipeline.cli geometric`)
-- [ ] **Verify Database Population**: Check parcels, neighborhoods, subdivisions tables
-- [ ] **Validate Schema**: Confirm data types and foreign key relationships
-- [ ] **Performance Check**: Measure processing time and memory usage
+- [x] **Source Environment**: Activate `.venv` before running commands
+- [x] **Run Geometric Pipeline**: `meshic-pipeline geometric` (or `python -m meshic_pipeline.cli geometric`)
+- [x] **Verify Database Population**: Check parcels, neighborhoods, subdivisions tables
+- [x] **Validate Schema**: Confirm data types and foreign key relationships
+- [x] **Performance Check**: Measure processing time and memory usage
 
-**Expected Results**:
-- Parcels table populated with spatial data
-- All reference tables (provinces, municipalities, etc.) populated
+**Results:**
+- Parcels table and reference tables populated with spatial data
 - Foreign key relationships working
 - No pipeline errors or data corruption
+- Geometry column registration and type casting issues resolved
+- Pipeline now runs successfully for all layers
 
 **Git Strategy**:
 ```bash
