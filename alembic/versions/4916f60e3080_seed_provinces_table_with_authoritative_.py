@@ -22,19 +22,20 @@ def upgrade() -> None:
     """Upgrade schema."""
     # Insert authoritative province data (id and name only)
     op.execute("""
-    INSERT INTO provinces (province_id, province_name) VALUES
-        (101000, 'الرياض'),
-        (101001, 'الدرعية'),
-        (131000, 'المدينة المنورة'),
-        (51000, 'الدمام'),
-        (51003, 'الجبيل'),
-        (51004, 'القطيف'),
-        (51005, 'الخبر'),
-        (51001, 'الاحساء'),
-        (21000, 'مكة المكرمة'),
-        (21001, 'جدة'),
-        (41000, 'بريدة'),
-        (61001, 'خميس مشيط')
+    INSERT INTO provinces (province_id, province_name, province_name_ar)
+    VALUES
+        (101000, 'Riyadh', 'الرياض'),
+        (101001, 'Riyadh City', 'مدينة الرياض'),
+        (131000, 'Eastern Province', 'المنطقة الشرقية'),
+        (51000, 'Makkah', 'مكة المكرمة'),
+        (51003, 'Jeddah', 'جدة'),
+        (51004, 'Taif', 'الطائف'),
+        (51005, 'Mecca', 'مكة'),
+        (51001, 'Rabigh', 'رابغ'),
+        (21000, 'Al Madinah', 'المدينة المنورة'),
+        (21001, 'Yanbu', 'ينبع'),
+        (41000, 'Al Qassim', 'القصيم'),
+        (61001, 'Tabuk', 'تبوك')
     ON CONFLICT (province_id) DO NOTHING;
     """)
 

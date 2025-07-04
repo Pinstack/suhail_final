@@ -61,6 +61,58 @@ git commit -m "test: validate 3x3 baseline with fresh database
 git tag v0.1.1-3x3-validated
 ```
 
+### **1.2b Current Bottleneck: Geometry Column Registration Issue** 🚧
+
+**Knowns:**
+- The 3x3 geometric pipeline runs and produces data, but fails at the database persistence step with a PostGIS SRID error:
+  > `find_srid() - could not find the corresponding SRID - is the geometry registered in the GEOMETRY_COLUMNS table?`
+- Inspection of the `geometry_columns` table shows only `geometry_full`, `geometry_base`, and `geometry_centroid` columns are registered for the `parcels` table.
+- There is **no column named `geometry`** registered for the `parcels` table, which is what the pipeline and Alembic migration expect.
+- The Alembic migration and model both define the geometry column as `geometry` (type: `MULTIPOLYGON`, SRID: 4326).
+- The database is fresh, with no legacy migrations or data.
+
+**Assumptions:**
+- The error is caused by a mismatch between the expected geometry column name (`geometry`) and the actual registered columns (`geometry_full`, `geometry_base`, etc.).
+- The pipeline and/or migration may be creating or referencing the wrong geometry column name, or the table was created with a different name and not updated.
+- Fixing this will require aligning the column name in the migration/model and the database, then re-running migrations and verifying registration in `geometry_columns`.
+
+**Next Steps:**
+- [ ] Update Alembic migration and model to ensure the geometry column is named exactly `geometry`.
+- [ ] Drop and recreate the database (since there is no data).
+- [ ] Re-run migrations and verify that `geometry_columns` includes `parcels | geometry`.
+- [ ] Re-run the 3x3 geometric pipeline test.
+
+### **1.2a Post-Baseline Test Plan** 🧪 **(To be executed after 3x3 grid validation)**
+
+**Objective:** Ensure pipeline correctness, data integrity, and prevent regressions after establishing a working baseline.
+
+**Test Types & Priorities:**
+- **Unit Tests:**
+  - Test isolated utility functions (e.g., tile decoding, geometry processing, API client logic).
+  - Focus on edge cases and error handling.
+- **Integration Tests:**
+  - Validate end-to-end pipeline stages (tile download → decode → DB insert → enrichment).
+  - Use test DB or fixtures to ensure data flows correctly.
+- **Data Validation Tests:**
+  - Check referential integrity (foreign keys, type safety).
+  - Validate spatial data accuracy and schema alignment.
+  - Confirm proper handling of Arabic text and Unicode.
+- **Regression Tests:**
+  - Lock in working behaviors from the 3x3 test to catch future breakage.
+  - Add tests for any bugs or issues discovered during baseline validation.
+- **Performance/Resource Tests:**
+  - Monitor memory usage and processing time for small batches.
+  - Ensure no memory leaks or excessive resource consumption.
+
+**Rationale:**
+- Tests written after the 3x3 grid run will reflect real data, observed edge cases, and a stable baseline.
+- This approach ensures tests are meaningful, actionable, and less likely to require major rewrites.
+
+**Next Steps:**
+- [ ] Document any issues or edge cases found during 3x3 test
+- [ ] Write and run tests as outlined above
+- [ ] Integrate tests into CI/CD workflow if applicable
+
 ### **1.3 Enrichment Pipeline Test** 🔄 **NEXT**
 **Priority**: HIGH - Validate API integration with baseline data
 
