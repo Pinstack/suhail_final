@@ -122,17 +122,31 @@ class GeometryStitcher:
 
                 # Reindex ensures all columns from the known_columns set are present
                 gdf_standardized = gdf.reindex(columns=known_columns)
-                
-                self.persister.write(gdf_standardized, temp_table_name, if_exists="append")
+                # For centroids layers, ensure only Point geometries are written
+                if layer_name.endswith('-centroids'):
+                    non_point_count = (~gdf_standardized.geometry.type.isin(['Point'])).sum()
+                    if non_point_count > 0:
+                        logger.warning(f"Layer '{layer_name}': Dropping {non_point_count} non-Point geometries before DB write.")
+                    gdf_standardized = gdf_standardized[gdf_standardized.geometry.type == 'Point']
+                self.persister.write(gdf_standardized, layer_name, temp_table_name, if_exists="append")
                 gdf_count += 1
             
             if gdf_count == 0:
                 logger.warning("No non-empty GeoDataFrames were processed for layer '%s'.", layer_name)
                 return gpd.GeoDataFrame(geometry=[], crs=self.target_crs)
 
-            # Perform dissolve in PostGIS
+            # Filter aggregation rules to only include columns that actually exist in the temp table.
+            final_agg_rules = {col: rule for col, rule in agg_rules.items() if col in known_columns}
+            dropped_rules = set(agg_rules.keys()) - set(final_agg_rules.keys())
+            if dropped_rules:
+                logger.warning(
+                    "Layer '%s': Ignoring aggregation for non-existent columns: %s",
+                    layer_name, ", ".join(sorted(list(dropped_rules)))
+                )
+
+            # Perform dissolve in PostGIS using the filtered, data-aware aggregation rules.
             final_gdf = self._dissolve_in_postgis(
-                temp_table_name, id_column, agg_rules, layer_name
+                temp_table_name, id_column, final_agg_rules, layer_name
             )
 
         except Exception as e:

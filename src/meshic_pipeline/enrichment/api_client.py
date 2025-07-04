@@ -2,7 +2,7 @@ import aiohttp
 import asyncio
 from typing import List, Dict, Any
 
-from meshic_pipeline.config import settings
+from meshic_pipeline.config import settings, ARABIC_COLUMN_MAP
 from meshic_pipeline.exceptions import (
     ExternalAPIException,
     with_retry,
@@ -260,3 +260,7 @@ class SuhailAPIClient:
                     return []
                 await asyncio.sleep(1)
         return []
+
+def apply_arabic_column_mapping_dict(data):
+    """Rename all keys in a dict according to ARABIC_COLUMN_MAP."""
+    return {ARABIC_COLUMN_MAP.get(k, k): v for k, v in data.items()}

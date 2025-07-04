@@ -32,14 +32,14 @@ class Parcel(Base):
     zoning_id = Column(BigInteger)
     neighborhood_id = Column(BigInteger, ForeignKey('neighborhoods.neighborhood_id'), nullable=True)
     block_no = Column(String)
-    neighborhaname = Column(String)  # TODO: Rename to neighborhood_name 
+    neighborhood_ar = Column(String)
     subdivision_id = Column(BigInteger)
     price_of_meter = Column(Float)
     shape_area = Column(Float)
     zoning_color = Column(String)
     ruleid = Column(String, ForeignKey('zoning_rules.ruleid'), nullable=True)
     province_id = Column(BigInteger, ForeignKey('provinces.province_id'), nullable=True)
-    municipality_aname = Column(String)
+    municipality_ar = Column(String)
     parcel_id = Column(BigInteger)
     parcel_no = Column(String)
 
@@ -128,6 +128,7 @@ class Neighborhood(Base):
     neighborhood_id = Column(BigInteger, primary_key=True)
     geometry = Column(Geometry('GEOMETRY', srid=4326))
     neighborhood_name = Column(String)
+    neighborhood_ar = Column(String)
     region_id = Column(BigInteger)
     province_id = Column(BigInteger, ForeignKey('provinces.province_id'), nullable=True)
     price_of_meter = Column(Float)
@@ -180,11 +181,6 @@ class ParcelsBase(Base):
     parcel_id = Column(String, primary_key=True)
     geometry = Column(Geometry('GEOMETRY', srid=4326))
 
-class Street(Base):
-    __tablename__ = 'streets'
-    street_id = Column(BigInteger, primary_key=True)
-    geometry = Column(Geometry('MULTILINESTRING', srid=4326))
-
 class ZoningRule(Base):
     __tablename__ = 'zoning_rules'
     ruleid = Column(String, primary_key=True)
@@ -195,4 +191,61 @@ class ZoningRule(Base):
 class LandUseGroup(Base):
     __tablename__ = 'land_use_groups'
     landuse_group = Column(String, primary_key=True)
-    description = Column(String) 
+    description = Column(String)
+
+class NeighborhoodsCentroids(Base):
+    __tablename__ = 'neighborhoods_centroids'
+    id = Column(Integer, primary_key=True, autoincrement=False)
+    geometry = Column(Geometry(geometry_type='POINT', srid=4326))
+    neighborh_aname = Column(String)
+    province_id = Column(Integer)
+
+class MetroLines(Base):
+    __tablename__ = 'metro_lines'
+    id = Column(Integer, primary_key=True, autoincrement=False)
+    geometry = Column(Geometry(geometry_type='MULTILINESTRING', srid=4326))
+    track_color = Column(String)
+    track_length = Column(Float)
+    track_name = Column(String)
+
+class ParcelsCentroids(Base):
+    __tablename__ = 'parcels_centroids'
+    parcel_no = Column(String, primary_key=True)
+    geometry = Column(Geometry('POINT', srid=4326))
+    transaction_date = Column(DateTime)
+    transaction_price = Column(Float)
+    price_of_meter = Column(Float)
+
+class BusLines(Base):
+    __tablename__ = 'bus_lines'
+    id = Column(Integer, primary_key=True, autoincrement=False)
+    geometry = Column(Geometry('MULTILINESTRING', srid=4326))
+    busroute = Column(String)
+    route_name = Column(String)
+    route_type = Column(String)
+
+class MetroStations(Base):
+    __tablename__ = 'metro_stations'
+    station_code = Column(String, primary_key=True)
+    geometry = Column(Geometry('POINT', srid=4326))
+    station_name = Column(String)
+    line = Column(String)
+
+class RiyadhBusStations(Base):
+    __tablename__ = 'riyadh_bus_stations'
+    station_code = Column(String, primary_key=True)
+    geometry = Column(Geometry('POINT', srid=4326))
+    station_name = Column(String)
+    route = Column(String)
+
+class QIPopulationMetrics(Base):
+    __tablename__ = 'qi_population_metrics'
+    grid_id = Column(String, primary_key=True)
+    population = Column(Integer)
+    geometry = Column(Geometry('POLYGON', srid=4326))
+
+class QIStripes(Base):
+    __tablename__ = 'qi_stripes'
+    strip_id = Column(String, primary_key=True)
+    geometry = Column(Geometry('POLYGON', srid=4326))
+    value = Column(Float) 

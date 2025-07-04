@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 import concurrent.futures
 import itertools
+import pandas as pd
 
 import geopandas as gpd
 import sys
@@ -218,7 +219,26 @@ async def run_pipeline(
             "Stitching layer '%s' using ID column '%s' and %d aggregation rules.",
             layer, id_col, len(agg_rules)
         )
-        
+
+        # Defensive: If id_col is None or not present in columns, skip dissolve/grouping
+        if not id_col or id_col not in all_columns:
+            logger.warning(f"Layer '%s': No valid ID column for dissolve/grouping. Writing features as-is.", layer)
+            # Concatenate all GDFs and write directly
+            if layer_gdfs:
+                concat_gdf = pd.concat(layer_gdfs, ignore_index=True)
+                out_path = settings.stitched_dir / f"{layer}_stitched.geojson"
+                concat_gdf.to_file(out_path, driver="GeoJSON")
+                table_name = settings.table_name_mapping.get(layer, layer)
+                logger.info(
+                    "Persisting %d features for layer '%s' to table '%s' (no grouping)",
+                    len(concat_gdf), layer, table_name
+                )
+                persister.write(
+                    concat_gdf, layer, table_name, if_exists="replace", id_column=None, chunksize=settings.db_chunk_size
+                )
+            logger.info("--- Finished processing for layer: %s ---", layer)
+            continue
+
         stitched_gdf = stitcher.stitch_geometries(
             layer_gdfs,
             layer_name=layer,

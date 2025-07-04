@@ -13,6 +13,32 @@ logger = logging.getLogger(__name__)
 
 # Add a canonical schema map for all layers
 SCHEMA_MAP = {
+    'parcels': {
+        'parcel_objectid': 'int64',
+        'geometry': 'geometry',
+        'landuseagroup': 'string',
+        'landuseadetailed': 'string',
+        'subdivision_no': 'string',
+        'transaction_price': 'float64',
+        'zoning_id': 'int64',
+        'neighborhood_id': 'int64',
+        'block_no': 'string',
+        'neighborhood_ar': 'string',
+        'subdivision_id': 'int64',
+        'price_of_meter': 'float64',
+        'shape_area': 'float64',
+        'zoning_color': 'string',
+        'ruleid': 'string',
+        'province_id': 'int64',
+        'municipality_ar': 'string',
+        'parcel_id': 'int64',
+        'parcel_no': 'string',
+        'created_at': 'datetime64[ns]',
+        'updated_at': 'datetime64[ns]',
+        'is_active': 'bool',
+        'geometry_hash': 'string',
+        'enriched_at': 'datetime64[ns]',
+    },
     'parcels-centroids': {
         'parcel_no': 'string',
         'geometry': 'geometry',
@@ -20,7 +46,77 @@ SCHEMA_MAP = {
         'transaction_price': 'float64',
         'price_of_meter': 'float64',
     },
-    # Add similar schemas for other layers as needed, using hyphenated names
+    'neighborhoods': {
+        'neighborhood_id': 'int64',
+        'geometry': 'geometry',
+        'neighborhood_name': 'string',
+        'neighborhood_ar': 'string',
+        'region_id': 'int64',
+        'province_id': 'int64',
+        'price_of_meter': 'float64',
+        'shape_area': 'float64',
+        'transaction_price': 'float64',
+        'zoning_id': 'int64',
+        'zoning_color': 'string',
+        'geometry_hash': 'string',
+    },
+    'neighborhoods-centroids': {
+        'neighborhood_id': 'int64',
+        'geometry': 'geometry',
+        'neighborhood_name': 'string',
+    },
+    'subdivisions': {
+        'subdivision_id': 'int64',
+        'geometry': 'geometry',
+        'subdivision_no': 'string',
+        'shape_area': 'float64',
+        'transaction_price': 'float64',
+        'price_of_meter': 'float64',
+        'zoning_id': 'int64',
+        'zoning_color': 'string',
+        'province_id': 'int64',
+    },
+    'metro_lines': {
+        'id': 'int64',
+        'geometry': 'geometry',
+        'track_color': 'string',
+        'track_length': 'float64',
+        'track_name': 'string',
+    },
+    'bus_lines': {
+        'id': 'int64',
+        'geometry': 'geometry',
+        'route_name': 'string',
+        'route_color': 'string',
+        'route_length': 'float64',
+        'route_type': 'string',
+        'route_id': 'string',
+    },
+    'metro_stations': {
+        'station_code': 'string',
+        'geometry': 'geometry',
+        'station_name': 'string',
+        'line_id': 'int64',
+        'location': 'string',
+    },
+    'riyadh_bus_stations': {
+        'station_code': 'string',
+        'geometry': 'geometry',
+        'station_name': 'string',
+        'route_id': 'string',
+        'location': 'string',
+    },
+    'qi_population_metrics': {
+        'grid_id': 'string',
+        'population': 'int64',
+        'geometry': 'geometry',
+    },
+    'qi_stripes': {
+        'strip_id': 'string',
+        'geometry': 'geometry',
+        'stripe_value': 'float64',
+        'stripe_type': 'string',
+    },
 }
 
 class PostGISPersister:
@@ -63,22 +159,44 @@ class PostGISPersister:
             for col, dtype in schema.items():
                 if col in validated_gdf.columns:
                     try:
-                        if dtype == 'string':
-                            validated_gdf[col] = validated_gdf[col].astype('string')
+                        if dtype in ('int64', 'Int64'):
+                            # Accept int, float (if .is_integer()), or string (parseable as int/float and .is_integer())
+                            def robust_int(val):
+                                if val is None:
+                                    return None
+                                if isinstance(val, int):
+                                    return val
+                                if isinstance(val, float):
+                                    return int(val) if val.is_integer() else None
+                                if isinstance(val, str):
+                                    try:
+                                        float_val = float(val)
+                                        return int(float_val) if float_val.is_integer() else None
+                                    except Exception:
+                                        return None
+                                return None
+                            validated_gdf[col] = validated_gdf[col].apply(lambda v: robust_int(v))
                         elif dtype == 'float64':
-                            validated_gdf[col] = pd.to_numeric(validated_gdf[col], errors='coerce').astype('float64')
-                        elif dtype == 'int64' or dtype == 'Int64':
-                            # Special handling for subdivision_id: fallback to string if not castable
-                            if col == 'subdivision_id':
-                                try:
-                                    validated_gdf[col] = pd.to_numeric(validated_gdf[col], errors='raise').round().astype('Int64')
-                                except Exception as e:
-                                    logger.warning(f"subdivision_id could not be cast to integer for some rows, falling back to string. Error: {e}")
-                                    validated_gdf[col] = validated_gdf[col].astype('string')
-                            else:
-                                validated_gdf[col] = pd.to_numeric(validated_gdf[col], errors='coerce').round().astype('Int64')
+                            # Accept int, float, or string (parseable as float)
+                            def robust_float(val):
+                                if val is None:
+                                    return None
+                                if isinstance(val, (int, float)):
+                                    return float(val)
+                                if isinstance(val, str):
+                                    try:
+                                        return float(val)
+                                    except Exception:
+                                        return None
+                                return None
+                            validated_gdf[col] = validated_gdf[col].apply(lambda v: robust_float(v))
+                        elif dtype == 'string':
+                            validated_gdf[col] = validated_gdf[col].astype('string')
                         elif dtype == 'datetime64[ns]':
                             validated_gdf[col] = pd.to_datetime(validated_gdf[col], errors='coerce')
+                        elif dtype == 'bool':
+                            validated_gdf[col] = validated_gdf[col].astype('boolean')
+                        # geometry handled by GeoPandas
                     except Exception as e:
                         logger.warning(f"Failed to cast {col} to {dtype}: {e}")
         # Always cast any column with 'date' in its name to datetime64[ns]

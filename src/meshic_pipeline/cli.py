@@ -4,8 +4,8 @@ import sys
 from typing import List, Optional
 from pathlib import Path
 
-# Determine project root (two levels up from this file)
-SCRIPT_ROOT = Path(__file__).resolve().parents[2]
+# Determine the directory containing this CLI file
+SCRIPT_DIR = Path(__file__).parent
 
 app = typer.Typer(help="Unified CLI for the Suhail pipeline")
 
@@ -29,8 +29,7 @@ def geometric(
     ),
 ):
     """Run the geometric pipeline (Stage 1)."""
-    # Invoke the geometric pipeline script directly
-    script = SCRIPT_ROOT / "scripts" / "run_geometric_pipeline.py"
+    script = SCRIPT_DIR / "run_geometric_pipeline.py"
     cmd = [sys.executable, str(script)]
     if bbox:
         cmd += ["--bbox"] + [str(x) for x in bbox]
@@ -46,7 +45,7 @@ def fast_enrich(
     limit: Optional[int] = typer.Option(None, "--limit", help="Limit parcels for testing"),
 ):
     """Enrich new parcels that have transaction prices but haven't been enriched yet."""
-    script = SCRIPT_ROOT / "scripts" / "run_enrichment_pipeline.py"
+    script = SCRIPT_DIR / "run_enrichment_pipeline.py"
     cmd = [sys.executable, str(script), "fast-enrich", "--batch-size", str(batch_size)]
     if limit is not None:
         cmd += ["--limit", str(limit)]
@@ -59,7 +58,7 @@ def incremental_enrich(
     limit: Optional[int] = typer.Option(None, "--limit", help="Limit parcels for testing"),
 ):
     """Enrich parcels that haven't been updated in the specified number of days."""
-    script = SCRIPT_ROOT / "scripts" / "run_enrichment_pipeline.py"
+    script = SCRIPT_DIR / "run_enrichment_pipeline.py"
     cmd = [sys.executable, str(script), "incremental-enrich", 
            "--batch-size", str(batch_size), "--days-old", str(days_old)]
     if limit is not None:
@@ -72,7 +71,7 @@ def full_refresh(
     limit: Optional[int] = typer.Option(None, "--limit", help="Limit parcels for testing"),
 ):
     """Enrich ALL parcels with transaction prices (complete refresh)."""
-    script = SCRIPT_ROOT / "scripts" / "run_enrichment_pipeline.py"
+    script = SCRIPT_DIR / "run_enrichment_pipeline.py"
     cmd = [sys.executable, str(script), "full-refresh", "--batch-size", str(batch_size)]
     if limit is not None:
         cmd += ["--limit", str(limit)]
@@ -87,7 +86,7 @@ def delta_enrich(
     show_details: bool = typer.Option(True, "--show-details/--no-details", help="Show change analysis"),
 ):
     """🎯 Delta enrichment: Only process parcels with actual transaction price changes (most efficient)."""
-    script = SCRIPT_ROOT / "scripts" / "run_enrichment_pipeline.py"
+    script = SCRIPT_DIR / "run_enrichment_pipeline.py"
     cmd = [sys.executable, str(script), "delta-enrich", 
            "--batch-size", str(batch_size), "--fresh-table", fresh_table]
     if limit is not None:
@@ -105,7 +104,7 @@ def smart_pipeline(
     bbox: Optional[List[float]] = typer.Option(None, "--bbox", help="Bounding box: W S E N"),
 ):
     """🧠 Smart pipeline: Complete geometric + enrichment workflow (recommended for full runs)."""
-    script = SCRIPT_ROOT / "scripts" / "run_enrichment_pipeline.py"
+    script = SCRIPT_DIR / "run_enrichment_pipeline.py"
     cmd = [sys.executable, str(script), "smart-pipeline-enrich", "--batch-size", str(batch_size)]
     if not geometric_first:
         cmd += ["--no-geometric-first"]
@@ -120,8 +119,7 @@ def monitor(
     ),
 ):
     """Run enrichment monitoring commands."""
-    # Invoke the monitoring script directly
-    script = SCRIPT_ROOT / "scripts" / "run_monitoring.py"
+    script = SCRIPT_DIR / "run_monitoring.py"
     cmd = [sys.executable, str(script), action]
     subprocess.run(cmd, check=True)
 
@@ -133,7 +131,7 @@ def province_geometric(
     save_as_temp: Optional[str] = typer.Option(None, "--save-as-temp", help="Save parcels to a temporary table"),
 ):
     """🏛️ Run geometric pipeline for a specific Saudi province using enhanced discovery."""
-    script = SCRIPT_ROOT / "scripts" / "run_geometric_pipeline.py"
+    script = SCRIPT_DIR / "run_geometric_pipeline.py"
     cmd = [sys.executable, str(script), "--province", province, "--strategy", strategy]
     if recreate_db:
         cmd.append("--recreate-db")
@@ -148,7 +146,7 @@ def saudi_arabia_geometric(
     save_as_temp: Optional[str] = typer.Option(None, "--save-as-temp", help="Save parcels to a temporary table"),
 ):
     """🇸🇦 Run geometric pipeline for ALL Saudi provinces (comprehensive coverage)."""
-    script = SCRIPT_ROOT / "scripts" / "run_geometric_pipeline.py"
+    script = SCRIPT_DIR / "run_geometric_pipeline.py"
     cmd = [sys.executable, str(script), "--saudi-arabia", "--strategy", strategy]
     if recreate_db:
         cmd.append("--recreate-db")
@@ -159,7 +157,7 @@ def saudi_arabia_geometric(
 @app.command()
 def discovery_summary():
     """📊 Show enhanced province discovery capabilities and statistics."""
-    script = SCRIPT_ROOT / "scripts" / "show_discovery_summary.py"
+    script = SCRIPT_DIR / "show_discovery_summary.py"
     cmd = [sys.executable, str(script)]
     subprocess.run(cmd, check=True)
 
@@ -171,7 +169,7 @@ def province_pipeline(
     geometric_first: bool = typer.Option(True, "--geometric-first", help="Run geometric pipeline first"),
 ):
     """🚀 Complete province pipeline: geometric + enrichment for specific province."""
-    script = SCRIPT_ROOT / "scripts" / "run_enrichment_pipeline.py"
+    script = SCRIPT_DIR / "run_enrichment_pipeline.py"
     cmd = [sys.executable, str(script), "province-pipeline", 
            "--province", province, "--strategy", strategy, "--batch-size", str(batch_size)]
     if not geometric_first:
@@ -185,7 +183,7 @@ def saudi_pipeline(
     geometric_first: bool = typer.Option(True, "--geometric-first", help="Run geometric pipeline first"),
 ):
     """🇸🇦 Complete Saudi Arabia pipeline: ALL provinces geometric + enrichment."""
-    script = SCRIPT_ROOT / "scripts" / "run_enrichment_pipeline.py"
+    script = SCRIPT_DIR / "run_enrichment_pipeline.py"
     cmd = [sys.executable, str(script), "saudi-pipeline", 
            "--strategy", strategy, "--batch-size", str(batch_size)]
     if not geometric_first:

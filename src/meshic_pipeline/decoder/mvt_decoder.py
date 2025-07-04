@@ -11,6 +11,7 @@ from shapely.geometry import shape
 from shapely.geometry.base import BaseGeometry
 from pyproj import Transformer
 from shapely.ops import transform
+from ..config import ARABIC_COLUMN_MAP
 
 logger = logging.getLogger(__name__)
 
@@ -62,14 +63,29 @@ class MVTDecoder:
                 
             try:
                 if key in self.INTEGER_ID_FIELDS:
-                    # Cast to integer for ID fields that should be integers
-                    if isinstance(value, (int, float)):
-                        cast_properties[key] = int(value)
-                    elif isinstance(value, str) and value.isdigit():
-                        cast_properties[key] = int(value)
+                    # Robustly cast to integer for ID fields
+                    if isinstance(value, int):
+                        cast_properties[key] = value
+                    elif isinstance(value, float):
+                        if value.is_integer():
+                            cast_properties[key] = int(value)
+                        else:
+                            logger.warning(f"Cannot cast {key}={value} to integer (non-integer float), setting as None")
+                            cast_properties[key] = None
+                    elif isinstance(value, str):
+                        try:
+                            float_val = float(value)
+                            if float_val.is_integer():
+                                cast_properties[key] = int(float_val)
+                            else:
+                                logger.warning(f"Cannot cast {key}='{value}' to integer (non-integer string), setting as None")
+                                cast_properties[key] = None
+                        except Exception:
+                            logger.warning(f"Cannot cast {key}='{value}' to integer, setting as None")
+                            cast_properties[key] = None
                     else:
-                        logger.warning(f"Cannot cast {key}={value} to integer, keeping as string")
-                        cast_properties[key] = str(value)
+                        logger.warning(f"Cannot cast {key}={value} to integer, setting as None")
+                        cast_properties[key] = None
                         
                 elif key in self.STRING_ID_FIELDS:
                     # Ensure string ID fields are strings
@@ -80,8 +96,8 @@ class MVTDecoder:
                     cast_properties[key] = value
                     
             except (ValueError, TypeError) as e:
-                logger.warning(f"Type casting error for {key}={value}: {e}, keeping original value")
-                cast_properties[key] = value
+                logger.warning(f"Type casting error for {key}={value}: {e}, setting as None")
+                cast_properties[key] = None
         
         return cast_properties
 
@@ -176,5 +192,12 @@ class MVTDecoder:
                     features, geometry="geometry", crs=self.target_crs
                 )
         return gdfs
+
+    def apply_arabic_column_mapping(self, gdf):
+        """Rename all columns in the GDF according to ARABIC_COLUMN_MAP."""
+        for src, dst in ARABIC_COLUMN_MAP.items():
+            if src in gdf.columns:
+                gdf = gdf.rename(columns={src: dst})
+        return gdf
 
  
