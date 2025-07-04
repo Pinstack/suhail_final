@@ -16,6 +16,18 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 PIPELINE_CONFIG_PATH = PROJECT_ROOT / 'pipeline_config.yaml'
 PIPELINE_CFG = yaml.safe_load(PIPELINE_CONFIG_PATH.read_text())
 
+# Centralized mapping for all Arabic/text columns to canonical _ar names
+ARABIC_COLUMN_MAP = {
+    "neighborhaname": "neighborhood_ar",
+    "municipality_aname": "municipality_ar",
+    "provinceaname": "province_ar",
+    "regionaname": "region_ar",
+    "cityaname": "city_ar",
+    "building_rule_aname": "building_rule_ar",
+    "description_aname": "description_ar",
+    "name_aname": "name_ar",
+    # Add any other discovered or future Arabic columns here
+}
 
 class Environment(str, Enum):
     """Environment types for configuration management."""
@@ -107,7 +119,7 @@ class Settings(BaseSettings):
         description="Full database connection string (e.g., postgresql://user:pass@host/db)",
     )
     tile_base_url: str = Field(
-        "https://tiles.suhail.ai/maps/eastern_region",
+        "https://tiles.suhail.ai/maps/riyadh",
         env="TILE_BASE_URL",
         description="Base URL for the MVT tile server, without /z/x/y.",
     )
@@ -172,8 +184,8 @@ class Settings(BaseSettings):
                 "landuseagroup": "first",
                 "zoning_id": "first",
                 "subdivision_id": "first",
-                "neighborhaname": "first",
-                "municipality_aname": "first",
+                "neighborhood_ar": "first",
+                "municipality_ar": "first",
                 "parcel_no": "first",
                 "subdivision_no": "first",
                 "zoning_color": "first"
@@ -191,7 +203,7 @@ class Settings(BaseSettings):
                 "province_id": "first", 
                 "zoning_id": "first",
                 "zoning_color": "first",
-                "neighborh_aname": "first",
+                "neighborhood_ar": "first",
                 "transaction_price": "first",
                 "price_of_meter": "first"
             },
@@ -210,7 +222,7 @@ class Settings(BaseSettings):
 
     table_name_mapping: Dict[str, str] = Field(
         default_factory=lambda: {
-            "parcels": "parcels",  # Main parcels layer goes to parcels table  
+            "parcels": "parcels",
             "parcels-centroids": "parcels_centroids",
             "neighborhoods-centroids": "neighborhoods_centroids",
             "metro_lines": "metro_lines",
@@ -230,8 +242,6 @@ class Settings(BaseSettings):
             "neighborhoods",
             "neighborhoods-centroids",
             "subdivisions",
-            "dimensions",
-            "sb_area",
             "metro_lines",
             "bus_lines",
             "metro_stations",

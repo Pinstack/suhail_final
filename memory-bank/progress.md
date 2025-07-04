@@ -1,4 +1,9 @@
-# Progress Status
+# Progress (Updated)
+
+- Pipeline table uniqueness and upsert review is complete.
+- Comprehensive action plan documented in WHAT_TO_DO_NEXT_PIPELINE_TABLES.md.
+- Next steps: config cleanup, Alembic migration for constraints, pipeline test, documentation update.
+- Project is ready for a developer to implement the new plan.
 
 ## 🎯 **Current Phase: Baseline Validation Setup**
 

@@ -1,4 +1,4 @@
-# Active Context
+# Active Context (Updated)
 
 ## 🎯 **Current Status: Fresh Database Baseline Validation**
 
@@ -168,3 +168,20 @@ git tag v0.1.2-enrichment-validated   # After enrichment success
 5. **Track Performance**: Establish baseline metrics for scaling decisions
 
 This active context reflects the actual current state: fresh database, commercial objectives, and systematic baseline validation approach to build a robust foundation for full Saudi Arabia data capture.
+
+## Pipeline Table Uniqueness & Upsert Robustness (May 2024)
+
+- The pipeline previously assumed all output tables were upsert-ready, but many are dynamically created without unique constraints.
+- A new action plan is in place:
+  - Remove unreliable upsert keys from config for tables without unique constraints.
+  - Add unique constraints via Alembic for upsertable tables.
+  - Use replace mode for tables where uniqueness is not possible.
+  - Test the pipeline after changes.
+  - Update documentation and communicate changes to the team.
+- See WHAT_TO_DO_NEXT_PIPELINE_TABLES.md for the full step-by-step plan.
+
+## Next Steps
+- Config cleanup
+- Alembic migration for constraints
+- Pipeline test run
+- Documentation update
