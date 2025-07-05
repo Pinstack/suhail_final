@@ -160,4 +160,15 @@ class GeometryStitcher:
         if final_gdf.empty:
             return gpd.GeoDataFrame(geometry=[], crs=self.target_crs)
 
+        missing_cols = [c for c in known_columns if c not in final_gdf.columns]
+        if missing_cols:
+            logger.warning(
+                "Layer '%s': Missing columns after dissolve: %s",
+                layer_name,
+                ", ".join(sorted(missing_cols)),
+            )
+            for col in missing_cols:
+                final_gdf[col] = None
+
+        final_gdf = final_gdf.reindex(columns=known_columns)
         return final_gdf.reset_index(drop=True)

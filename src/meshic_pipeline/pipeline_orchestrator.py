@@ -20,7 +20,7 @@ from .downloader.async_tile_downloader import AsyncTileDownloader
 from .decoder.mvt_decoder import MVTDecoder
 from .geometry.validator import validate_geometries
 from .geometry.stitcher import GeometryStitcher
-from .persistence.postgis_persister import PostGISPersister
+from .persistence.postgis_persister import PostGISPersister, SCHEMA_MAP
 
 
 def setup_logging():
@@ -82,6 +82,17 @@ def decode_and_validate_tile(
             continue
 
         gdf = gpd.GeoDataFrame(features, geometry="geometry", crs=default_crs)
+        schema = SCHEMA_MAP.get(layer_name, {})
+        audit_cols = {"created_at", "updated_at", "is_active", "geometry_hash", "enriched_at"}
+        expected = [c for c in schema.keys() if c not in audit_cols]
+        missing = [c for c in expected if c not in gdf.columns]
+        if missing:
+            logger.warning(
+                "Layer '%s': Missing expected columns after decode: %s",
+                layer_name,
+                ", ".join(sorted(missing)),
+            )
+
         gdf = validate_geometries(gdf)
 
         if not gdf.empty:

@@ -42,3 +42,17 @@ def test_validate_and_cast_types_parcels():
     # purchase_date should be converted to datetime64
     assert pd.api.types.is_datetime64_any_dtype(result["purchase_date"])
     assert pd.isna(result.loc[1, "purchase_date"])  # invalid date becomes NaT
+
+
+def test_validate_and_cast_types_int_edge_cases():
+    data = {
+        "parcel_id": [9.0, "9.0", 9, "bad"],
+        "geometry": [Point(0, 0), Point(1, 1), Point(2, 2), Point(3, 3)],
+    }
+    gdf = gpd.GeoDataFrame(data, geometry="geometry")
+
+    persister = MockPersister()
+    result = persister._validate_and_cast_types(gdf, layer_name="parcels")
+
+    assert result["parcel_id"].tolist()[:3] == [9, 9, 9]
+    assert pd.isna(result["parcel_id"].iloc[3])
