@@ -1,0 +1,56 @@
+{
+  "data": {
+    "lastExecutionDate": "2025-02-25T00:00:00",
+    "lastExecutionPrice": 7000.0,
+    "transactions": [
+      {
+        "_priceOfMeter": 7000.0,
+        "transactionPrice": 3850000.0,
+        "priceOfMeter": 7000.0,
+        "transactionNumber": 28022110,
+        "transactionDate": "2025-02-25T00:00:00",
+        "type": "قطعة أرض",
+        "subdivisionNo": "1343",
+        "subdivisionId": null,
+        "polygonData": "{\"type\":\"Polygon\",\"coordinates\":[[[46.674938,24.69846],[46.674758,24.698383],[46.674644,24.698608],[46.674823,24.698685],[46.674938,24.69846]]]}",
+        "noOfProperties": 1,
+        "zoningId": 3,
+        "neighborhood": "العليا",
+        "neighborhoodId": 10100079,
+        "region": "منطقة الرياض",
+        "parcelId": "13749966",
+        "parcelObjectId": 101000503796,
+        "parcelNo": "364/393",
+        "blockNo": "393",
+        "area": 550.0,
+        "centroidX": 46.674790817040616,
+        "centroidY": 24.698533924301547,
+        "metricsType": "أرض سكني",
+        "provinceId": 101000,
+        "provinceName": null,
+        "regionId": 10,
+        "geometry": null,
+        "parcelImageURL": "",
+        "projectName": "",
+        "landUsageGroup": "سكني",
+        "sellingType": "فردي",
+        "landUseaDetailed": null,
+        "centroid": {
+          "x": 46.674790817040616,
+          "y": 24.698533924301547
+        },
+        "propertyType": "قطعة أرض",
+        "totalArea": 550.0,
+        "details": null,
+        "landUseGroup": "سكني",
+        "orignalTransactionNum": 28022110,
+        "propertyNumber": "364/393",
+        "transactionSource": "MOJ",
+        "isLowValueTransaction": false
+      }
+    ]
+  },
+  "message": null,
+  "status": true,
+  "meta": null
+}

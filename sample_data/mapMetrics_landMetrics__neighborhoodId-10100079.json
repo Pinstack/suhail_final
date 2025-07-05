@@ -1,0 +1,106 @@
+{
+  "data": {
+    "totalMetricData": {
+      "landUseGroup": null,
+      "totalCount": 3.0,
+      "totalPrice": 13490000.0,
+      "totalCountGrowthIndicator": "DOWN",
+      "totalPriceGrowthIndicator": "DOWN",
+      "totalPriceGrowthValue": 84.8,
+      "totalCountGrowthValue": 83.33,
+      "median": null
+    },
+    "neighborhoodId": 10100079,
+    "neighborhoodName": "العليا",
+    "provinceName": "الرياض",
+    "provinceId": 101000,
+    "landUseGroup": [
+      {
+        "landUseGroup": "أرض تجاري",
+        "totalCount": 0,
+        "totalPrice": 0.0,
+        "lastExecutionPrice": {
+          "transactionDate": "2025-06-02T00:00:00",
+          "priceOfMeter": 12574.0
+        },
+        "median": 13434.0
+      },
+      {
+        "landUseGroup": "أرض تجاري سكني",
+        "totalCount": 0,
+        "totalPrice": 0.0,
+        "lastExecutionPrice": {
+          "transactionDate": "2025-04-14T00:00:00",
+          "priceOfMeter": 13100.0
+        },
+        "median": 11277.0
+      },
+      {
+        "landUseGroup": "أرض سكني",
+        "totalCount": 2,
+        "totalPrice": 8500000.0,
+        "lastExecutionPrice": {
+          "transactionDate": "2025-06-14T00:00:00",
+          "priceOfMeter": 8242.0
+        },
+        "median": 8222.0
+      },
+      {
+        "landUseGroup": "شقق",
+        "totalCount": 1,
+        "totalPrice": 4990000.0,
+        "lastExecutionPrice": {
+          "transactionDate": "2025-06-04T00:00:00",
+          "priceOfMeter": 13783.0
+        },
+        "median": 14072.0
+      },
+      {
+        "landUseGroup": "فلل",
+        "totalCount": 0,
+        "totalPrice": 0.0,
+        "lastExecutionPrice": {
+          "transactionDate": "2025-05-27T00:00:00",
+          "priceOfMeter": 14605.0
+        },
+        "median": 15779.0
+      },
+      {
+        "landUseGroup": "مبنى تجاري",
+        "totalCount": 0,
+        "totalPrice": 0.0,
+        "lastExecutionPrice": {
+          "transactionDate": "2024-05-23T00:00:00",
+          "priceOfMeter": 28205.0
+        },
+        "median": 24870.0
+      },
+      {
+        "landUseGroup": "مبنى تجاري سكني",
+        "totalCount": 0,
+        "totalPrice": 0.0,
+        "lastExecutionPrice": {
+          "transactionDate": "2025-05-13T00:00:00",
+          "priceOfMeter": 39167.0
+        },
+        "median": 33398.0
+      },
+      {
+        "landUseGroup": "مرافق",
+        "totalCount": 0,
+        "totalPrice": 0.0,
+        "lastExecutionPrice": {
+          "transactionDate": "2025-03-23T00:00:00",
+          "priceOfMeter": 6675.0
+        },
+        "median": 4901.0
+      }
+    ],
+    "presentDate": "2025-06-30T00:00:00",
+    "pastDate": "2025-06-30T00:00:00",
+    "orgPastDate": "2024-06-30T00:00:00"
+  },
+  "message": null,
+  "status": true,
+  "meta": null
+}

@@ -1,0 +1,265 @@
+{
+  "data": [
+    {
+      "orderIndex": 1,
+      "id": 10,
+      "key": "Riyadh",
+      "name": "الرياض",
+      "mapStyleUrl": "https://tiles.suhail.ai/riyadh/",
+      "mapZoomLevel": 10.0,
+      "metricsUrl": "/Riyadh/mobile-metrics",
+      "defaultTransactionsDateRange": "-1/y",
+      "centroid": {
+        "x": 46.6893526894509,
+        "y": 24.6787559510409
+      },
+      "restrictBoundaryBox": {
+        "southwest": {
+          "x": 46.265364184769595,
+          "y": 23.986904579297715
+        },
+        "northeast": {
+          "x": 47.342260256150155,
+          "y": 25.781380632818795
+        }
+      },
+      "provinces": [
+        {
+          "id": 101000,
+          "name": "الرياض",
+          "centroid": {
+            "x": 46.688852973932114,
+            "y": 24.67893932829408
+          }
+        },
+        {
+          "id": 101001,
+          "name": "الدرعية",
+          "centroid": {
+            "x": 46.56910567089585,
+            "y": 24.74693834073349
+          }
+        }
+      ],
+      "image": "https://suhailmap.blob.core.windows.net/static-files/region_riyadh.png"
+    },
+    {
+      "orderIndex": 2,
+      "id": 13,
+      "key": "Madinah",
+      "name": "المدينة المنورة",
+      "mapStyleUrl": "https://tiles.suhail.ai/al_madenieh/",
+      "mapZoomLevel": 10.0,
+      "metricsUrl": "/Madinah/mobile-metrics",
+      "defaultTransactionsDateRange": "-1/y",
+      "centroid": {
+        "x": 39.609449138409516,
+        "y": 24.4802585936543
+      },
+      "restrictBoundaryBox": {
+        "southwest": {
+          "x": 39.4133787747582,
+          "y": 24.091386951345967
+        },
+        "northeast": {
+          "x": 39.90345597984938,
+          "y": 24.91057558068701
+        }
+      },
+      "provinces": [
+        {
+          "id": 131000,
+          "name": "المدينة المنورة",
+          "centroid": {
+            "x": 39.609449138409516,
+            "y": 24.4802585936543
+          }
+        }
+      ],
+      "image": "https://suhailmap.blob.core.windows.net/static-files/region_al_madenieh.png"
+    },
+    {
+      "orderIndex": 3,
+      "id": 5,
+      "key": "Eastern",
+      "name": "الشرقية",
+      "mapStyleUrl": "https://tiles.suhail.ai/eastern_region/",
+      "mapZoomLevel": 10.0,
+      "metricsUrl": "/Eastern/mobile-metrics",
+      "defaultTransactionsDateRange": "-1/y",
+      "centroid": {
+        "x": 50.0826958589995,
+        "y": 26.3891891271042
+      },
+      "restrictBoundaryBox": {
+        "southwest": {
+          "x": 49.811760072324375,
+          "y": 25.91230398310188
+        },
+        "northeast": {
+          "x": 50.27967299061834,
+          "y": 26.682884502427413
+        }
+      },
+      "provinces": [
+        {
+          "id": 51000,
+          "name": "الدمام",
+          "centroid": {
+            "x": 50.10442741114076,
+            "y": 26.429026459390794
+          }
+        },
+        {
+          "id": 51003,
+          "name": "الجبيل",
+          "centroid": {
+            "x": 49.63823403712725,
+            "y": 27.007547554454813
+          }
+        },
+        {
+          "id": 51004,
+          "name": "القطيف",
+          "centroid": {
+            "x": 49.99630637603599,
+            "y": 26.565806082113713
+          }
+        },
+        {
+          "id": 51005,
+          "name": "الخبر",
+          "centroid": {
+            "x": 50.211115516864645,
+            "y": 26.30970252185347
+          }
+        },
+        {
+          "id": 51001,
+          "name": "الاحساء",
+          "centroid": {
+            "x": 49.590350703120485,
+            "y": 25.429862653833112
+          }
+        }
+      ],
+      "image": "https://suhailmap.blob.core.windows.net/static-files/region_eastern.png"
+    },
+    {
+      "orderIndex": 4,
+      "id": 2,
+      "key": "Makkah",
+      "name": "مكة المكرمة",
+      "mapStyleUrl": "https://tiles.suhail.ai/makkah_region/",
+      "mapZoomLevel": 10.0,
+      "metricsUrl": "/Makkah/mobile-metrics",
+      "defaultTransactionsDateRange": "-1/y",
+      "centroid": {
+        "x": 39.85532681763745,
+        "y": 21.416090070987288
+      },
+      "restrictBoundaryBox": {
+        "southwest": {
+          "x": 38.925834,
+          "y": 20.827453
+        },
+        "northeast": {
+          "x": 39.606465,
+          "y": 22.357147
+        }
+      },
+      "provinces": [
+        {
+          "id": 21000,
+          "name": "مكة المكرمة",
+          "centroid": {
+            "x": 39.85532681763745,
+            "y": 21.416090070987288
+          }
+        },
+        {
+          "id": 21001,
+          "name": "جدة",
+          "centroid": {
+            "x": 39.18620789051056,
+            "y": 21.571919605843867
+          }
+        }
+      ],
+      "image": "https://suhailmap.blob.core.windows.net/static-files/region_makkah.png"
+    },
+    {
+      "orderIndex": 5,
+      "id": 4,
+      "key": "Al_Qassim",
+      "name": "القصيم",
+      "mapStyleUrl": "https://tiles.suhail.ai/al_qassim/",
+      "mapZoomLevel": 10.0,
+      "metricsUrl": "/Al_Qassim/mobile-metrics",
+      "defaultTransactionsDateRange": "-1/y",
+      "centroid": {
+        "x": 43.957183957099915,
+        "y": 26.364278487136083
+      },
+      "restrictBoundaryBox": {
+        "southwest": {
+          "x": 17.366667,
+          "y": 41.214223
+        },
+        "northeast": {
+          "x": 44.266213,
+          "y": 26.677408
+        }
+      },
+      "provinces": [
+        {
+          "id": 41000,
+          "name": "بريدة",
+          "centroid": {
+            "x": 43.95782595551969,
+            "y": 26.363236241454917
+          }
+        }
+      ],
+      "image": "https://suhailmap.blob.core.windows.net/static-files/al_qassim.png"
+    },
+    {
+      "orderIndex": 6,
+      "id": 6,
+      "key": "Asir",
+      "name": "عسير",
+      "mapStyleUrl": "https://tiles.suhail.ai/asir_region/",
+      "mapZoomLevel": 10.0,
+      "metricsUrl": "/Asir/mobile-metrics",
+      "defaultTransactionsDateRange": "-1/y",
+      "centroid": {
+        "x": 42.751242220401764,
+        "y": 18.312010011422437
+      },
+      "restrictBoundaryBox": {
+        "southwest": {
+          "x": 41.214223,
+          "y": 17.366667
+        },
+        "northeast": {
+          "x": 44.440789,
+          "y": 20.80266
+        }
+      },
+      "provinces": [
+        {
+          "id": 61001,
+          "name": "خميس مشيط",
+          "centroid": {
+            "x": 42.751140959695014,
+            "y": 18.31196923341703
+          }
+        }
+      ],
+      "image": "https://suhailmap.blob.core.windows.net/static-files/region_asir.png"
+    }
+  ],
+  "message": null,
+  "status": true,
+  "meta": null
+}

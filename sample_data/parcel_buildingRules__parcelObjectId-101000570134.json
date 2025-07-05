@@ -1,0 +1,25 @@
+{
+  "data": [
+    {
+      "id": "ح",
+      "zoningId": 10,
+      "zoningColor": "305d8a",
+      "zoningGroup": "حكومي",
+      "landuse": "",
+      "description": "ح",
+      "name": "الاستعمالات الحكومية (الوزارات والادارات الاخرى)",
+      "coloring": "P1",
+      "coloringDescription": "م ك - مكاتب حكومية",
+      "maxBuildingCoefficient": "",
+      "maxBuildingHeight": "",
+      "maxParcelCoverage": "",
+      "maxRuleDepth": "",
+      "mainStreetsSetback": "",
+      "secondaryStreetsSetback": "",
+      "sideRearSetback": ""
+    }
+  ],
+  "message": null,
+  "status": true,
+  "meta": null
+}

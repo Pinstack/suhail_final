@@ -1,0 +1,86 @@
+{
+  "data": {
+    "totalMetricData": {
+      "landUseGroup": null,
+      "totalCount": 0.0,
+      "totalPrice": 0.0,
+      "totalCountGrowthIndicator": "DOWN",
+      "totalPriceGrowthIndicator": "DOWN",
+      "totalPriceGrowthValue": 100.0,
+      "totalCountGrowthValue": 100.0,
+      "median": null
+    },
+    "neighborhoodId": 10100070,
+    "neighborhoodName": "الصناعية",
+    "provinceName": "الرياض",
+    "provinceId": 101000,
+    "landUseGroup": [
+      {
+        "landUseGroup": "أرض تجاري",
+        "totalCount": 0,
+        "totalPrice": 0.0,
+        "lastExecutionPrice": {
+          "transactionDate": "2024-11-17T00:00:00",
+          "priceOfMeter": 5000.0
+        },
+        "median": 1817.0
+      },
+      {
+        "landUseGroup": "أرض تجاري سكني",
+        "totalCount": 0,
+        "totalPrice": 0.0,
+        "lastExecutionPrice": {
+          "transactionDate": "2025-04-24T00:00:00",
+          "priceOfMeter": 4973.0
+        },
+        "median": 6072.0
+      },
+      {
+        "landUseGroup": "أرض سكني",
+        "totalCount": 0,
+        "totalPrice": 0.0,
+        "lastExecutionPrice": {
+          "transactionDate": "2025-06-15T00:00:00",
+          "priceOfMeter": 500.0
+        },
+        "median": 2898.0
+      },
+      {
+        "landUseGroup": "فلل",
+        "totalCount": 0,
+        "totalPrice": 0.0,
+        "lastExecutionPrice": {
+          "transactionDate": "2025-04-07T00:00:00",
+          "priceOfMeter": 7134.0
+        },
+        "median": 4622.0
+      },
+      {
+        "landUseGroup": "مبنى تجاري سكني",
+        "totalCount": 0,
+        "totalPrice": 0.0,
+        "lastExecutionPrice": {
+          "transactionDate": "2014-12-07T00:00:00",
+          "priceOfMeter": 7610.0
+        },
+        "median": 8553.0
+      },
+      {
+        "landUseGroup": "مرافق",
+        "totalCount": 0,
+        "totalPrice": 0.0,
+        "lastExecutionPrice": {
+          "transactionDate": "2025-05-16T00:00:00",
+          "priceOfMeter": 1600.0
+        },
+        "median": 4043.0
+      }
+    ],
+    "presentDate": "2025-06-30T00:00:00",
+    "pastDate": "2025-06-30T00:00:00",
+    "orgPastDate": "2024-07-31T00:00:00"
+  },
+  "message": null,
+  "status": true,
+  "meta": null
+}

@@ -1,0 +1,353 @@
+{
+  "data": [
+    {
+      "parcelObjId": 1010001112342,
+      "neighborhoodId": 10100079,
+      "neighborhoodMetrics": [
+        {
+          "neighborhoodId": 10100079,
+          "month": 1,
+          "year": 2025,
+          "metricsType": "أرض تجاري",
+          "avaragePriceOfMeter": 13434.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 1,
+          "year": 2025,
+          "metricsType": "أرض تجاري سكني",
+          "avaragePriceOfMeter": 9215.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 1,
+          "year": 2025,
+          "metricsType": "أرض سكني",
+          "avaragePriceOfMeter": 7199.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 1,
+          "year": 2025,
+          "metricsType": "شقق",
+          "avaragePriceOfMeter": 11879.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 1,
+          "year": 2025,
+          "metricsType": "فلل",
+          "avaragePriceOfMeter": 14381.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 1,
+          "year": 2025,
+          "metricsType": "مبنى تجاري",
+          "avaragePriceOfMeter": 24870.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 1,
+          "year": 2025,
+          "metricsType": "مبنى تجاري سكني",
+          "avaragePriceOfMeter": 32687.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 1,
+          "year": 2025,
+          "metricsType": "مرافق",
+          "avaragePriceOfMeter": 4901.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 2,
+          "year": 2025,
+          "metricsType": "أرض تجاري",
+          "avaragePriceOfMeter": 13434.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 2,
+          "year": 2025,
+          "metricsType": "أرض تجاري سكني",
+          "avaragePriceOfMeter": 9215.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 2,
+          "year": 2025,
+          "metricsType": "أرض سكني",
+          "avaragePriceOfMeter": 7339.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 2,
+          "year": 2025,
+          "metricsType": "شقق",
+          "avaragePriceOfMeter": 12009.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 2,
+          "year": 2025,
+          "metricsType": "فلل",
+          "avaragePriceOfMeter": 14381.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 2,
+          "year": 2025,
+          "metricsType": "مبنى تجاري",
+          "avaragePriceOfMeter": 24870.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 2,
+          "year": 2025,
+          "metricsType": "مبنى تجاري سكني",
+          "avaragePriceOfMeter": 32687.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 2,
+          "year": 2025,
+          "metricsType": "مرافق",
+          "avaragePriceOfMeter": 4901.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 3,
+          "year": 2025,
+          "metricsType": "أرض تجاري",
+          "avaragePriceOfMeter": 13434.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 3,
+          "year": 2025,
+          "metricsType": "أرض تجاري سكني",
+          "avaragePriceOfMeter": 10660.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 3,
+          "year": 2025,
+          "metricsType": "أرض سكني",
+          "avaragePriceOfMeter": 7504.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 3,
+          "year": 2025,
+          "metricsType": "شقق",
+          "avaragePriceOfMeter": 12566.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 3,
+          "year": 2025,
+          "metricsType": "فلل",
+          "avaragePriceOfMeter": 15157.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 3,
+          "year": 2025,
+          "metricsType": "مبنى تجاري",
+          "avaragePriceOfMeter": 24870.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 3,
+          "year": 2025,
+          "metricsType": "مبنى تجاري سكني",
+          "avaragePriceOfMeter": 32687.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 3,
+          "year": 2025,
+          "metricsType": "مرافق",
+          "avaragePriceOfMeter": 4901.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 4,
+          "year": 2025,
+          "metricsType": "أرض تجاري",
+          "avaragePriceOfMeter": 13434.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 4,
+          "year": 2025,
+          "metricsType": "أرض تجاري سكني",
+          "avaragePriceOfMeter": 11277.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 4,
+          "year": 2025,
+          "metricsType": "أرض سكني",
+          "avaragePriceOfMeter": 7744.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 4,
+          "year": 2025,
+          "metricsType": "شقق",
+          "avaragePriceOfMeter": 13588.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 4,
+          "year": 2025,
+          "metricsType": "فلل",
+          "avaragePriceOfMeter": 15230.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 4,
+          "year": 2025,
+          "metricsType": "مبنى تجاري",
+          "avaragePriceOfMeter": 24870.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 4,
+          "year": 2025,
+          "metricsType": "مبنى تجاري سكني",
+          "avaragePriceOfMeter": 33398.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 4,
+          "year": 2025,
+          "metricsType": "مرافق",
+          "avaragePriceOfMeter": 4901.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 5,
+          "year": 2025,
+          "metricsType": "أرض تجاري",
+          "avaragePriceOfMeter": 13434.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 5,
+          "year": 2025,
+          "metricsType": "أرض تجاري سكني",
+          "avaragePriceOfMeter": 11277.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 5,
+          "year": 2025,
+          "metricsType": "أرض سكني",
+          "avaragePriceOfMeter": 8101.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 5,
+          "year": 2025,
+          "metricsType": "شقق",
+          "avaragePriceOfMeter": 13957.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 5,
+          "year": 2025,
+          "metricsType": "فلل",
+          "avaragePriceOfMeter": 15779.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 5,
+          "year": 2025,
+          "metricsType": "مبنى تجاري",
+          "avaragePriceOfMeter": 24870.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 5,
+          "year": 2025,
+          "metricsType": "مبنى تجاري سكني",
+          "avaragePriceOfMeter": 33398.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 5,
+          "year": 2025,
+          "metricsType": "مرافق",
+          "avaragePriceOfMeter": 4901.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 6,
+          "year": 2025,
+          "metricsType": "أرض تجاري",
+          "avaragePriceOfMeter": 13434.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 6,
+          "year": 2025,
+          "metricsType": "أرض تجاري سكني",
+          "avaragePriceOfMeter": 11277.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 6,
+          "year": 2025,
+          "metricsType": "أرض سكني",
+          "avaragePriceOfMeter": 8222.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 6,
+          "year": 2025,
+          "metricsType": "شقق",
+          "avaragePriceOfMeter": 14072.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 6,
+          "year": 2025,
+          "metricsType": "فلل",
+          "avaragePriceOfMeter": 15779.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 6,
+          "year": 2025,
+          "metricsType": "مبنى تجاري",
+          "avaragePriceOfMeter": 24870.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 6,
+          "year": 2025,
+          "metricsType": "مبنى تجاري سكني",
+          "avaragePriceOfMeter": 33398.0
+        },
+        {
+          "neighborhoodId": 10100079,
+          "month": 6,
+          "year": 2025,
+          "metricsType": "مرافق",
+          "avaragePriceOfMeter": 4901.0
+        }
+      ],
+      "parcelMetrics": [],
+      "from": "2025-01-02T00:00:00+00:00",
+      "to": "2025-07-02T23:59:59.9999999+00:00",
+      "groupingType": 0
+    }
+  ],
+  "message": null,
+  "status": true,
+  "meta": null
+}
