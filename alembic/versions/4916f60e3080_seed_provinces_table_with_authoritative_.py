@@ -9,6 +9,7 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy import text
 
 
 # revision identifiers, used by Alembic.
@@ -20,6 +21,18 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
+    # Add province_name_ar column if it does not exist
+    op.execute("""
+    DO $$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name='provinces' AND column_name='province_name_ar'
+        ) THEN
+            ALTER TABLE provinces ADD COLUMN province_name_ar VARCHAR;
+        END IF;
+    END$$;
+    """)
     # Insert authoritative province data (id and name only)
     op.execute("""
     INSERT INTO provinces (province_id, province_name, province_name_ar)

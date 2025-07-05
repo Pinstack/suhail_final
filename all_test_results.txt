@@ -1,0 +1,28 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.11.13, pytest-8.4.1, pluggy-1.6.0
+rootdir: /Users/raedmundjennings/Projects/Suhail_Final
+configfile: pyproject.toml
+plugins: anyio-4.9.0, asyncio-1.0.0
+asyncio: mode=Mode.AUTO, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 16 items
+
+tests/integration/test_pipeline_integration.py .                         [  6%]
+tests/test_async_tile_downloader.py ..                                   [ 18%]
+tests/unit/test_async_tile_downloader.py ..                              [ 31%]
+tests/unit/test_config.py ...                                            [ 50%]
+tests/unit/test_data_validation.py .                                     [ 56%]
+tests/unit/test_decoder.py ...                                           [ 75%]
+tests/unit/test_discovery.py ..                                          [ 87%]
+tests/unit/test_validator.py ..                                          [100%]
+
+=============================== warnings summary ===============================
+tests/integration/test_pipeline_integration.py::test_run_pipeline_with_mocks
+  /Users/raedmundjennings/Projects/Suhail_Final/tests/integration/test_pipeline_integration.py:16: DeprecationWarning: `encode` signature has changed, use `default_options` instead
+    tile_bytes = mapbox_vector_tile.encode(
+
+tests/integration/test_pipeline_integration.py::test_run_pipeline_with_mocks
+  /Users/raedmundjennings/Projects/Suhail_Final/.venv/lib/python3.11/site-packages/pyogrio/__init__.py:7: DeprecationWarning: The 'shapely.geos' module is deprecated, and will be removed in a future version. All attributes of 'shapely.geos' are available directly from the top-level 'shapely' namespace (since shapely 2.0.0).
+    import shapely.geos  # noqa: F401
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 16 passed, 2 warnings in 1.26s ========================

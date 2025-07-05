@@ -70,10 +70,10 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('station_code')
     )
     op.execute("""DO $$\nBEGIN\n    IF NOT EXISTS (\n        SELECT 1 FROM pg_class c\n        JOIN pg_namespace n ON n.oid = c.relnamespace\n        WHERE c.relname = 'idx_riyadh_bus_stations_geometry'\n          AND n.nspname = 'public'\n    ) THEN\n        CREATE INDEX idx_riyadh_bus_stations_geometry ON riyadh_bus_stations USING gist (geometry);\n    END IF;\nEND$$;\n""")
-    op.drop_index(op.f('idx_streets_geometry'), table_name='streets', postgresql_using='gist')
-    op.drop_table('streets')
-    op.drop_index(op.f('idx_temp_neighborhoods_debug_geometry'), table_name='temp_neighborhoods_debug', postgresql_using='gist')
-    op.drop_table('temp_neighborhoods_debug')
+    # op.drop_index(op.f('idx_streets_geometry'), table_name='streets', postgresql_using='gist')
+    # op.drop_table('streets')
+    # op.drop_index(op.f('idx_temp_neighborhoods_debug_geometry'), table_name='temp_neighborhoods_debug', postgresql_using='gist')
+    # op.drop_table('temp_neighborhoods_debug')
     op.execute("""
     DO $$
     BEGIN

@@ -1,4 +1,4 @@
-from meshic_pipeline.config import Settings, Environment
+from meshic_pipeline.config import Settings, Environment, ApiConfig
 
 
 def test_environment_override():
@@ -8,17 +8,12 @@ def test_environment_override():
     assert cfg.environment == Environment.TESTING
 
 
-def test_api_config_url_building():
-    cfg = Settings(
-        database_url="postgresql://user:pass@localhost/db",
-        api_config={"base_url": "https://example.com"},
-    )
-    api = cfg.api_config
+def test_api_config_url_building(monkeypatch):
+    monkeypatch.setenv("SUHAIL_API_BASE_URL", "https://example.com")
+    api = ApiConfig()
     assert api.transactions_url == "https://example.com/transactions"
     assert api.building_rules_url == "https://example.com/parcel/buildingRules"
-    assert (
-        api.price_metrics_url == "https://example.com/api/parcel/metrics/priceOfMeter"
-    )
+    assert api.price_metrics_url == "https://example.com/api/parcel/metrics/priceOfMeter"
 
 
 def test_get_tile_cache_path(tmp_path):

@@ -253,6 +253,18 @@ async def run_pipeline(
             logger.info("--- Finished processing for layer: %s ---", layer)
             continue
 
+        # --- Enrichment Step: Assign region_id to parcels ---
+        if layer == 'parcels':
+            logger.info("Enriching parcels with region_id via spatial join...")
+            # Load neighborhoods from DB
+            neighborhoods = gpd.read_postgis(
+                "SELECT neighborhood_id, region_id, geometry FROM neighborhoods", persister.engine, geom_col="geometry"
+            )
+            # Spatial join for region_id
+            parcels_enriched = gpd.sjoin(stitched_gdf, neighborhoods[['region_id', 'geometry']], how='left', predicate='intersects')
+            stitched_gdf['region_id'] = parcels_enriched['region_id']
+            logger.info("Enrichment complete: region_id assigned where possible.")
+
         # Save stitched file locally
         out_path = settings.stitched_dir / f"{layer}_stitched.geojson"
         stitched_gdf.to_file(out_path, driver="GeoJSON")

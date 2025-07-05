@@ -4,12 +4,10 @@ from shapely.geometry import Point
 
 from meshic_pipeline.persistence.postgis_persister import PostGISPersister
 
-
 class MockPersister(PostGISPersister):
     def __init__(self):
         # Skip real database connection
         pass
-
 
 def test_validate_and_cast_types_parcels():
     data = {

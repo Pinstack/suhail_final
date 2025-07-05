@@ -123,7 +123,7 @@ class PostGISPersister:
     # Define expected integer ID fields for validation
     INTEGER_ID_FIELDS = {
         'parcel_id', 'zoning_id', 'subdivision_id', 'neighborhood_id', 
-        'province_id', 'municipality_id', 'region_id', 'parcel_objectid'
+        'province_id', 'region_id', 'parcel_objectid'
     }
     
     # Define expected numeric/float fields for proper schema creation

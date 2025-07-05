@@ -21,7 +21,7 @@ def test_run_pipeline_with_mocks(monkeypatch):
             ],
         },
         quantize_bounds=(0,0,1,1),
-        extents=4096,
+        extents=4096
     )
 
     # discovery returns exactly one tile coordinate

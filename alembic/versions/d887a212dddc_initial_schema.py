@@ -84,6 +84,7 @@ def upgrade() -> None:
     sa.Column('description', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('ruleid')
     )
+    # TODO: Remove municipalities table if unused in future cleanup
     op.create_table('municipalities',
     sa.Column('municipality_id', sa.BigInteger(), nullable=False),
     sa.Column('municipality_name', sa.String(), nullable=True),

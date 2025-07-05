@@ -3,6 +3,8 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, List, Sequence
 import re
+import json
+import os
 
 import mapbox_vector_tile
 import mercantile
@@ -22,7 +24,7 @@ class MVTDecoder:
     # Define expected integer ID fields for type casting
     INTEGER_ID_FIELDS = {
         'parcel_id', 'zoning_id', 'subdivision_id', 'neighborhood_id', 
-        'province_id', 'municipality_id', 'region_id'
+        'province_id', 'region_id'
     }
     
     # Define expected string ID fields (parcel_objectid comes as string but gets converted downstream)
@@ -43,62 +45,50 @@ class MVTDecoder:
         self.transformer = Transformer.from_crs(
             "EPSG:3857", self.target_crs, always_xy=True
         ).transform
+        self.quarantined_features = []
 
     def _cast_property_types(self, properties: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Cast property values to expected types to prevent downstream type inconsistencies.
-        
-        Args:
-            properties: Raw properties from MVT feature
-            
-        Returns:
-            Properties dict with properly cast types
-        """
         cast_properties = {}
-        
         for key, value in properties.items():
-            if value is None:
-                cast_properties[key] = value
-                continue
-                
             try:
                 if key in self.INTEGER_ID_FIELDS:
-                    # Robustly cast to integer for ID fields
+                    # Accept int, float (if .is_integer()), or string (parseable as int/float and .is_integer())
                     if isinstance(value, int):
                         cast_properties[key] = value
                     elif isinstance(value, float):
                         if value.is_integer():
                             cast_properties[key] = int(value)
                         else:
-                            logger.warning(f"Cannot cast {key}={value} to integer (non-integer float), setting as None")
+                            print(f"[WARN] Non-integer float for {key}: {value} in feature: {properties}")
+                            logging.warning(f"Non-integer float for {key}: {value} in feature: {properties}")
                             cast_properties[key] = None
                     elif isinstance(value, str):
                         try:
-                            float_val = float(value)
-                            if float_val.is_integer():
-                                cast_properties[key] = int(float_val)
+                            fval = float(value)
+                            if fval.is_integer():
+                                cast_properties[key] = int(fval)
                             else:
-                                logger.warning(f"Cannot cast {key}='{value}' to integer (non-integer string), setting as None")
+                                print(f"[WARN] Non-integer string for {key}: '{value}' in feature: {properties}")
+                                logging.warning(f"Non-integer string for {key}: '{value}' in feature: {properties}")
                                 cast_properties[key] = None
                         except Exception:
-                            logger.warning(f"Cannot cast {key}='{value}' to integer, setting as None")
+                            print(f"[WARN] Unparseable string for {key}: '{value}' in feature: {properties}")
+                            logging.warning(f"Unparseable string for {key}: '{value}' in feature: {properties}")
                             cast_properties[key] = None
                     else:
-                        logger.warning(f"Cannot cast {key}={value} to integer, setting as None")
+                        print(f"[WARN] Unexpected type for {key}: {type(value)} value: {value} in feature: {properties}")
+                        logging.warning(f"Unexpected type for {key}: {type(value)} value: {value} in feature: {properties}")
                         cast_properties[key] = None
-                        
                 elif key in self.STRING_ID_FIELDS:
                     # Ensure string ID fields are strings
                     cast_properties[key] = str(value)
-                    
                 else:
                     # Keep other fields as-is
                     cast_properties[key] = value
-                    
-            except (ValueError, TypeError) as e:
-                logger.warning(f"Type casting error for {key}={value}: {e}, setting as None")
+            except Exception as e:
+                print(f"[ERROR] Exception casting {key}: {value} in feature: {properties} -- {e}")
+                logging.error(f"Exception casting {key}: {value} in feature: {properties} -- {e}")
                 cast_properties[key] = None
-        
         return cast_properties
 
     def _create_transform_function(
@@ -177,6 +167,16 @@ class MVTDecoder:
             
             if features_out:
                 output_layers[layer_name] = features_out
+        
+        # At the end, if any quarantined features, write to file
+        if self.quarantined_features:
+            quarantine_path = os.path.join(os.getcwd(), 'quarantined_features.jsonl')
+            with open(quarantine_path, 'a', encoding='utf-8') as f:
+                for q in self.quarantined_features:
+                    f.write(json.dumps(q, ensure_ascii=False) + '\n')
+            print(f"Quarantined {len(self.quarantined_features)} problematic features to {quarantine_path}")
+            logging.warning(f"Quarantined {len(self.quarantined_features)} problematic features to {quarantine_path}")
+            self.quarantined_features.clear()
         
         return output_layers
 

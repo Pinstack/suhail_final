@@ -93,6 +93,10 @@ def validate_integer_conversion(engine, table_name: str, column_name: str, curre
                     else:
                         result["can_convert"] = True
                         result["recommendations"].append("All string values are valid integers - safe to convert")
+            elif current_type.upper() in ['BIGINT', 'INTEGER', 'INT8', 'INT4']:
+                # Already integer type, just check for overflows (shouldn't happen in Postgres)
+                result["can_convert"] = True
+                result["recommendations"].append(f"Type {current_type} is already integer-compatible.")
             else:
                 result["can_convert"] = True
                 result["recommendations"].append(f"Type {current_type} should be compatible")

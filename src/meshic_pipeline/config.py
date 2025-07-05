@@ -68,9 +68,17 @@ class ApiConfig(BaseSettings):
         extra="ignore",
     )
 
-    base_url: str = Field("https://api2.suhail.ai", env="SUHAIL_API_BASE_URL", description="Base URL for the Suhail API")
+    base_url: str = Field(
+        "https://api2.suhail.ai",
+        alias="SUHAIL_API_BASE_URL",
+        description="Base URL for the Suhail API"
+    )
     timeout: int = Field(60, description="Total timeout in seconds for API calls")
-    api_key: Optional[str] = Field(None, env="SUHAIL_API_KEY", description="API key for authentication")
+    api_key: Optional[str] = Field(
+        None,
+        alias="SUHAIL_API_KEY",
+        description="API key for authentication"
+    )
     transactions_url: Optional[str] = Field(None, description="Full Transactions API URL")
     building_rules_url: Optional[str] = Field(None, description="Full Building Rules API URL")
     price_metrics_url: Optional[str] = Field(None, description="Full Price Metrics API URL")
@@ -120,8 +128,8 @@ class Settings(BaseSettings):
     )
     tile_base_url: str = Field(
         "https://tiles.suhail.ai/maps/riyadh",
-        env="TILE_BASE_URL",
-        description="Base URL for the MVT tile server, without /z/x/y.",
+        alias="TILE_BASE_URL",
+        description="Base URL for the MVT tile server, without /z/x/y."
     )
     default_crs: str = Field("EPSG:4326", description="Default CRS for all GeoDataFrames")
     # --- Pipeline Grid Configuration (loaded from pipeline_config.yaml) ---
@@ -157,19 +165,12 @@ class Settings(BaseSettings):
     # --- Layer-specific Behavior ---
     id_column_per_layer: Dict[str, str] = Field(
         default_factory=lambda: {
-            # Only include tables with a unique constraint or primary key (see WHAT_TO_DO_NEXT_PIPELINE_TABLES.md)
             "parcels": "parcel_objectid",
             "parcels-centroids": "parcel_no",
             "subdivisions": "subdivision_id",
             "neighborhoods": "neighborhood_id",
             "neighborhoods-centroids": "neighborhood_id",
             "dimensions": "parcel_objectid",
-            # The following are removed due to lack of reliable uniqueness:
-            # "metro_lines": "busroute",
-            # "bus_lines": "busroute",
-            # "sb_area": "name",
-            # ...
-            # Only add back if/when a unique constraint is added via Alembic
             "metro_stations": "station_code",
             "riyadh_bus_stations": "station_code",
             "qi_population_metrics": "grid_id",
@@ -181,7 +182,6 @@ class Settings(BaseSettings):
     aggregation_rules_per_layer: Dict[str, Dict[str, str]] = Field(
         default_factory=lambda: {
             "parcels": {
-                # Fields that actually exist in parcels layer at zoom 15
                 "shape_area": "first",
                 "transaction_price": "first",
                 "price_of_meter": "first", 
@@ -189,19 +189,16 @@ class Settings(BaseSettings):
                 "zoning_id": "first",
                 "subdivision_id": "first",
                 "neighborhood_ar": "first",
-                "municipality_ar": "first",
                 "parcel_no": "first",
                 "subdivision_no": "first",
                 "zoning_color": "first"
             },
             "parcels-centroids": {
-                # Fields that actually exist in parcels-centroids layer at zoom 15
                 "transaction_date": "first",
                 "transaction_price": "first", 
                 "price_of_meter": "first"
             },
             "neighborhoods": {
-                # Fields that actually exist in neighborhoods layer  
                 "shape_area": "first",
                 "region_id": "first",
                 "province_id": "first", 
@@ -212,7 +209,6 @@ class Settings(BaseSettings):
                 "price_of_meter": "first"
             },
             "subdivisions": {
-                # Fields that actually exist in subdivisions layer
                 "shape_area": "first",
                 "subdivision_no": "first",
                 "zoning_id": "first",
@@ -228,7 +224,9 @@ class Settings(BaseSettings):
         default_factory=lambda: {
             "parcels": "parcels",
             "parcels-centroids": "parcels_centroids",
+            "neighborhoods": "neighborhoods",
             "neighborhoods-centroids": "neighborhoods_centroids",
+            "subdivisions": "subdivisions",
             "metro_lines": "metro_lines",
             "bus_lines": "bus_lines",
             "metro_stations": "metro_stations",
@@ -241,11 +239,11 @@ class Settings(BaseSettings):
     
     layers_to_process: List[str] = Field(
         default_factory=lambda: [
+            "neighborhoods",
+            "subdivisions",
             "parcels",
             "parcels-centroids",
-            "neighborhoods",
             "neighborhoods-centroids",
-            "subdivisions",
             "metro_lines",
             "bus_lines",
             "metro_stations",
