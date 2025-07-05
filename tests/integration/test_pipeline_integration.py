@@ -78,6 +78,12 @@ def test_run_pipeline_with_mocks(monkeypatch):
 
         def recreate_database(self):
             pass
+        def execute(self, *args, **kwargs):
+            pass
+        def read_sql(self, sql, geom_col="geometry"):
+            return persisted.get("parcels", gpd.GeoDataFrame())
+        def drop_table(self, *args, **kwargs):
+            pass
 
         def create_table_from_gdf(self, *args, **kwargs):
             table = args[1]
