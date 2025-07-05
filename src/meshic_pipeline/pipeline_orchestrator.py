@@ -195,7 +195,7 @@ async def run_pipeline(
                 patched_result_list = []
                 for _layer_name, gdf in result_list:
                     # Apply Arabic column mapping centrally
-                    gdf = MVTDecoder.apply_arabic_column_mapping(None, gdf)
+                    gdf = MVTDecoder.apply_arabic_column_mapping(gdf)
                     patched_result_list.append((_layer_name, gdf))
                 decoded_gdfs_cache.append(patched_result_list)
                 for _layer_name, gdf in patched_result_list:

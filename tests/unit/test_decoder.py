@@ -16,7 +16,6 @@ def test_cast_property_types_basic():
 
 
 def test_apply_arabic_column_mapping():
-    decoder = MVTDecoder()
     gdf = gpd.GeoDataFrame(
         {
             "neighborhaname": ["حي"],
@@ -25,6 +24,6 @@ def test_apply_arabic_column_mapping():
         geometry="geometry",
         crs="EPSG:4326",
     )
-    mapped = decoder.apply_arabic_column_mapping(gdf)
+    mapped = MVTDecoder.apply_arabic_column_mapping(gdf)
     assert "neighborhood_ar" in mapped.columns
     assert "neighborhaname" not in mapped.columns
