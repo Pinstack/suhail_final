@@ -16,29 +16,52 @@ logger = logging.getLogger(__name__)
 class AsyncTileDownloader:
     """Manages asynchronous download and caching of MVT tiles."""
 
-    def __init__(self, base_url: str = None):
+    def __init__(
+        self,
+        base_url: str | None = None,
+        cache_dir: str | Path | None = None,
+        session: aiohttp.ClientSession | None = None,
+    ):
+        """Create a new downloader instance.
+
+        Parameters
+        ----------
+        base_url:
+            Optional custom base URL for tiles. If ``None`` the value from
+            :data:`settings.tile_base_url` is used.
+        cache_dir:
+            Optional directory to store cached tiles. Defaults to
+            :data:`settings.cache_dir`.
+        session:
+            Optional :class:`aiohttp.ClientSession` to use for requests. This
+            allows tests to inject a fake session. If ``None`` a new session will
+            be created when entering the async context manager.
         """
-        Initializes the downloader using global application settings.
-        
-        Args:
-            base_url: Optional custom base URL for tiles. If None, uses settings.tile_base_url
-        """
-        self.cache_dir = settings.cache_dir
+
+        self.cache_dir = Path(cache_dir) if cache_dir is not None else settings.cache_dir
         self.semaphore = asyncio.Semaphore(settings.max_concurrent_downloads)
-        self.session: aiohttp.ClientSession | None = None
+        self.session: aiohttp.ClientSession | None = session
+        self._own_session = session is None
         self.base_url = (base_url or settings.tile_base_url).rstrip("/")
 
     async def __aenter__(self):
-        self.session = aiohttp.ClientSession()
+        if self.session is None:
+            self.session = aiohttp.ClientSession()
+            self._own_session = True
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
-        if self.session:
+        if self.session and self._own_session:
             await self.session.close()
+
+    def get_tile_cache_path(self, z: int, x: int, y: int) -> Path:
+        """Return the cache path for the given tile coordinates."""
+        tile_dir = self.cache_dir / str(z) / str(x)
+        return tile_dir / f"{y}.pbf"
 
     async def fetch_tile(self, z: int, x: int, y: int) -> bytes | None:
         """Fetches a single tile, using the cache if available."""
-        cache_path = settings.get_tile_cache_path(z, x, y)
+        cache_path = self.get_tile_cache_path(z, x, y)
         if cache_path.exists():
             logger.debug("Tile %d/%d/%d found in cache.", z, x, y)
             return cache_path.read_bytes()
