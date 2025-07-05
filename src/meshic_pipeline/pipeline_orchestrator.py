@@ -5,6 +5,7 @@ import asyncio
 import logging
 from pathlib import Path
 from typing import Dict, List, Tuple
+import uuid
 import concurrent.futures
 import itertools
 import pandas as pd
@@ -54,6 +55,42 @@ def setup_logging():
     
 setup_logging()
 logger = logging.getLogger(__name__)
+
+
+def enrich_parcels_with_region_id(
+    gdf: gpd.GeoDataFrame, persister: PostGISPersister
+) -> gpd.GeoDataFrame:
+    """Enrich parcels GeoDataFrame with region_id using PostGIS."""
+
+    temp_table = f"temp_parcels_enrich_{uuid.uuid4().hex[:8]}"
+    gdf_to_write = gdf.copy()
+    if "region_id" not in gdf_to_write.columns:
+        gdf_to_write["region_id"] = None
+
+    # Persist to a temporary table
+    persister.write(
+        gdf_to_write, "parcels", temp_table, if_exists="replace", id_column=None
+    )
+
+    # Ensure spatial indexes for efficient join
+    persister.execute(
+        f'CREATE INDEX IF NOT EXISTS idx_{temp_table}_geom ON public."{temp_table}" USING GIST("geometry")'
+    )
+    persister.execute(
+        'CREATE INDEX IF NOT EXISTS idx_neighborhoods_geometry ON public.neighborhoods USING GIST("geometry")'
+    )
+
+    update_sql = f"""
+        UPDATE public."{temp_table}" AS p
+        SET region_id = n.region_id
+        FROM neighborhoods n
+        WHERE ST_Intersects(p.geometry, n.geometry);
+    """
+    persister.execute(update_sql)
+
+    enriched = persister.read_sql(f'SELECT * FROM "{temp_table}"')
+    persister.drop_table(temp_table)
+    return enriched
 
 
 def decode_and_validate_tile(
@@ -255,15 +292,8 @@ async def run_pipeline(
 
         # --- Enrichment Step: Assign region_id to parcels ---
         if layer == 'parcels':
-            logger.info("Enriching parcels with region_id via spatial join...")
-            # Load neighborhoods from DB
-            neighborhoods = gpd.read_postgis(
-                "SELECT neighborhood_id, region_id, geometry FROM neighborhoods", persister.engine, geom_col="geometry"
-            )
-            # Spatial join for region_id
-            parcels_enriched = gpd.sjoin(stitched_gdf, neighborhoods[['region_id', 'geometry']], how='left', predicate='intersects')
-            stitched_gdf['region_id'] = parcels_enriched['region_id']
-            logger.info("Enrichment complete: region_id assigned where possible.")
+            logger.info("Enriching parcels with region_id via PostGIS join...")
+            stitched_gdf = enrich_parcels_with_region_id(stitched_gdf, persister)
 
         # Save stitched file locally
         out_path = settings.stitched_dir / f"{layer}_stitched.geojson"

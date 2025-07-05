@@ -55,6 +55,12 @@ def test_run_pipeline_with_mocks(monkeypatch):
             persisted[layer_name] = gdf
         def recreate_database(self):
             pass
+        def execute(self, *args, **kwargs):
+            pass
+        def read_sql(self, sql, geom_col="geometry"):
+            return persisted.get("parcels", gpd.GeoDataFrame())
+        def drop_table(self, *args, **kwargs):
+            pass
 
     monkeypatch.setattr(
         "meshic_pipeline.pipeline_orchestrator.PostGISPersister",
