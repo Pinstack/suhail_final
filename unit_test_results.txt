@@ -7,7 +7,7 @@ plugins: anyio-4.9.0, asyncio-1.0.0
 asyncio: mode=Mode.AUTO, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
 collected 21 items
 
-tests/integration/test_pipeline_integration.py .                         [  4%]
+tests/integration/test_pipeline_integration.py F                         [  4%]
 tests/test_async_tile_downloader.py ..                                   [ 14%]
 tests/unit/test_async_tile_downloader.py ..                              [ 23%]
 tests/unit/test_config.py ...                                            [ 38%]
@@ -18,14 +18,182 @@ tests/unit/test_enrichment_strategies.py ..                              [ 80%]
 tests/unit/test_stitcher.py ..                                           [ 90%]
 tests/unit/test_validator.py ..                                          [100%]
 
+=================================== FAILURES ===================================
+_________________________ test_run_pipeline_with_mocks _________________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x101d01950>
+
+    def test_run_pipeline_with_mocks(monkeypatch):
+        # sample tile with a single parcel feature
+        tile_bytes = mapbox_vector_tile.encode(
+            {
+                "name": "parcels",
+                "features": [
+                    {
+                        "geometry": Polygon([(0, 0), (1, 0), (1, 1), (0, 1)]),
+                        "properties": {"parcel_id": 1},
+                    }
+                ],
+            },
+            quantize_bounds=(0, 0, 1, 1),
+            extents=4096,
+        )
+    
+        # discovery returns exactly one tile coordinate
+        monkeypatch.setattr(
+            "meshic_pipeline.pipeline_orchestrator.get_tile_coordinates_for_bounds",
+            lambda bbox, zoom: [(15, 0, 0)],
+        )
+    
+        # dummy downloader yields the sample tile data
+        class DummyDownloader:
+            def __init__(self, *args, **kwargs):
+                pass
+    
+            async def __aenter__(self):
+                return self
+    
+            async def __aexit__(self, exc_type, exc, tb):
+                pass
+    
+            async def download_many(self, tiles):
+                return {tiles[0]: tile_bytes}
+    
+        monkeypatch.setattr(
+            "meshic_pipeline.pipeline_orchestrator.AsyncTileDownloader",
+            DummyDownloader,
+        )
+    
+        # collect persisted GeoDataFrames for assertion
+        persisted = {}
+        temp_tables = {}
+    
+        class DummyPersister:
+            def __init__(self, *args, **kwargs):
+                self.engine = None
+    
+            def write(
+                self,
+                gdf,
+                layer_name,
+                table,
+                if_exists="append",
+                id_column=None,
+                schema="public",
+                chunksize=5000,
+            ):
+                if table.startswith("temp"):
+                    temp_tables.setdefault(table, []).append(gdf)
+                else:
+                    persisted[layer_name] = gdf
+    
+            def recreate_database(self):
+                pass
+    
+            def create_table_from_gdf(self, *args, **kwargs):
+                table = args[1]
+                temp_tables[table] = []
+    
+            def drop_table(self, table, schema="public"):
+                temp_tables.pop(table, None)
+    
+        monkeypatch.setattr(
+            "meshic_pipeline.pipeline_orchestrator.PostGISPersister",
+            DummyPersister,
+        )
+    
+        # stitcher just concatenates GeoDataFrames stored in the temp table
+        def dummy_stitch(self, table_name, layer_name, id_column, agg_rules, known_columns):
+            dfs = temp_tables.get(table_name, [])
+            if not dfs:
+                return gpd.GeoDataFrame(geometry=[], crs=settings.default_crs)
+            df = pd.concat(dfs, ignore_index=True)
+            return gpd.GeoDataFrame(df, geometry="geometry", crs=settings.default_crs)
+    
+        monkeypatch.setattr(
+            "meshic_pipeline.pipeline_orchestrator.GeometryStitcher.stitch_from_table",
+            dummy_stitch,
+        )
+    
+        # make executor synchronous for predictable results
+        class DummyExecutor:
+            def __enter__(self):
+                return self
+    
+            def __exit__(self, exc_type, exc, tb):
+                pass
+    
+            def map(self, func, *iterables):
+                return map(func, *iterables)
+    
+        monkeypatch.setattr("concurrent.futures.ProcessPoolExecutor", DummyExecutor)
+    
+        # limit to a single layer
+        monkeypatch.setattr(settings, "layers_to_process", ["parcels"])
+    
+        # run the pipeline
+>       asyncio.run(run_pipeline(aoi_bbox=(0, 0, 1, 1), zoom=15))
+
+tests/integration/test_pipeline_integration.py:124: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/opt/homebrew/Cellar/python@3.11/3.11.13/Frameworks/Python.framework/Versions/3.11/lib/python3.11/asyncio/runners.py:190: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.11/3.11.13/Frameworks/Python.framework/Versions/3.11/lib/python3.11/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.11/3.11.13/Frameworks/Python.framework/Versions/3.11/lib/python3.11/asyncio/base_events.py:654: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+src/meshic_pipeline/pipeline_orchestrator.py:304: in run_pipeline
+    df = gpd.read_postgis(
+.venv/lib/python3.11/site-packages/geopandas/io/sql.py:185: in _read_postgis
+    df = pd.read_sql(
+.venv/lib/python3.11/site-packages/pandas/io/sql.py:708: in read_sql
+    return pandas_sql.read_query(
+.venv/lib/python3.11/site-packages/pandas/io/sql.py:2728: in read_query
+    cursor = self.execute(sql, params)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pandas.io.sql.SQLiteDatabase object at 0x136ad0710>
+sql = 'SELECT * FROM "temp_decoded_parcels_304782a1"', params = None
+
+    def execute(self, sql: str | Select | TextClause, params=None):
+        if not isinstance(sql, str):
+            raise TypeError("Query must be a string unless using sqlalchemy.")
+        args = [] if params is None else [params]
+>       cur = self.con.cursor()
+              ^^^^^^^^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'cursor'
+
+.venv/lib/python3.11/site-packages/pandas/io/sql.py:2662: AttributeError
+----------------------------- Captured stdout call -----------------------------
+2025-07-05 19:05:34,760 - meshic_pipeline.pipeline_orchestrator - INFO - Starting pipeline run for AOI: (0, 0, 1, 1) at zoom 15
+2025-07-05 19:05:34,761 - meshic_pipeline.pipeline_orchestrator - INFO - 📦 Bbox mode: Discovered 1 tiles for AOI
+2025-07-05 19:05:34,761 - meshic_pipeline.pipeline_orchestrator - INFO - 🌐 Using default tile server: https://tiles.suhail.ai/maps/riyadh
+2025-07-05 19:05:34,777 - meshic_pipeline.pipeline_orchestrator - INFO - --- Starting processing for layer: parcels ---
+2025-07-05 19:05:34,801 - meshic_pipeline.pipeline_orchestrator - INFO - Discovered full schema for layer 'parcels' with 2 columns.
+2025-07-05 19:05:34,801 - meshic_pipeline.pipeline_orchestrator - INFO - Stitching layer 'parcels' using ID column 'parcel_objectid' and 10 aggregation rules.
+2025-07-05 19:05:34,801 - meshic_pipeline.pipeline_orchestrator - WARNING - Layer 'parcels': No valid ID column for dissolve/grouping. Writing features as-is.
+----------------------------- Captured stderr call -----------------------------
+Processing Layers:   0%|          | 0/1 [00:00<?, ?it/s]
+Pass 1/2: Discovering schema for parcels:   0%|          | 0/1 [00:00<?, ?tile/s][APass 1/2: Discovering schema for parcels:   0%|          | 0/1 [00:00<?, ?tile/s]
+Processing Layers:   0%|          | 0/1 [00:00<?, ?it/s]
+------------------------------ Captured log call -------------------------------
+INFO     meshic_pipeline.pipeline_orchestrator:pipeline_orchestrator.py:155 Starting pipeline run for AOI: (0, 0, 1, 1) at zoom 15
+INFO     meshic_pipeline.pipeline_orchestrator:pipeline_orchestrator.py:183 📦 Bbox mode: Discovered 1 tiles for AOI
+INFO     meshic_pipeline.pipeline_orchestrator:pipeline_orchestrator.py:210 🌐 Using default tile server: https://tiles.suhail.ai/maps/riyadh
+INFO     meshic_pipeline.pipeline_orchestrator:pipeline_orchestrator.py:237 --- Starting processing for layer: parcels ---
+INFO     meshic_pipeline.pipeline_orchestrator:pipeline_orchestrator.py:281 Discovered full schema for layer 'parcels' with 2 columns.
+INFO     meshic_pipeline.pipeline_orchestrator:pipeline_orchestrator.py:291 Stitching layer 'parcels' using ID column 'parcel_objectid' and 10 aggregation rules.
+WARNING  meshic_pipeline.pipeline_orchestrator:pipeline_orchestrator.py:300 Layer 'parcels': No valid ID column for dissolve/grouping. Writing features as-is.
 =============================== warnings summary ===============================
 tests/integration/test_pipeline_integration.py::test_run_pipeline_with_mocks
-  /Users/raedmundjennings/Projects/Suhail_Final/tests/integration/test_pipeline_integration.py:16: DeprecationWarning: `encode` signature has changed, use `default_options` instead
+  /Users/raedmundjennings/Projects/Suhail_Final/tests/integration/test_pipeline_integration.py:17: DeprecationWarning: `encode` signature has changed, use `default_options` instead
     tile_bytes = mapbox_vector_tile.encode(
 
-tests/integration/test_pipeline_integration.py::test_run_pipeline_with_mocks
-  /Users/raedmundjennings/Projects/Suhail_Final/.venv/lib/python3.11/site-packages/pyogrio/__init__.py:7: DeprecationWarning: The 'shapely.geos' module is deprecated, and will be removed in a future version. All attributes of 'shapely.geos' are available directly from the top-level 'shapely' namespace (since shapely 2.0.0).
-    import shapely.geos  # noqa: F401
-
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-======================== 21 passed, 2 warnings in 6.68s ========================
+=========================== short test summary info ============================
+FAILED tests/integration/test_pipeline_integration.py::test_run_pipeline_with_mocks
+=================== 1 failed, 20 passed, 1 warning in 1.57s ====================

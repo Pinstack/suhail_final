@@ -241,6 +241,7 @@ async def run_pipeline(
             layer_start_stats.process_mb,
         )
         
+        temp_table = f"temp_decoded_{layer}_{uuid.uuid4().hex[:8]}"
         # --- Pass 1: Discover full schema from all tiles ---
         all_columns = set()
 
@@ -262,7 +263,7 @@ async def run_pipeline(
                 tiles_processed_per_layer[layer].append(coords)
                 for _layer_name, gdf in result_list:
                     gdf = MVTDecoder.apply_arabic_column_mapping(None, gdf)
-                    gdf_standardized = gdf.reindex(columns=known_cols)
+                    gdf_standardized = gdf.reindex(columns=list(all_columns))
                     persister.write(
                         gdf_standardized, layer, temp_table, if_exists="append"
                     )

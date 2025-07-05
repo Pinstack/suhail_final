@@ -59,7 +59,7 @@ def test_run_pipeline_with_mocks(monkeypatch):
 
     class DummyPersister:
         def __init__(self, *args, **kwargs):
-            pass
+            self.engine = None
 
         def write(
             self,
