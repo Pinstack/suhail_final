@@ -1,11 +1,24 @@
 from typing import List, Optional
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
+from sqlalchemy.dialects import postgresql
 from datetime import datetime, timedelta
+import re
 
 from meshic_pipeline.logging_utils import get_logger
 
 logger = get_logger(__name__)
+
+
+VALID_TABLE_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+
+
+def _quote_table_name(table_name: str) -> str:
+    """Return a safely quoted table name or raise ValueError if invalid."""
+    if not VALID_TABLE_RE.fullmatch(table_name):
+        raise ValueError(f"Invalid table name: {table_name}")
+    preparer = postgresql.dialect().identifier_preparer
+    return preparer.quote_identifier(table_name)
 
 
 async def get_unprocessed_parcel_ids(
@@ -120,9 +133,10 @@ async def get_delta_parcel_ids(
     Returns:
         List of parcel_objectid strings that need enrichment due to price changes
     """
-    query = """
+    safe_table = _quote_table_name(fresh_mvt_table)
+    query = f"""
         WITH price_changes AS (
-            SELECT 
+            SELECT
                 COALESCE(p.parcel_objectid, f.parcel_objectid) as parcel_objectid,
                 p.transaction_price as stored_price,
                 f.transaction_price as mvt_price,
@@ -134,15 +148,15 @@ async def get_delta_parcel_ids(
                     ELSE 'no_change'
                 END as change_type
             FROM public.parcels p
-            FULL OUTER JOIN public.{fresh_mvt_table} f 
+            FULL OUTER JOIN public.{safe_table} f
                 ON p.parcel_objectid = f.parcel_objectid
             WHERE f.transaction_price > 0  -- Only consider parcels with transactions in MVT
         )
-        SELECT parcel_objectid 
-        FROM price_changes 
+        SELECT parcel_objectid
+        FROM price_changes
         WHERE change_type != 'no_change'
         ORDER BY parcel_objectid
-    """.format(fresh_mvt_table=fresh_mvt_table)
+    """
 
     if limit:
         query += f" LIMIT {limit}"
@@ -174,9 +188,10 @@ async def get_delta_parcel_ids_with_details(
     Returns:
         Tuple of (parcel_ids, change_stats)
     """
-    query = """
+    safe_table = _quote_table_name(fresh_mvt_table)
+    query = f"""
         WITH price_changes AS (
-            SELECT 
+            SELECT
                 COALESCE(p.parcel_objectid, f.parcel_objectid) as parcel_objectid,
                 p.transaction_price as stored_price,
                 f.transaction_price as mvt_price,
@@ -188,11 +203,11 @@ async def get_delta_parcel_ids_with_details(
                     ELSE 'no_change'
                 END as change_type
             FROM public.parcels p
-            FULL OUTER JOIN public.{fresh_mvt_table} f 
+            FULL OUTER JOIN public.{safe_table} f
                 ON p.parcel_objectid = f.parcel_objectid
             WHERE f.transaction_price > 0
         )
-        SELECT 
+        SELECT
             parcel_objectid,
             change_type,
             stored_price,
@@ -200,7 +215,7 @@ async def get_delta_parcel_ids_with_details(
         FROM price_changes 
         WHERE change_type != 'no_change'
         ORDER BY parcel_objectid
-    """.format(fresh_mvt_table=fresh_mvt_table)
+    """
 
     if limit:
         query += f" LIMIT {limit}"
