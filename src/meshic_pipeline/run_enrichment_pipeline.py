@@ -233,7 +233,7 @@ def delta_enrich(
 @app.command()
 def smart_pipeline_enrich(
     geometric_first: bool = typer.Option(True, "--geometric-first", help="Run geometric pipeline first"),
-    trigger_after: bool = typer.Option(True, "--trigger-after", help="Run trigger-based enrichment after geometric"),
+    trigger_after: bool = typer.Option(True, "--trigger-after", help="Run fast enrichment after geometric"),
     batch_size: int = typer.Option(300, "--batch-size", help="Enrichment batch size"),
     bbox: List[float] = typer.Option(None, "--bbox", help="Bounding box: W S E N")
 ):
@@ -247,7 +247,7 @@ def smart_pipeline_enrich(
     
     Perfect for: Complete pipeline runs, maximum efficiency and coverage
     """
-    print("🧠 Starting SMART PIPELINE with geometric + trigger-based enrichment...")
+    print("🧠 Starting SMART PIPELINE with geometric + fast enrichment...")
     
     if geometric_first:
         print("\n🗺️  STAGE 1: Running geometric pipeline...")
@@ -270,11 +270,10 @@ def smart_pipeline_enrich(
             sys.argv = original_argv
     
     if trigger_after:
-        print("\n🎯 STAGE 2: Running trigger-based enrichment...")
-        trigger_based_enrich.callback(
+        print("\n🎯 STAGE 2: Running fast enrichment...")
+        fast_enrich.callback(
             batch_size=batch_size,
             limit=None,
-            baseline_hours=2  # Only enrich parcels updated in last 2 hours (from geometric run)
         )
 
 if __name__ == "__main__":
