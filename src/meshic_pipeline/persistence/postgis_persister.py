@@ -329,7 +329,17 @@ class PostGISPersister:
             self.drop_table(temp_table_name, schema)
             logger.debug("Dropped temporary upsert table: %s", temp_table_name)
 
-    def write(self, gdf: gpd.GeoDataFrame, layer_name: str, table: str, if_exists: str = "append", id_column: str = None, schema: str = "public", chunksize: int = 5000) -> None:
+    def write(
+        self,
+        gdf: gpd.GeoDataFrame,
+        layer_name: str,
+        table: str,
+        if_exists: str = "append",
+        id_column: str | None = None,
+        schema: str = "public",
+        chunksize: int = 5000,
+        geometry_type: str | None = None,
+    ) -> None:
         """
         Write a GeoDataFrame to the database, using schema-driven type enforcement. layer_name is now required.
         """
@@ -340,11 +350,35 @@ class PostGISPersister:
                 logger.warning(f"Layer '{layer_name}': Dropping {non_point_count} non-Point geometries before DB write.")
             gdf = gdf[gdf.geometry.type == 'Point']
         validated_gdf = self._validate_and_cast_types(gdf, layer_name=layer_name)
+        dtype = None
+        if geometry_type:
+            try:
+                from geoalchemy2 import Geometry
+
+                srid = validated_gdf.geometry.crs.to_epsg() or 4326
+                dtype = {validated_gdf.geometry.name: Geometry(geometry_type.upper(), srid=srid)}
+            except Exception as exc:
+                logger.warning("Failed to apply geometry override '%s': %s", geometry_type, exc)
+
         if if_exists == "append" and id_column:
             self._upsert(validated_gdf, table, id_column, schema, chunksize)
         else:
-            validated_gdf.to_postgis(table, self.engine, schema=schema, if_exists=if_exists, index=False, chunksize=chunksize)
-            logger.info("Persisted %d features to %s.%s using mode '%s'", len(validated_gdf), schema, table, if_exists)
+            validated_gdf.to_postgis(
+                table,
+                self.engine,
+                schema=schema,
+                if_exists=if_exists,
+                index=False,
+                chunksize=chunksize,
+                dtype=dtype,
+            )
+            logger.info(
+                "Persisted %d features to %s.%s using mode '%s'",
+                len(validated_gdf),
+                schema,
+                table,
+                if_exists,
+            )
 
     def read_sql(self, sql: str, geom_col: str = "geometry") -> gpd.GeoDataFrame:
         """Executes a SQL query and returns the result as a GeoDataFrame."""

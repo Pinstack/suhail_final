@@ -70,6 +70,7 @@ def test_run_pipeline_with_mocks(monkeypatch):
             id_column=None,
             schema="public",
             chunksize=5000,
+            geometry_type=None,
         ):
             if table.startswith("temp"):
                 temp_tables.setdefault(table, []).append(gdf)

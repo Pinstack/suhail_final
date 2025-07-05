@@ -309,7 +309,11 @@ async def run_pipeline(
                         gdf_standardized = gdf
 
                     persister.write(
-                        gdf_standardized, layer, temp_table, if_exists="append"
+                        gdf_standardized,
+                        layer,
+                        temp_table,
+                        if_exists="append",
+                        geometry_type="GEOMETRY",
                     )
                     all_columns.update(gdf.columns)
 
