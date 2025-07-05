@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Sequence
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine
 from datetime import datetime, timedelta
@@ -6,6 +6,23 @@ from datetime import datetime, timedelta
 from meshic_pipeline.logging_utils import get_logger
 
 logger = get_logger(__name__)
+
+
+async def _execute_query(
+    engine: AsyncEngine,
+    query: str,
+    *,
+    limit: Optional[int] = None,
+    params: Optional[dict] = None,
+) -> Sequence:
+    """Execute a raw SQL query with an optional ``LIMIT`` clause."""
+
+    if limit:
+        query = f"{query} LIMIT {limit}"
+
+    async with engine.begin() as conn:
+        result = await conn.execute(text(query), params or {})
+        return result.fetchall()
 
 
 async def get_unprocessed_parcel_ids(
@@ -34,12 +51,8 @@ async def get_unprocessed_parcel_ids(
         ORDER BY p.parcel_objectid
     """
 
-    if limit:
-        query += f" LIMIT {limit}"
-
-    async with engine.begin() as conn:
-        result = await conn.execute(text(query))
-        parcel_ids = [row[0] for row in result]
+    rows = await _execute_query(engine, query, limit=limit)
+    parcel_ids = [row[0] for row in rows]
 
     logger.info(f"Found {len(parcel_ids):,} unprocessed parcels to enrich.")
     return parcel_ids
@@ -58,12 +71,8 @@ async def get_all_enrichable_parcel_ids(
         ORDER BY parcel_objectid
     """
 
-    if limit:
-        query += f" LIMIT {limit}"
-
-    async with engine.begin() as conn:
-        result = await conn.execute(text(query))
-        parcel_ids = [row[0] for row in result]
+    rows = await _execute_query(engine, query, limit=limit)
+    parcel_ids = [row[0] for row in rows]
 
     logger.info(
         f"Found {len(parcel_ids):,} enrichable parcels (including previously processed)."
@@ -92,12 +101,13 @@ async def get_stale_parcel_ids(
 
     cutoff_date = datetime.now() - timedelta(days=days_old)
 
-    if limit:
-        query += f" LIMIT {limit}"
-
-    async with engine.begin() as conn:
-        result = await conn.execute(text(query), {"cutoff_date": cutoff_date})
-        parcel_ids = [row[0] for row in result]
+    rows = await _execute_query(
+        engine,
+        query,
+        limit=limit,
+        params={"cutoff_date": cutoff_date},
+    )
+    parcel_ids = [row[0] for row in rows]
 
     logger.info(f"Found {len(parcel_ids):,} parcels not enriched in last {days_old} days.")
     return parcel_ids
@@ -144,13 +154,9 @@ async def get_delta_parcel_ids(
         ORDER BY parcel_objectid
     """.format(fresh_mvt_table=fresh_mvt_table)
 
-    if limit:
-        query += f" LIMIT {limit}"
-
     try:
-        async with engine.begin() as conn:
-            result = await conn.execute(text(query))
-            parcel_ids = [row[0] for row in result]
+        rows = await _execute_query(engine, query, limit=limit)
+        parcel_ids = [row[0] for row in rows]
 
         logger.info(
             f"Found {len(parcel_ids):,} parcels with transaction price changes requiring enrichment."
@@ -202,13 +208,8 @@ async def get_delta_parcel_ids_with_details(
         ORDER BY parcel_objectid
     """.format(fresh_mvt_table=fresh_mvt_table)
 
-    if limit:
-        query += f" LIMIT {limit}"
-
     try:
-        async with engine.begin() as conn:
-            result = await conn.execute(text(query))
-            rows = result.fetchall()
+        rows = await _execute_query(engine, query, limit=limit)
 
         parcel_ids = [row[0] for row in rows]
         
