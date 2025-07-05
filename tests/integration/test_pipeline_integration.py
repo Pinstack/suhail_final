@@ -91,6 +91,15 @@ def test_run_pipeline_with_mocks(monkeypatch):
         DummyPersister,
     )
 
+    def dummy_read_postgis(sql, engine, geom_col="geometry"):
+        return gpd.GeoDataFrame(
+            {"parcel_id": [1], "geometry": [Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])]},
+            geometry="geometry",
+            crs=settings.default_crs,
+        )
+
+    monkeypatch.setattr(gpd, "read_postgis", dummy_read_postgis)
+
     # stitcher just concatenates GeoDataFrames stored in the temp table
     def dummy_stitch(self, table_name, layer_name, id_column, agg_rules, known_columns):
         dfs = temp_tables.get(table_name, [])
