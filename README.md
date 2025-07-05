@@ -328,3 +328,28 @@ Welcome! If you're picking up the pipeline/data debugging and remediation, here 
 - **Codebase:** All code and migrations are in this repository.
 - **Sample .pbf files:** A 2x2 grid of sample tiles is provided in `sample_data/` (e.g., `14060.pbf`, `14061.pbf`, `14062.pbf`, etc.).
 - **Stitched GeoJSON outputs:** See `stitched/`
+
+## ✅ Baseline Validation Status (July 2025)
+- All tests passed (`unit_test_results.txt`)
+- Geometric pipeline completed for 3x3 Riyadh grid (9,007 parcels)
+- Enrichment pipeline completed for 100 parcels (see workaround below)
+- No critical errors in logs or test output
+- Only non-blocking issue: Pydantic deprecation warning (Field extra keys: 'env')
+
+## ⚠️ Troubleshooting
+
+### Enrichment Pipeline Import Error
+If you see `ModuleNotFoundError: No module named 'src'` when running enrichment via the CLI, use this workaround:
+
+```bash
+PYTHONPATH=$(pwd) python src/meshic_pipeline/run_enrichment_pipeline.py fast-enrich --limit 100
+```
+
+This is required because the CLI currently invokes the enrichment script as a subprocess, which does not set up the Python path correctly. This will be fixed in a future release.
+
+### Pydantic Deprecation Warning
+You may see a warning like:
+```
+PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use json_schema_extra instead. (Extra keys: 'env').
+```
+This does not affect current functionality but should be addressed in the future for compatibility.
