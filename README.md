@@ -120,13 +120,18 @@ The geometric pipeline (Stage 1) already identifies which parcels have transacti
 
 The pipeline provides **multiple enrichment modes** to leverage this insight:
 
-### **🎯 TRIGGER-BASED** *(Removed)*
-The former `trigger-based-enrich` command is no longer available in the CLI.
-Use the `fast-enrich` or `delta-enrich` commands depending on your workflow.
+### **🎯 TRIGGER-BASED** (Maximum Efficiency)
+```bash
+meshic-pipeline enrich fast-enrich --batch-size 400
+```
+ - **🚀 Leverages your insight**: Only processes parcels with `transaction_price > 0`
+- **93.3% efficiency gain**: Skips 962,796 parcels that don't need enrichment
+- Perfect for post-geometric pipeline runs
+- **Use case**: Maximum efficiency, best performance
 
 ### **🆕 NEW PARCELS** (Standard Approach)
 ```bash
-python fast_enrich.py fast-enrich --batch-size 200
+meshic-pipeline enrich fast-enrich --batch-size 200
 ```
 - Processes parcels never enriched before (same as trigger-based but different implementation)
 - Perfect for initial runs or capturing new parcels
@@ -135,10 +140,10 @@ python fast_enrich.py fast-enrich --batch-size 200
 ### **🔄 INCREMENTAL UPDATES** (Weekly/Monthly) 
 ```bash
 # Weekly updates (recommended)
-python fast_enrich.py incremental-enrich --days-old 7 --batch-size 100
+meshic-pipeline enrich incremental-enrich --days-old 7 --batch-size 100
 
-# Monthly updates  
-python fast_enrich.py incremental-enrich --days-old 30 --batch-size 100
+# Monthly updates
+meshic-pipeline enrich incremental-enrich --days-old 30 --batch-size 100
 ```
 - **🎯 Captures new transactions on existing parcels**
 - Re-processes parcels not enriched recently
@@ -146,7 +151,7 @@ python fast_enrich.py incremental-enrich --days-old 30 --batch-size 100
 
 ### **🔥 FULL REFRESH** (Quarterly)
 ```bash
-python fast_enrich.py full-refresh --batch-size 50
+meshic-pipeline enrich full-refresh --batch-size 50
 ```
 - Re-processes ALL enrichable parcels
 - Guarantees 100% data completeness
@@ -155,13 +160,13 @@ python fast_enrich.py full-refresh --batch-size 50
 ### **🎯 DELTA ENRICHMENT** (Revolutionary Precision) 
 ```bash
 # Automatic workflow (recommended)
-python scripts/run_enrichment_pipeline.py delta-enrich --auto-geometric
+meshic-pipeline enrich delta-enrich --auto-geometric
 
-# Manual workflow (if fresh MVT data already exists)  
-python scripts/run_enrichment_pipeline.py delta-enrich
+# Manual workflow (if fresh MVT data already exists)
+meshic-pipeline enrich delta-enrich
 
 # Testing with limits
-python scripts/run_enrichment_pipeline.py delta-enrich --limit 100 --auto-geometric
+meshic-pipeline enrich delta-enrich --limit 100 --auto-geometric
 ```
 - **🚀 MVT-based change detection**: Only enriches parcels with actual transaction price changes
 - **Perfect precision**: No false positives from time-based approaches
@@ -188,7 +193,7 @@ python monitor_enrichment.py schedule-info
 
 | Frequency | Command | Purpose |
 |-----------|---------|---------|
-| **After Geometric** | _removed_ (use `fast-enrich` or `delta-enrich`) | **🚀 Maximum efficiency** - leverage transaction_price > 0 |
+| **After Geometric** | `fast-enrich` | **🚀 Maximum efficiency** - leverage transaction_price > 0 |
 | **Daily** | `fast-enrich` | Capture new parcels (standard approach) |
 | **Weekly** | `incremental-enrich --days-old 7` | **Capture new transactions** |
 | **Weekly/Monthly** | `delta-enrich --auto-geometric` | **🎯 Ultimate precision** - MVT change detection |
@@ -225,12 +230,12 @@ layers: [parcels, transactions, neighborhoods, ...]
 ### **Performance Tuning**
 ```bash
 # High-performance settings
-python fast_enrich.py incremental-enrich \
+meshic-pipeline enrich incremental-enrich \
   --batch-size 500 \
   --days-old 7
 
-# Memory-optimized settings  
-python fast_enrich.py incremental-enrich \
+# Memory-optimized settings
+meshic-pipeline enrich incremental-enrich \
   --batch-size 100 \
   --days-old 7
 ```
@@ -254,11 +259,11 @@ The pipeline **guarantees** capture of new transactions through:
 
 ### **For New Deployments**
 1. Run geometric pipeline first: `python run_pipeline.py`
-2. Run initial enrichment: `python fast_enrich.py fast-enrich`
+2. Run initial enrichment: `meshic-pipeline enrich fast-enrich`
 3. Setup monitoring: `python monitor_enrichment.py status`
 
 ### **For Ongoing Operations**
-- **💡 LEVERAGE THE INSIGHT**: The `trigger-based-enrich` command has been removed. Run `fast-enrich` or `delta-enrich` after the geometric pipeline for maximum efficiency.
+- **💡 LEVERAGE THE INSIGHT**: Use `fast-enrich` after geometric pipeline for maximum efficiency
 - **Never use only `fast-enrich`** for ongoing operations - it misses new transactions on existing parcels
 - **Use `incremental-enrich`** weekly to capture new transaction data
 - **Monitor regularly** with `monitor_enrichment.py recommend`
@@ -295,7 +300,7 @@ pytest tests/geometry/
 python check_db.py
 
 # Memory issues during processing
-python fast_enrich.py incremental-enrich --batch-size 50
+meshic-pipeline enrich incremental-enrich --batch-size 50
 
 # Check enrichment status
 python monitor_enrichment.py status
