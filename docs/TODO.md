@@ -1,5 +1,22 @@
 # Meshic Geospatial Pipeline Implementation Plan
 
+## 🚦 **Next Actions Summary (as of Baseline Validation Phase)**
+
+| Step | Action | Status |
+|------|--------|--------|
+| 1    | Complete environment setup | ✅ Complete |
+| 2    | Run 3x3 Riyadh baseline test | ✅ Complete (with error) |
+| 3    | Run enrichment pipeline test | ⬜️ Pending |
+| 4    | Update memory bank & documentation | ⬜️ Pending |
+| 5    | Expand and run test suite | ⬜️ Pending |
+| 6    | Prepare for multi-province validation | ⬜️ Pending |
+| 7    | Plan for scaling/future phases | ⬜️ Pending |
+| 8    | Maintain documentation & best practices | ⬜️ Ongoing |
+
+---
+
+# Meshic Geospatial Pipeline Implementation Plan
+
 This document outlines the implementation plan for the Meshic Geospatial Data Pipeline following database reset and memory bank cleanup. All tasks are organized around our git workflow and systematic validation approach.
 
 ## 🎯 **Current Project Status**
@@ -365,3 +382,98 @@ Provide minimal pytest examples for each module to guide future implementations.
 - Identify core utility modules and functions for each area above.
 - Write initial test skeletons for each area and run them incrementally.
 - Track coverage and expand tests to cover all critical paths and edge cases.
+
+## 📋 **Immediate Next Steps Checklist**
+
+### **1. Environment Setup**
+- [ ] Install dependencies using `uv add -e .`
+- [x] Activate the virtual environment: `source .venv/bin/activate`
+- [x] Verify package installation: `meshic-pipeline --help` or `python -m meshic_pipeline.cli --help`
+  - meshic-pipeline CLI is available and functional
+- [x] Check database connectivity and configuration
+  - Database is accessible and tables are present (see `list-tables` output)
+
+### **2. Run Baseline 3x3 Riyadh Test**
+- [x] Execute geometric pipeline: `meshic-pipeline geometric`
+  - **Note:** Pipeline ran successfully for most layers, but failed for 'parcels' due to `invalid input syntax for type bigint: "9.0"` (zoning_id). All other layers processed and persisted as expected. This error must be fixed before scaling or enrichment.
+- [x] Verify database population: Check that parcels and reference tables are populated
+- [x] Validate schema: Confirm data types and foreign key relationships
+- [x] Monitor performance: Record processing time and memory usage
+
+## Comprehensive Debugging & Remediation Plan for Pipeline/DB Issues (July 2025)
+
+### Context
+- The geometric pipeline runs, but the `parcels` and related tables are empty in the database.
+- The pipeline logs show a type error for `zoning_id` (invalid input syntax for type bigint: "9.0").
+- The stitched output for parcels (`stitched/parcels_stitched.geojson`) only contains `parcel_id` and `geometry`—all other expected columns are missing.
+- Other layers (e.g., subdivisions, neighborhoods) are populated as expected.
+
+### Goals
+- Ensure all expected columns (especially `zoning_id`) are present and correctly typed in the stitched output and DB.
+- Identify and fix the root cause of missing columns and type errors.
+- Make the pipeline robust to similar issues in the future.
+
+---
+
+### Step-by-Step Actions for Investigation & Remediation
+
+#### 1. **Verify Input Data Integrity**
+- [ ] Inspect the raw decoded tiles for the `parcels` layer to confirm if fields like `zoning_id` are present in the source data.
+    - Add debug logging or use a script to print all keys/properties from a sample of decoded parcel features.
+- [ ] If fields are missing at this stage, investigate the tile source or decoding logic.
+
+#### 2. **Check Decoding Logic**
+- [ ] Review `MVTDecoder` and its `_cast_property_types` method:
+    - Ensure it does not drop or mis-cast fields like `zoning_id`.
+    - Confirm that all expected fields are retained in the output GeoDataFrames.
+- [ ] Add logging to warn if any expected columns are missing after decoding.
+
+#### 3. **Review Aggregation & Stitching**
+- [ ] In `GeometryStitcher.stitch_geometries`, ensure that the aggregation step does not drop columns.
+    - The aggregation rules in config should include all required fields.
+    - Patch the code to always reindex the stitched GeoDataFrame to include all expected columns (from schema/config), filling with `None` if missing.
+- [ ] Add warnings if columns are missing after aggregation.
+
+#### 4. **Validate Type Casting Before DB Write**
+- [ ] In `PostGISPersister._validate_and_cast_types`, confirm that float values like `9.0` for integer fields are cast to `9` (int), not left as float or string.
+    - Add test cases for edge cases (e.g., string "9.0", float 9.0, int 9).
+    - Add logging for any values that cannot be cast and are set to `None`.
+
+#### 5. **Check Stitched Output Files**
+- [ ] After running the pipeline, inspect the stitched GeoJSON for parcels:
+    - Confirm all expected columns are present.
+    - If not, trace back to which step they were dropped.
+
+#### 6. **Database Schema & Constraints**
+- [ ] Confirm the DB schema matches the expected model (already checked, but re-verify if changes are made).
+- [ ] Ensure PostGIS extension is enabled and all migrations are up to date.
+
+#### 7. **Improve Error Handling & Logging**
+- [ ] Add clear error messages and warnings for any missing columns, type mismatches, or failed DB writes.
+- [ ] Consider failing fast (with a clear message) if critical columns are missing at any stage.
+
+#### 8. **Testing**
+- [ ] Add/expand unit tests for:
+    - Decoding logic (all expected fields present)
+    - Type casting (robust to float/int/string edge cases)
+    - Stitching/aggregation (columns not dropped)
+- [ ] Add integration tests to run the full pipeline and check DB population.
+
+#### 9. **Documentation**
+- [ ] Document all findings, fixes, and any changes to the pipeline or schema.
+- [ ] Update this TODO as issues are resolved.
+
+---
+
+### Additional Potentials to Explore
+- [ ] Are there any upstream data changes (tile schema, API, etc.) that could have caused missing fields?
+- [ ] Are there any recent code changes in decoding, aggregation, or DB writing logic?
+- [ ] Is the pipeline running with the correct config/environment (e.g., not using a stale or test config)?
+- [ ] Are there any silent failures or exceptions being swallowed in the pipeline?
+
+---
+
+### Handoff Notes
+- This checklist is designed for another developer to pick up and systematically resolve the pipeline/DB issues.
+- Please document all findings and fixes directly in this file or in a new issue tracker as appropriate.
+- If you need more context, review the pipeline logs, stitched GeoJSONs, and the code in `src/meshic_pipeline/`.
