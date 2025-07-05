@@ -40,4 +40,4 @@ for layer, cols in layer_columns.items():
 # Print all unique zoning_id values found in parcels
 print("\nUnique zoning_id values in parcels layer:")
 for val in sorted(unique_zoning_ids, key=lambda x: (str(type(x)), str(x))):
-    print(f"  - {repr(val)} ({type(val).__name__})") 
+    print(f"  - {repr(val)} ({type(val).__name__})")
