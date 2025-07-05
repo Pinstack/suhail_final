@@ -28,4 +28,4 @@ tests/integration/test_pipeline_integration.py::test_run_pipeline_with_mocks
     import shapely.geos  # noqa: F401
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-======================== 21 passed, 2 warnings in 4.00s ========================
+======================== 21 passed, 2 warnings in 6.68s ========================
