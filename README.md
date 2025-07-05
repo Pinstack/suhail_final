@@ -240,6 +240,16 @@ meshic-pipeline enrich incremental-enrich \
   --days-old 7
 ```
 
+### Memory Management
+
+Two configuration values control memory usage:
+
+- `MAX_MEMORY_MB` – soft memory limit before garbage collection is triggered.
+- `ENABLE_MEMORY_MONITORING` – toggle automatic memory checks.
+
+Both can be set in your `.env` file or overridden with the `--max-memory` and
+`--enable-monitoring/--disable-monitoring` options of `run_geometric_pipeline.py`.
+
 ## 🎯 Critical Features for Production
 
 ### **Transaction Capture Guarantee**

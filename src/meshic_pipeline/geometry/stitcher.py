@@ -14,6 +14,7 @@ import mercantile
 from sqlalchemy import text
 
 from ..persistence.postgis_persister import PostGISPersister
+from ..memory_utils import memory_limit, get_memory_monitor
 
 logger = logging.getLogger(__name__)
 
@@ -94,9 +95,16 @@ class GeometryStitcher:
         """
 
         logger.info("Executing PostGIS dissolve for layer '%s'...", layer_name)
-        stitched_gdf = self.persister.read_sql(sql)
+        with memory_limit():
+            stitched_gdf = self.persister.read_sql(sql)
+
+        stats = get_memory_monitor().get_memory_stats()
+        logger.debug(
+            "PostGIS dissolve memory usage: %.2fMB", stats.process_mb
+        )
         logger.info(
-            "PostGIS dissolve complete. Read back %d features.", len(stitched_gdf)
+            "PostGIS dissolve complete. Read back %d features.",
+            len(stitched_gdf),
         )
         return stitched_gdf
 

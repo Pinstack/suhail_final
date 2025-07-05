@@ -28,6 +28,7 @@ from .downloader.async_tile_downloader import AsyncTileDownloader
 from .decoder.mvt_decoder import MVTDecoder
 from .geometry.validator import validate_geometries
 from .geometry.stitcher import GeometryStitcher
+from .memory_utils import memory_optimized, get_memory_monitor
 from .persistence.postgis_persister import PostGISPersister
 from .memory_utils import get_memory_monitor
 
@@ -70,6 +71,7 @@ setup_logging()
 logger = logging.getLogger(__name__)
 
 
+@memory_optimized()
 def decode_and_validate_tile(
     tile_coords: Tuple[int, int, int],
     tile_data: bytes,
@@ -84,6 +86,15 @@ def decode_and_validate_tile(
     if not tile_data:
         # Warning logged in main thread to avoid multiprocessing logging complexities.
         return []
+
+    monitor = get_memory_monitor()
+    logger.debug(
+        "Memory before decoding tile %s/%s/%s: %.2fMB",
+        z,
+        x,
+        y,
+        monitor.get_memory_stats().process_mb,
+    )
 
     decoder = MVTDecoder(target_crs=default_crs)
     decoded_layers = decoder.decode_bytes(
@@ -101,6 +112,14 @@ def decode_and_validate_tile(
         if not gdf.empty:
             validated_gdfs.append((layer_name, gdf))
 
+    stats = monitor.get_memory_stats()
+    logger.debug(
+        "Memory after decoding tile %s/%s/%s: %.2fMB",
+        z,
+        x,
+        y,
+        stats.process_mb,
+    )
     return validated_gdfs
 
 
@@ -216,18 +235,13 @@ async def run_pipeline(
 
     for layer in tqdm(layers_to_process, desc="Processing Layers"):
         logger.info("--- Starting processing for layer: %s ---", layer)
-
-        # Prepare per-layer temporary table and tracking
-        temp_table = f"temp_decoded_{layer}_{uuid.uuid4().hex[:8]}"
-        known_cols = list(PostGISPersister.SCHEMA_MAP.get(layer, {}).keys())
-        if "geometry" not in known_cols:
-            known_cols.append("geometry")
-        schema_gdf = gpd.GeoDataFrame(columns=known_cols)
-        schema_gdf = schema_gdf.astype({"geometry": "geometry"})
-        persister.create_table_from_gdf(
-            schema_gdf, temp_table, known_columns=known_cols
+        layer_start_stats = get_memory_monitor().get_memory_stats()
+        logger.debug(
+            "Memory at layer start %.2fMB",
+            layer_start_stats.process_mb,
         )
-
+        
+        # --- Pass 1: Discover full schema from all tiles ---
         all_columns = set()
 
         keys = list(non_empty_tiles.keys())
@@ -378,6 +392,11 @@ async def run_pipeline(
                 id_column=None,
                 chunksize=settings.db_chunk_size,
             )
+        layer_end_stats = get_memory_monitor().get_memory_stats()
+        logger.debug(
+            "Memory at layer end %.2fMB",
+            layer_end_stats.process_mb,
+        )
         logger.info("--- Finished processing for layer: %s ---", layer)
         layer_mem = monitor.get_memory_stats().process_mb
         logger.info(

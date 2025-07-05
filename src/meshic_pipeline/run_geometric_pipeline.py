@@ -46,6 +46,16 @@ def main(
         "--save-as-temp",
         help="Save the downloaded parcels to a temporary table with this name.",
     ),
+    max_memory: Optional[int] = typer.Option(
+        None,
+        "--max-memory",
+        help="Override memory limit in MB (default from config)",
+    ),
+    enable_monitoring: bool = typer.Option(
+        True,
+        "--enable-monitoring/--disable-monitoring",
+        help="Enable memory monitoring and automatic GC",
+    ),
 ):
     """
     🚀 Enhanced geometric processing pipeline with province discovery.
@@ -56,6 +66,11 @@ def main(
     - Province: Enhanced province discovery (--province al_qassim)
     - Saudi Arabia: All provinces (--saudi-arabia)
     """
+    # Apply memory configuration overrides
+    if max_memory is not None:
+        settings.memory_config.max_memory_usage_mb = max_memory
+    settings.memory_config.enable_memory_monitoring = enable_monitoring
+
     # Validation
     if bbox and len(bbox) != 4:
         logger.error("Bounding box must be 4 floats: min_lon min_lat max_lon max_lat")
