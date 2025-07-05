@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional, List
+from typing import List
 import uuid
 
 import geopandas as gpd

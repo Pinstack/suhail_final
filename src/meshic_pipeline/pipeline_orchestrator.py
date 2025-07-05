@@ -1,15 +1,9 @@
 from __future__ import annotations
 
-import argparse
-import asyncio
 import logging
-from pathlib import Path
 from typing import Dict, List, Tuple
 import uuid
 import concurrent.futures
-import itertools
-import pandas as pd
-import uuid
 
 import geopandas as gpd
 import sys
@@ -31,7 +25,6 @@ from .geometry.validator import validate_geometries
 from .geometry.stitcher import GeometryStitcher
 from .memory_utils import memory_optimized, get_memory_monitor
 from .persistence.postgis_persister import PostGISPersister
-from .memory_utils import get_memory_monitor
 
 
 def setup_logging():
@@ -346,7 +339,7 @@ async def run_pipeline(
         # Defensive: If id_col is None or not present in columns, skip dissolve/grouping
         if not id_col or id_col not in all_columns:
             logger.warning(
-                f"Layer '%s': No valid ID column for dissolve/grouping. Writing features as-is.",
+                "Layer '%s': No valid ID column for dissolve/grouping. Writing features as-is.",
                 layer,
             )
             df = gpd.read_postgis(

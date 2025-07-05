@@ -1,7 +1,6 @@
 import asyncio
 import pandas as pd
 import geopandas as gpd
-import pytest
 from shapely.geometry import Polygon
 import mapbox_vector_tile
 
@@ -83,9 +82,6 @@ def test_run_pipeline_with_mocks(monkeypatch):
             pass
         def read_sql(self, sql, geom_col="geometry"):
             return persisted.get("parcels", gpd.GeoDataFrame())
-        def drop_table(self, *args, **kwargs):
-            pass
-
         def create_table_from_gdf(self, *args, **kwargs):
             table = args[1]
             temp_tables[table] = []
