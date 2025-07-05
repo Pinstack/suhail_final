@@ -8,29 +8,42 @@ from typing import Dict, List, Tuple
 import concurrent.futures
 import itertools
 import pandas as pd
+import uuid
 
 import geopandas as gpd
 import sys
 from tqdm import tqdm
 
 from .config import settings
-from .discovery.tile_endpoint_discovery import get_tile_coordinates_for_bounds, get_tile_coordinates_for_grid
-from .discovery.enhanced_province_discovery import get_enhanced_tile_coordinates, get_saudi_arabia_tiles, EnhancedProvinceDiscovery
+from .discovery.tile_endpoint_discovery import (
+    get_tile_coordinates_for_bounds,
+    get_tile_coordinates_for_grid,
+)
+from .discovery.enhanced_province_discovery import (
+    get_enhanced_tile_coordinates,
+    get_saudi_arabia_tiles,
+    EnhancedProvinceDiscovery,
+)
 from .downloader.async_tile_downloader import AsyncTileDownloader
 from .decoder.mvt_decoder import MVTDecoder
 from .geometry.validator import validate_geometries
 from .geometry.stitcher import GeometryStitcher
 from .persistence.postgis_persister import PostGISPersister
+from .memory_utils import get_memory_monitor
 
 
 def setup_logging():
     """Configure logging based on settings."""
     log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    log_level = settings.log_level.value if hasattr(settings.log_level, 'value') else settings.log_level
-    
+    log_level = (
+        settings.log_level.value
+        if hasattr(settings.log_level, "value")
+        else settings.log_level
+    )
+
     # Use a basic configuration that can be updated
     logging.basicConfig(level=log_level, format=log_format)
-    
+
     # Get the root logger
     root_logger = logging.getLogger()
     # Clear existing handlers
@@ -44,14 +57,15 @@ def setup_logging():
 
     # Add file handler if specified
     if settings.log_file:
-        file_handler = logging.FileHandler(settings.log_file, mode='a')
+        file_handler = logging.FileHandler(settings.log_file, mode="a")
         file_handler.setLevel(log_level)
         file_handler.setFormatter(logging.Formatter(log_format))
         root_logger.addHandler(file_handler)
 
     # Set the level for the root logger
     root_logger.setLevel(log_level)
-    
+
+
 setup_logging()
 logger = logging.getLogger(__name__)
 
@@ -102,7 +116,7 @@ async def run_pipeline(
 ) -> None:
     """
     Orchestrates the full pipeline from tile discovery to data persistence.
-    
+
     Args:
         aoi_bbox: Area of interest bounding box
         zoom: Zoom level for tiles
@@ -115,19 +129,35 @@ async def run_pipeline(
     """
     layers_to_process = layers_override or settings.layers_to_process
     zoom = zoom or settings.zoom
-    
-    logger.info("Starting pipeline run for AOI: %s at zoom %d", aoi_bbox or province or "grid", zoom)
+    monitor = get_memory_monitor()
+    start_mem = monitor.get_memory_stats().process_mb
+    overall_start_mem = start_mem
+
+    logger.info(
+        "Starting pipeline run for AOI: %s at zoom %d",
+        aoi_bbox or province or "grid",
+        zoom,
+    )
     logger.debug("Using settings: %s", settings.model_dump_json(indent=2))
 
     # Enhanced tile discovery with multiple modes
     if saudi_arabia_mode:
         # Process all Saudi Arabia provinces
         tiles = get_saudi_arabia_tiles(strategy=strategy)
-        logger.info("🇸🇦 Saudi Arabia mode: Discovered %d tiles across all provinces", len(tiles))
+        logger.info(
+            "🇸🇦 Saudi Arabia mode: Discovered %d tiles across all provinces", len(tiles)
+        )
     elif province:
         # Enhanced province discovery
-        tiles = get_enhanced_tile_coordinates(province=province, zoom=zoom, strategy=strategy)
-        logger.info("🏛️ Province mode (%s): Discovered %d tiles using %s strategy", province, len(tiles), strategy)
+        tiles = get_enhanced_tile_coordinates(
+            province=province, zoom=zoom, strategy=strategy
+        )
+        logger.info(
+            "🏛️ Province mode (%s): Discovered %d tiles using %s strategy",
+            province,
+            len(tiles),
+            strategy,
+        )
     elif aoi_bbox:
         # Traditional bbox discovery
         tiles = get_tile_coordinates_for_bounds(aoi_bbox, zoom)
@@ -141,7 +171,12 @@ async def run_pipeline(
             settings.grid_h,
             zoom,
         )
-        logger.info("🔢 Grid mode: Discovered %d tiles for %dx%d grid", len(tiles), settings.grid_w, settings.grid_h)
+        logger.info(
+            "🔢 Grid mode: Discovered %d tiles for %dx%d grid",
+            len(tiles),
+            settings.grid_w,
+            settings.grid_h,
+        )
 
     # 2. Download tiles with province-specific server
     # Determine the correct tile server based on mode
@@ -154,7 +189,7 @@ async def run_pipeline(
         # Use default server from settings
         tile_base_url = settings.tile_base_url
         logger.info("🌐 Using default tile server: %s", tile_base_url)
-    
+
     # Create downloader with correct base URL
     async with AsyncTileDownloader(base_url=tile_base_url) as dl:
         raw_tiles = await dl.download_many(tiles)
@@ -166,7 +201,7 @@ async def run_pipeline(
             non_empty_tiles[(z, x, y)] = data
         else:
             logger.warning("Tile %d/%d/%d was empty, skipping.", z, x, y)
-            
+
     # Initialize components once
     persister = PostGISPersister(str(settings.database_url))
     stitcher = GeometryStitcher(target_crs=settings.default_crs, persister=persister)
@@ -175,116 +210,186 @@ async def run_pipeline(
         persister.recreate_database()
 
     # 4. Process each layer sequentially to manage memory
+    tiles_processed_per_layer: Dict[str, List[Tuple[int, int, int]]] = {
+        layer: [] for layer in layers_to_process
+    }
+
     for layer in tqdm(layers_to_process, desc="Processing Layers"):
         logger.info("--- Starting processing for layer: %s ---", layer)
-        
-        # --- Pass 1: Discover full schema from all tiles ---
+
+        # Prepare per-layer temporary table and tracking
+        temp_table = f"temp_decoded_{layer}_{uuid.uuid4().hex[:8]}"
+        known_cols = list(PostGISPersister.SCHEMA_MAP.get(layer, {}).keys())
+        if "geometry" not in known_cols:
+            known_cols.append("geometry")
+        schema_gdf = gpd.GeoDataFrame(columns=known_cols)
+        schema_gdf = schema_gdf.astype({"geometry": "geometry"})
+        persister.create_table_from_gdf(
+            schema_gdf, temp_table, known_columns=known_cols
+        )
+
         all_columns = set()
-        decoded_gdfs_cache = []  # Cache decoded GDFs in memory for the second pass
-        
+
+        keys = list(non_empty_tiles.keys())
         with concurrent.futures.ProcessPoolExecutor() as executor:
             tasks = [
                 (coords, data, [layer], settings.default_crs)
                 for coords, data in non_empty_tiles.items()
             ]
             results_iterator = executor.map(decode_and_validate_tile, *zip(*tasks))
-            pbar = tqdm(results_iterator, total=len(tasks), desc=f"Pass 1/2: Discovering schema for {layer}", unit="tile")
+            pbar = tqdm(
+                results_iterator,
+                total=len(tasks),
+                desc=f"Pass 1/2: Discovering schema for {layer}",
+                unit="tile",
+            )
 
-            for result_list in pbar:
-                # Cache the results for the next pass
-                patched_result_list = []
+            for coords, result_list in zip(keys, pbar):
+                tiles_processed_per_layer[layer].append(coords)
                 for _layer_name, gdf in result_list:
-                    # Apply Arabic column mapping centrally
                     gdf = MVTDecoder.apply_arabic_column_mapping(None, gdf)
-                    patched_result_list.append((_layer_name, gdf))
-                decoded_gdfs_cache.append(patched_result_list)
-                for _layer_name, gdf in patched_result_list:
+                    gdf_standardized = gdf.reindex(columns=known_cols)
+                    persister.write(
+                        gdf_standardized, layer, temp_table, if_exists="append"
+                    )
                     all_columns.update(gdf.columns)
 
         if not all_columns:
-            logger.warning("Layer '%s': No geometries or columns found after decoding, skipping.", layer)
+            logger.warning(
+                "Layer '%s': No geometries or columns found after decoding, skipping.",
+                layer,
+            )
+            persister.drop_table(temp_table)
             logger.info("--- Finished processing for layer: %s ---", layer)
             continue
-            
-        logger.info("Discovered full schema for layer '%s' with %d columns.", layer, len(all_columns))
+
+        logger.info(
+            "Discovered full schema for layer '%s' with %d columns.",
+            layer,
+            len(all_columns),
+        )
 
         # --- Pass 2: Stitch and Persist using the full schema ---
         id_col = settings.id_column_per_layer.get(layer)
         agg_rules = settings.aggregation_rules_per_layer.get(layer, {})
 
-        # Flatten the cached list of GDFs
-        layer_gdfs = [gdf for result_list in decoded_gdfs_cache for _layer_name, gdf in result_list]
-
         logger.info(
             "Stitching layer '%s' using ID column '%s' and %d aggregation rules.",
-            layer, id_col, len(agg_rules)
+            layer,
+            id_col,
+            len(agg_rules),
         )
 
         # Defensive: If id_col is None or not present in columns, skip dissolve/grouping
         if not id_col or id_col not in all_columns:
-            logger.warning(f"Layer '%s': No valid ID column for dissolve/grouping. Writing features as-is.", layer)
-            # Concatenate all GDFs and write directly
-            if layer_gdfs:
-                concat_gdf = pd.concat(layer_gdfs, ignore_index=True)
+            logger.warning(
+                f"Layer '%s': No valid ID column for dissolve/grouping. Writing features as-is.",
+                layer,
+            )
+            df = gpd.read_postgis(
+                f'SELECT * FROM "{temp_table}"', persister.engine, geom_col="geometry"
+            )
+            if not df.empty:
                 out_path = settings.stitched_dir / f"{layer}_stitched.geojson"
-                concat_gdf.to_file(out_path, driver="GeoJSON")
+                df.to_file(out_path, driver="GeoJSON")
                 table_name = settings.table_name_mapping.get(layer, layer)
                 logger.info(
                     "Persisting %d features for layer '%s' to table '%s' (no grouping)",
-                    len(concat_gdf), layer, table_name
+                    len(df),
+                    layer,
+                    table_name,
                 )
                 persister.write(
-                    concat_gdf, layer, table_name, if_exists="replace", id_column=None, chunksize=settings.db_chunk_size
+                    df,
+                    layer,
+                    table_name,
+                    if_exists="replace",
+                    id_column=None,
+                    chunksize=settings.db_chunk_size,
                 )
+            persister.drop_table(temp_table)
             logger.info("--- Finished processing for layer: %s ---", layer)
             continue
 
-        stitched_gdf = stitcher.stitch_geometries(
-            layer_gdfs,
+        stitched_gdf = stitcher.stitch_from_table(
+            temp_table,
             layer_name=layer,
             id_column=id_col,
             agg_rules=agg_rules,
-            tiles=list(non_empty_tiles.keys()),
-            known_columns=list(all_columns)  # Pass the definitive schema
+            known_columns=list(all_columns),
         )
+        persister.drop_table(temp_table)
 
         if stitched_gdf.empty:
-            logger.warning("Stitching layer '%s' resulted in an empty GeoDataFrame. Skipping.", layer)
+            logger.warning(
+                "Stitching layer '%s' resulted in an empty GeoDataFrame. Skipping.",
+                layer,
+            )
             logger.info("--- Finished processing for layer: %s ---", layer)
             continue
 
         # --- Enrichment Step: Assign region_id to parcels ---
-        if layer == 'parcels':
+        if layer == "parcels":
             logger.info("Enriching parcels with region_id via spatial join...")
             # Load neighborhoods from DB
             neighborhoods = gpd.read_postgis(
-                "SELECT neighborhood_id, region_id, geometry FROM neighborhoods", persister.engine, geom_col="geometry"
+                "SELECT neighborhood_id, region_id, geometry FROM neighborhoods",
+                persister.engine,
+                geom_col="geometry",
             )
             # Spatial join for region_id
-            parcels_enriched = gpd.sjoin(stitched_gdf, neighborhoods[['region_id', 'geometry']], how='left', predicate='intersects')
-            stitched_gdf['region_id'] = parcels_enriched['region_id']
+            parcels_enriched = gpd.sjoin(
+                stitched_gdf,
+                neighborhoods[["region_id", "geometry"]],
+                how="left",
+                predicate="intersects",
+            )
+            stitched_gdf["region_id"] = parcels_enriched["region_id"]
             logger.info("Enrichment complete: region_id assigned where possible.")
 
         # Save stitched file locally
         out_path = settings.stitched_dir / f"{layer}_stitched.geojson"
         stitched_gdf.to_file(out_path, driver="GeoJSON")
-        
+
         # Persist to PostGIS
         table_name = settings.table_name_mapping.get(layer, layer)
         logger.info(
             "Persisting %d features for layer '%s' to table '%s'",
-            len(stitched_gdf), layer, table_name
+            len(stitched_gdf),
+            layer,
+            table_name,
         )
 
         # Determine write mode: upsert if id_col is set, else replace (see WHAT_TO_DO_NEXT_PIPELINE_TABLES.md)
         if id_col:
             persister.write(
-                stitched_gdf, layer, table_name, id_column=id_col, chunksize=settings.db_chunk_size
+                stitched_gdf,
+                layer,
+                table_name,
+                id_column=id_col,
+                chunksize=settings.db_chunk_size,
             )
         else:
             persister.write(
-                stitched_gdf, layer, table_name, if_exists="replace", id_column=None, chunksize=settings.db_chunk_size
+                stitched_gdf,
+                layer,
+                table_name,
+                if_exists="replace",
+                id_column=None,
+                chunksize=settings.db_chunk_size,
             )
         logger.info("--- Finished processing for layer: %s ---", layer)
+        layer_mem = monitor.get_memory_stats().process_mb
+        logger.info(
+            "Memory delta for layer '%s': %.2fMB",
+            layer,
+            layer_mem - start_mem,
+        )
+        start_mem = layer_mem
 
-    logger.info("🎉 Pipeline finished successfully. 🎉") 
+    final_mem = monitor.get_memory_stats().process_mb
+    logger.info("🎉 Pipeline finished successfully. 🎉")
+    logger.info(
+        "Total memory change during run: %.2fMB",
+        final_mem - overall_start_mem,
+    )

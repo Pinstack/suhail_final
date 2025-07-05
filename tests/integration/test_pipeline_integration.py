@@ -11,17 +11,21 @@ from meshic_pipeline.config import settings
 # Integration test that exercises the pipeline orchestration with mocked
 # downloader and database persistence.
 
+
 def test_run_pipeline_with_mocks(monkeypatch):
     # sample tile with a single parcel feature
     tile_bytes = mapbox_vector_tile.encode(
         {
             "name": "parcels",
             "features": [
-                {"geometry": Polygon([(0,0),(1,0),(1,1),(0,1)]), "properties": {"parcel_id": 1}}
+                {
+                    "geometry": Polygon([(0, 0), (1, 0), (1, 1), (0, 1)]),
+                    "properties": {"parcel_id": 1},
+                }
             ],
         },
-        quantize_bounds=(0,0,1,1),
-        extents=4096
+        quantize_bounds=(0, 0, 1, 1),
+        extents=4096,
     )
 
     # discovery returns exactly one tile coordinate
@@ -34,10 +38,13 @@ def test_run_pipeline_with_mocks(monkeypatch):
     class DummyDownloader:
         def __init__(self, *args, **kwargs):
             pass
+
         async def __aenter__(self):
             return self
+
         async def __aexit__(self, exc_type, exc, tb):
             pass
+
         async def download_many(self, tiles):
             return {tiles[0]: tile_bytes}
 
@@ -48,29 +55,52 @@ def test_run_pipeline_with_mocks(monkeypatch):
 
     # collect persisted GeoDataFrames for assertion
     persisted = {}
+    temp_tables = {}
+
     class DummyPersister:
         def __init__(self, *args, **kwargs):
             pass
-        def write(self, gdf, layer_name, table, if_exists="append", id_column=None, schema="public", chunksize=5000):
-            persisted[layer_name] = gdf
+
+        def write(
+            self,
+            gdf,
+            layer_name,
+            table,
+            if_exists="append",
+            id_column=None,
+            schema="public",
+            chunksize=5000,
+        ):
+            if table.startswith("temp"):
+                temp_tables.setdefault(table, []).append(gdf)
+            else:
+                persisted[layer_name] = gdf
+
         def recreate_database(self):
             pass
+
+        def create_table_from_gdf(self, *args, **kwargs):
+            table = args[1]
+            temp_tables[table] = []
+
+        def drop_table(self, table, schema="public"):
+            temp_tables.pop(table, None)
 
     monkeypatch.setattr(
         "meshic_pipeline.pipeline_orchestrator.PostGISPersister",
         DummyPersister,
     )
 
-    # stitcher just concatenates GeoDataFrames instead of using PostGIS
-    def dummy_stitch(self, gdfs, layer_name, id_column, agg_rules, tiles, known_columns):
-        dfs = list(gdfs)
+    # stitcher just concatenates GeoDataFrames stored in the temp table
+    def dummy_stitch(self, table_name, layer_name, id_column, agg_rules, known_columns):
+        dfs = temp_tables.get(table_name, [])
         if not dfs:
             return gpd.GeoDataFrame(geometry=[], crs=settings.default_crs)
         df = pd.concat(dfs, ignore_index=True)
         return gpd.GeoDataFrame(df, geometry="geometry", crs=settings.default_crs)
 
     monkeypatch.setattr(
-        "meshic_pipeline.pipeline_orchestrator.GeometryStitcher.stitch_geometries",
+        "meshic_pipeline.pipeline_orchestrator.GeometryStitcher.stitch_from_table",
         dummy_stitch,
     )
 
@@ -78,8 +108,10 @@ def test_run_pipeline_with_mocks(monkeypatch):
     class DummyExecutor:
         def __enter__(self):
             return self
+
         def __exit__(self, exc_type, exc, tb):
             pass
+
         def map(self, func, *iterables):
             return map(func, *iterables)
 
@@ -89,7 +121,7 @@ def test_run_pipeline_with_mocks(monkeypatch):
     monkeypatch.setattr(settings, "layers_to_process", ["parcels"])
 
     # run the pipeline
-    asyncio.run(run_pipeline(aoi_bbox=(0,0,1,1), zoom=15))
+    asyncio.run(run_pipeline(aoi_bbox=(0, 0, 1, 1), zoom=15))
 
     assert "parcels" in persisted
     assert len(persisted["parcels"]) == 1

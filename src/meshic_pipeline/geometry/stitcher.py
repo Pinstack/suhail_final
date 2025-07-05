@@ -34,7 +34,7 @@ def _dissolve_group(
 
         # Perform attribute aggregation
         props = gdf.iloc[0][list(agg_rules.keys())].to_dict()
-        
+
         # Use the provided aggregation functions
         for col, rule in agg_rules.items():
             if rule == "sum":
@@ -75,7 +75,10 @@ class GeometryStitcher:
             agg_sql = ", " + agg_sql
 
         # Determine the geometry type to extract from ST_Union
-        if layer_name.endswith("-centroids") or layer_name in ["metro_stations", "riyadh_bus_stations"]:
+        if layer_name.endswith("-centroids") or layer_name in [
+            "metro_stations",
+            "riyadh_bus_stations",
+        ]:
             extract_code = 1  # Point geometries
         elif layer_name in ["metro_lines", "bus_lines"]:
             extract_code = 2  # Line geometries
@@ -92,7 +95,9 @@ class GeometryStitcher:
 
         logger.info("Executing PostGIS dissolve for layer '%s'...", layer_name)
         stitched_gdf = self.persister.read_sql(sql)
-        logger.info("PostGIS dissolve complete. Read back %d features.", len(stitched_gdf))
+        logger.info(
+            "PostGIS dissolve complete. Read back %d features.", len(stitched_gdf)
+        )
         return stitched_gdf
 
     def stitch_geometries(
@@ -107,21 +112,22 @@ class GeometryStitcher:
         temp_table_name = f"temp_{layer_name}_{str(uuid.uuid4())[:8]}"
         logger.info(
             "Stitching GeoDataFrames for layer '%s' using temp table '%s'.",
-            layer_name, temp_table_name
+            layer_name,
+            temp_table_name,
         )
-        
+
         # Create an empty GDF with the definitive schema to create the table
         # This is more reliable than using a sample from the generator.
         schema_gdf = gpd.GeoDataFrame(columns=known_columns)
-        if 'geometry' not in schema_gdf.columns:
-            schema_gdf['geometry'] = None # Ensure geometry column exists
-        schema_gdf = schema_gdf.astype({'geometry': 'geometry'}) # Set the dtype
+        if "geometry" not in schema_gdf.columns:
+            schema_gdf["geometry"] = None  # Ensure geometry column exists
+        schema_gdf = schema_gdf.astype({"geometry": "geometry"})  # Set the dtype
 
         try:
             self.persister.create_table_from_gdf(
                 schema_gdf, temp_table_name, known_columns=known_columns
             )
-            
+
             # Stream dataframes from the generator into the temporary table
             gdf_count = 0
             for gdf in gdfs:
@@ -131,25 +137,39 @@ class GeometryStitcher:
                 # Reindex ensures all columns from the known_columns set are present
                 gdf_standardized = gdf.reindex(columns=known_columns)
                 # For centroids layers, ensure only Point geometries are written
-                if layer_name.endswith('-centroids'):
-                    non_point_count = (~gdf_standardized.geometry.type.isin(['Point'])).sum()
+                if layer_name.endswith("-centroids"):
+                    non_point_count = (
+                        ~gdf_standardized.geometry.type.isin(["Point"])
+                    ).sum()
                     if non_point_count > 0:
-                        logger.warning(f"Layer '{layer_name}': Dropping {non_point_count} non-Point geometries before DB write.")
-                    gdf_standardized = gdf_standardized[gdf_standardized.geometry.type == 'Point']
-                self.persister.write(gdf_standardized, layer_name, temp_table_name, if_exists="append")
+                        logger.warning(
+                            f"Layer '{layer_name}': Dropping {non_point_count} non-Point geometries before DB write."
+                        )
+                    gdf_standardized = gdf_standardized[
+                        gdf_standardized.geometry.type == "Point"
+                    ]
+                self.persister.write(
+                    gdf_standardized, layer_name, temp_table_name, if_exists="append"
+                )
                 gdf_count += 1
-            
+
             if gdf_count == 0:
-                logger.warning("No non-empty GeoDataFrames were processed for layer '%s'.", layer_name)
+                logger.warning(
+                    "No non-empty GeoDataFrames were processed for layer '%s'.",
+                    layer_name,
+                )
                 return gpd.GeoDataFrame(geometry=[], crs=self.target_crs)
 
             # Filter aggregation rules to only include columns that actually exist in the temp table.
-            final_agg_rules = {col: rule for col, rule in agg_rules.items() if col in known_columns}
+            final_agg_rules = {
+                col: rule for col, rule in agg_rules.items() if col in known_columns
+            }
             dropped_rules = set(agg_rules.keys()) - set(final_agg_rules.keys())
             if dropped_rules:
                 logger.warning(
                     "Layer '%s': Ignoring aggregation for non-existent columns: %s",
-                    layer_name, ", ".join(sorted(list(dropped_rules)))
+                    layer_name,
+                    ", ".join(sorted(list(dropped_rules))),
                 )
 
             # Perform dissolve in PostGIS using the filtered, data-aware aggregation rules.
@@ -164,7 +184,39 @@ class GeometryStitcher:
             # 4. Clean up the temporary table
             self.persister.drop_table(temp_table_name)
             logger.info("Dropped temporary table: %s", temp_table_name)
-            
+
+        if final_gdf.empty:
+            return gpd.GeoDataFrame(geometry=[], crs=self.target_crs)
+
+        return final_gdf.reset_index(drop=True)
+
+    def stitch_from_table(
+        self,
+        table_name: str,
+        layer_name: str,
+        id_column: str | None,
+        agg_rules: Dict[str, Any],
+        known_columns: List[str],
+    ) -> gpd.GeoDataFrame:
+        """Stitch features that already exist in a PostGIS table."""
+        logger.info(
+            "Stitching layer '%s' directly from table '%s'", layer_name, table_name
+        )
+
+        final_agg_rules = {
+            col: rule for col, rule in agg_rules.items() if col in known_columns
+        }
+        dropped = set(agg_rules.keys()) - set(final_agg_rules.keys())
+        if dropped:
+            logger.warning(
+                "Layer '%s': Ignoring aggregation for non-existent columns: %s",
+                layer_name,
+                ", ".join(sorted(dropped)),
+            )
+
+        final_gdf = self._dissolve_in_postgis(
+            table_name, id_column, final_agg_rules, layer_name
+        )
         if final_gdf.empty:
             return gpd.GeoDataFrame(geometry=[], crs=self.target_crs)
 
