@@ -167,13 +167,37 @@ class PostGISPersister:
                                 if isinstance(val, int):
                                     return val
                                 if isinstance(val, float):
-                                    return int(val) if val.is_integer() else None
+                                    if val.is_integer():
+                                        return int(val)
+                                    logger.warning(
+                                        "Column '%s': discarding non-integer float value %s",
+                                        col,
+                                        val,
+                                    )
+                                    return None
                                 if isinstance(val, str):
                                     try:
                                         float_val = float(val)
-                                        return int(float_val) if float_val.is_integer() else None
-                                    except Exception:
+                                        if float_val.is_integer():
+                                            return int(float_val)
+                                        logger.warning(
+                                            "Column '%s': discarding non-integer string value %s",
+                                            col,
+                                            val,
+                                        )
                                         return None
+                                    except Exception:
+                                        logger.warning(
+                                            "Column '%s': discarding unparseable string value %s",
+                                            col,
+                                            val,
+                                        )
+                                        return None
+                                logger.warning(
+                                    "Column '%s': discarding value of unsupported type %s",
+                                    col,
+                                    type(val).__name__,
+                                )
                                 return None
                             validated_gdf[col] = validated_gdf[col].apply(lambda v: robust_int(v))
                         elif dtype == 'float64':
