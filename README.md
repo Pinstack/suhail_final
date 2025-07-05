@@ -120,14 +120,9 @@ The geometric pipeline (Stage 1) already identifies which parcels have transacti
 
 The pipeline provides **multiple enrichment modes** to leverage this insight:
 
-### **🎯 TRIGGER-BASED** (Maximum Efficiency)
-```bash
-python fast_enrich.py trigger-based-enrich --batch-size 400
-```
-- **🚀 Leverages your insight**: Only processes parcels with `transaction_price > 0`
-- **93.3% efficiency gain**: Skips 962,796 parcels that don't need enrichment
-- Perfect for post-geometric pipeline runs
-- **Use case**: Maximum efficiency, best performance
+### **🎯 TRIGGER-BASED** *(Removed)*
+The former `trigger-based-enrich` command is no longer available in the CLI.
+Use the `fast-enrich` or `delta-enrich` commands depending on your workflow.
 
 ### **🆕 NEW PARCELS** (Standard Approach)
 ```bash
@@ -193,7 +188,7 @@ python monitor_enrichment.py schedule-info
 
 | Frequency | Command | Purpose |
 |-----------|---------|---------|
-| **After Geometric** | `trigger-based-enrich` | **🚀 Maximum efficiency** - leverage transaction_price > 0 |
+| **After Geometric** | _removed_ (use `fast-enrich` or `delta-enrich`) | **🚀 Maximum efficiency** - leverage transaction_price > 0 |
 | **Daily** | `fast-enrich` | Capture new parcels (standard approach) |
 | **Weekly** | `incremental-enrich --days-old 7` | **Capture new transactions** |
 | **Weekly/Monthly** | `delta-enrich --auto-geometric` | **🎯 Ultimate precision** - MVT change detection |
@@ -262,8 +257,8 @@ The pipeline **guarantees** capture of new transactions through:
 2. Run initial enrichment: `python fast_enrich.py fast-enrich`
 3. Setup monitoring: `python monitor_enrichment.py status`
 
-### **For Ongoing Operations** 
-- **💡 LEVERAGE THE INSIGHT**: Use `trigger-based-enrich` after geometric pipeline for maximum efficiency
+### **For Ongoing Operations**
+- **💡 LEVERAGE THE INSIGHT**: The `trigger-based-enrich` command has been removed. Run `fast-enrich` or `delta-enrich` after the geometric pipeline for maximum efficiency.
 - **Never use only `fast-enrich`** for ongoing operations - it misses new transactions on existing parcels
 - **Use `incremental-enrich`** weekly to capture new transaction data
 - **Monitor regularly** with `monitor_enrichment.py recommend`
