@@ -175,7 +175,11 @@ class PostGISPersister:
                                     except Exception:
                                         return None
                                 return None
-                            validated_gdf[col] = validated_gdf[col].apply(lambda v: robust_int(v))
+                            validated_gdf[col] = (
+                                validated_gdf[col]
+                                .apply(lambda v: robust_int(v))
+                                .astype("Int64")
+                            )
                         elif dtype == 'float64':
                             # Accept int, float, or string (parseable as float)
                             def robust_float(val):
