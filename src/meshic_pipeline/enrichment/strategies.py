@@ -121,6 +121,28 @@ async def get_stale_parcel_ids(
     logger.info(f"Found {len(parcel_ids):,} parcels not enriched in last {days_old} days.")
     return parcel_ids
 
+def _get_delta_query(fresh_mvt_table: str) -> str:
+    """Return the base SQL used for delta detection."""
+    return f"""
+        WITH price_changes AS (
+            SELECT
+                COALESCE(p.parcel_objectid, f.parcel_objectid) as parcel_objectid,
+                p.transaction_price as stored_price,
+                f.transaction_price as mvt_price,
+                CASE
+                    WHEN p.parcel_objectid IS NULL THEN 'new_parcel_with_transaction'
+                    WHEN p.transaction_price IS NULL AND f.transaction_price > 0 THEN 'null_to_positive'
+                    WHEN p.transaction_price = 0 AND f.transaction_price > 0 THEN 'zero_to_positive'
+                    WHEN p.transaction_price != f.transaction_price THEN 'price_changed'
+                    ELSE 'no_change'
+                END as change_type
+            FROM public.parcels p
+            FULL OUTER JOIN public.{fresh_mvt_table} f
+                ON p.parcel_objectid = f.parcel_objectid
+            WHERE f.transaction_price > 0
+        )
+    """
+
 async def get_delta_parcel_ids(
     engine: AsyncEngine, 
     fresh_mvt_table: str = "parcels_fresh_mvt",
@@ -139,39 +161,21 @@ async def get_delta_parcel_ids(
         List of parcel_objectid strings that need enrichment due to price changes
     """
     safe_table = _quote_table_name(fresh_mvt_table)
-    query = f"""
-        WITH price_changes AS (
-            SELECT
-                COALESCE(p.parcel_objectid, f.parcel_objectid) as parcel_objectid,
-                p.transaction_price as stored_price,
-                f.transaction_price as mvt_price,
-                CASE 
-                    WHEN p.parcel_objectid IS NULL THEN 'new_parcel_with_transaction'
-                    WHEN p.transaction_price IS NULL AND f.transaction_price > 0 THEN 'null_to_positive'
-                    WHEN p.transaction_price = 0 AND f.transaction_price > 0 THEN 'zero_to_positive'
-                    WHEN p.transaction_price != f.transaction_price THEN 'price_changed'
-                    ELSE 'no_change'
-                END as change_type
-            FROM public.parcels p
-            FULL OUTER JOIN public.{safe_table} f
-                ON p.parcel_objectid = f.parcel_objectid
-            WHERE f.transaction_price > 0  -- Only consider parcels with transactions in MVT
-        )
+    query = _get_delta_query(safe_table) + """
         SELECT parcel_objectid
         FROM price_changes
         WHERE change_type != 'no_change'
         ORDER BY parcel_objectid
     """
-
+    if limit:
+        query += f" LIMIT {limit}"
     try:
-        rows = await _execute_query(engine, query, limit=limit)
+        rows = await _execute_query(engine, query)
         parcel_ids = [row[0] for row in rows]
-
         logger.info(
             f"Found {len(parcel_ids):,} parcels with transaction price changes requiring enrichment."
         )
         return parcel_ids
-        
     except Exception as e:
         logger.error(f"Error detecting price changes: {e}")
         logger.info("Fresh MVT table may not exist. Run geometric pipeline first.")
@@ -189,52 +193,31 @@ async def get_delta_parcel_ids_with_details(
         Tuple of (parcel_ids, change_stats)
     """
     safe_table = _quote_table_name(fresh_mvt_table)
-    query = f"""
-        WITH price_changes AS (
-            SELECT
-                COALESCE(p.parcel_objectid, f.parcel_objectid) as parcel_objectid,
-                p.transaction_price as stored_price,
-                f.transaction_price as mvt_price,
-                CASE 
-                    WHEN p.parcel_objectid IS NULL THEN 'new_parcel_with_transaction'
-                    WHEN p.transaction_price IS NULL AND f.transaction_price > 0 THEN 'null_to_positive'
-                    WHEN p.transaction_price = 0 AND f.transaction_price > 0 THEN 'zero_to_positive'
-                    WHEN p.transaction_price != f.transaction_price THEN 'price_changed'
-                    ELSE 'no_change'
-                END as change_type
-            FROM public.parcels p
-            FULL OUTER JOIN public.{safe_table} f
-                ON p.parcel_objectid = f.parcel_objectid
-            WHERE f.transaction_price > 0
-        )
+    query = _get_delta_query(safe_table) + """
         SELECT
             parcel_objectid,
             change_type,
             stored_price,
             mvt_price
-        FROM price_changes 
+        FROM price_changes
         WHERE change_type != 'no_change'
         ORDER BY parcel_objectid
     """
-
+    if limit:
+        query += f" LIMIT {limit}"
     try:
-        rows = await _execute_query(engine, query, limit=limit)
-
+        rows = await _execute_query(engine, query)
         parcel_ids = [row[0] for row in rows]
-        
         # Generate change statistics
         change_stats = {}
         for row in rows:
             change_type = row[1]
             change_stats[change_type] = change_stats.get(change_type, 0) + 1
-
         logger.info(f"Delta enrichment analysis:")
         logger.info(f"  Total parcels requiring enrichment: {len(parcel_ids):,}")
         for change_type, count in change_stats.items():
             logger.info(f"  {change_type}: {count:,}")
-
         return parcel_ids, change_stats
-        
     except Exception as e:
         logger.error(f"Error detecting price changes with details: {e}")
         return [], {} 
