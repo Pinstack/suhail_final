@@ -6,7 +6,7 @@ import uuid
 
 import geopandas as gpd
 import pandas as pd
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, inspect
 from sqlalchemy.engine import Engine
 
 logger = logging.getLogger(__name__)
@@ -218,7 +218,8 @@ class PostGISPersister:
         table_name: str,
         schema: str = "public",
         known_columns: List[str] | None = None,
-    ):
+        geometry_type: str | None = None,
+    ) -> None:
         """
         Creates an empty PostGIS table with a specified schema.
         If known_columns is provided, it uses that to build the schema.
@@ -245,8 +246,8 @@ class PostGISPersister:
         column_defs = []
         for col_name in known_columns:
             if col_name.lower() == "geometry":
-                # Use a generic geometry type; PostGIS will adapt
-                column_defs.append(f'"{col_name}" GEOMETRY(GEOMETRY, 4326)')
+                geom_type = geometry_type.upper() if geometry_type else "GEOMETRY"
+                column_defs.append(f'"{col_name}" GEOMETRY({geom_type}, 4326)')
             elif col_name in self.INTEGER_ID_FIELDS:
                 # Use BIGINT for integer ID fields
                 column_defs.append(f'"{col_name}" BIGINT')
@@ -360,6 +361,22 @@ class PostGISPersister:
             except Exception as exc:
                 logger.warning("Failed to apply geometry override '%s': %s", geometry_type, exc)
 
+        inspector = inspect(self.engine)
+        table_exists = inspector.has_table(table, schema=schema)
+
+        if if_exists == "replace":
+            self.drop_table(table, schema)
+            table_exists = False
+
+        if not table_exists:
+            self.create_table_from_gdf(
+                validated_gdf.iloc[0:0],
+                table,
+                schema=schema,
+                known_columns=list(validated_gdf.columns),
+                geometry_type=geometry_type or "GEOMETRY",
+            )
+
         if if_exists == "append" and id_column:
             self._upsert(validated_gdf, table, id_column, schema, chunksize)
         else:
@@ -367,7 +384,7 @@ class PostGISPersister:
                 table,
                 self.engine,
                 schema=schema,
-                if_exists=if_exists,
+                if_exists="append" if table_exists or if_exists == "append" else "replace",
                 index=False,
                 chunksize=chunksize,
                 dtype=dtype,

@@ -133,7 +133,10 @@ class GeometryStitcher:
 
         try:
             self.persister.create_table_from_gdf(
-                schema_gdf, temp_table_name, known_columns=known_columns
+                schema_gdf,
+                temp_table_name,
+                known_columns=known_columns,
+                geometry_type="GEOMETRY",
             )
 
             # Stream dataframes from the generator into the temporary table
