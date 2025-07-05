@@ -11,7 +11,10 @@ This module provides:
 from __future__ import annotations
 
 import gc
-import psutil
+try:
+    import psutil
+except ImportError:  # pragma: no cover - psutil may be missing in test env
+    psutil = None
 import weakref
 import logging
 import threading
@@ -43,7 +46,7 @@ class MemoryMonitor:
     """Monitor and manage memory usage."""
     
     def __init__(self):
-        self._process = psutil.Process()
+        self._process = psutil.Process() if psutil else None
         self._last_gc_time = time.time()
         self._gc_threshold_seconds = 30.0  # Minimum time between forced GC
         self._memory_history: List[MemoryStats] = []
@@ -54,10 +57,12 @@ class MemoryMonitor:
     def get_memory_stats(self) -> MemoryStats:
         """Get current memory usage statistics."""
         # System memory
-        memory = psutil.virtual_memory()
-        
-        # Process memory
-        process_memory = self._process.memory_info()
+        if psutil:
+            memory = psutil.virtual_memory()
+            process_memory = self._process.memory_info() if self._process else None
+        else:
+            memory = type("mem", (), {"total": 0, "available": 0, "used": 0, "percent": 0})()
+            process_memory = type("pmem", (), {"rss": 0})()
         
         # Garbage collection stats
         gc_stats = {i: gc.get_count()[i] for i in range(3)}
@@ -67,7 +72,7 @@ class MemoryMonitor:
             available_mb=memory.available / (1024 * 1024),
             used_mb=memory.used / (1024 * 1024),
             percent_used=memory.percent,
-            process_mb=process_memory.rss / (1024 * 1024),
+            process_mb=(process_memory.rss if process_memory else 0) / (1024 * 1024),
             gc_collections=gc_stats,
             timestamp=datetime.now()
         )

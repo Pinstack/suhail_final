@@ -14,12 +14,16 @@ import sys
 from tqdm import tqdm
 
 from .config import settings
-from .discovery.tile_endpoint_discovery import get_tile_coordinates_for_bounds, get_tile_coordinates_for_grid
+from .discovery.tile_endpoint_discovery import (
+    get_tile_coordinates_for_bounds,
+    get_tile_coordinates_for_grid,
+)
 from .discovery.enhanced_province_discovery import get_enhanced_tile_coordinates, get_saudi_arabia_tiles, EnhancedProvinceDiscovery
 from .downloader.async_tile_downloader import AsyncTileDownloader
 from .decoder.mvt_decoder import MVTDecoder
 from .geometry.validator import validate_geometries
 from .geometry.stitcher import GeometryStitcher
+from .memory_utils import memory_optimized, get_memory_monitor
 from .persistence.postgis_persister import PostGISPersister
 
 
@@ -56,6 +60,7 @@ setup_logging()
 logger = logging.getLogger(__name__)
 
 
+@memory_optimized()
 def decode_and_validate_tile(
     tile_coords: Tuple[int, int, int],
     tile_data: bytes,
@@ -70,6 +75,15 @@ def decode_and_validate_tile(
     if not tile_data:
         # Warning logged in main thread to avoid multiprocessing logging complexities.
         return []
+
+    monitor = get_memory_monitor()
+    logger.debug(
+        "Memory before decoding tile %s/%s/%s: %.2fMB",
+        z,
+        x,
+        y,
+        monitor.get_memory_stats().process_mb,
+    )
 
     decoder = MVTDecoder(target_crs=default_crs)
     decoded_layers = decoder.decode_bytes(
@@ -87,6 +101,14 @@ def decode_and_validate_tile(
         if not gdf.empty:
             validated_gdfs.append((layer_name, gdf))
 
+    stats = monitor.get_memory_stats()
+    logger.debug(
+        "Memory after decoding tile %s/%s/%s: %.2fMB",
+        z,
+        x,
+        y,
+        stats.process_mb,
+    )
     return validated_gdfs
 
 
@@ -177,6 +199,11 @@ async def run_pipeline(
     # 4. Process each layer sequentially to manage memory
     for layer in tqdm(layers_to_process, desc="Processing Layers"):
         logger.info("--- Starting processing for layer: %s ---", layer)
+        layer_start_stats = get_memory_monitor().get_memory_stats()
+        logger.debug(
+            "Memory at layer start %.2fMB",
+            layer_start_stats.process_mb,
+        )
         
         # --- Pass 1: Discover full schema from all tiles ---
         all_columns = set()
@@ -285,6 +312,11 @@ async def run_pipeline(
             persister.write(
                 stitched_gdf, layer, table_name, if_exists="replace", id_column=None, chunksize=settings.db_chunk_size
             )
+        layer_end_stats = get_memory_monitor().get_memory_stats()
+        logger.debug(
+            "Memory at layer end %.2fMB",
+            layer_end_stats.process_mb,
+        )
         logger.info("--- Finished processing for layer: %s ---", layer)
 
     logger.info("🎉 Pipeline finished successfully. 🎉") 

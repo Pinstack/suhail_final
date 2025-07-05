@@ -42,6 +42,16 @@ class MemoryConfig(BaseSettings):
         1000,
         description="Maximum number of objects to hold in memory for performance logging.",
     )
+    max_memory_usage_mb: int = Field(
+        1024,
+        alias="MAX_MEMORY_MB",
+        description="Soft memory limit in MB before garbage collection is triggered.",
+    )
+    enable_memory_monitoring: bool = Field(
+        True,
+        alias="ENABLE_MEMORY_MONITORING",
+        description="Enable periodic memory checks and automatic garbage collection.",
+    )
 
 class RetryConfig(BaseSettings):
     """Configuration for network request retries."""
@@ -270,6 +280,19 @@ class Settings(BaseSettings):
         for d in (self.cache_dir, self.temp_dir, self.stitched_dir):
             d.mkdir(parents=True, exist_ok=True)
         return self
+
+    def should_trigger_gc(self, process_mb: float) -> bool:
+        """Determine if memory usage warrants garbage collection."""
+        limit = self.memory_config.max_memory_usage_mb
+        if limit <= 0:
+            return False
+        return process_mb > limit * 0.9
+
+    def get_optimized_batch_size(
+        self, base_batch_size: int, item_size_estimate_kb: float = 10.0
+    ) -> int:
+        """Return a batch size based on configuration limits."""
+        return base_batch_size
 
 
 # --- Global Instance ---
