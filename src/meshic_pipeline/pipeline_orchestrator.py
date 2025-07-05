@@ -300,7 +300,14 @@ async def run_pipeline(
                 tiles_processed_per_layer[layer].append(coords)
                 for _layer_name, gdf in result_list:
                     gdf = MVTDecoder.apply_arabic_column_mapping(gdf)
-                    gdf_standardized = gdf.reindex(columns=list(all_columns))
+                    if all_columns:
+                        gdf_standardized = gdf.reindex(columns=list(all_columns))
+                    else:
+                        # During the first iteration no columns have been
+                        # discovered yet. Avoid reindexing to an empty schema
+                        # so the GeoDataFrame retains its geometry column.
+                        gdf_standardized = gdf
+
                     persister.write(
                         gdf_standardized, layer, temp_table, if_exists="append"
                     )
