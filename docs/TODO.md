@@ -267,4 +267,101 @@ git push origin main --tags
 3. **Scale Systematically**: Don't skip validation steps
 4. **Maintain Commercial Focus**: Remember this is for client products, not platform development
 
-This TODO reflects the actual current state: fresh database, proven architecture, and systematic validation approach to reach full Saudi Arabia coverage for commercial data products. 
+This TODO reflects the actual current state: fresh database, proven architecture, and systematic validation approach to reach full Saudi Arabia coverage for commercial data products.
+
+## 📘 **Comprehensive Unit Testing Plan**
+
+### 1. Objectives
+- Ensure correctness of all core utility functions and logic in isolation.
+- Catch edge cases and regressions early, before integration or pipeline runs.
+- Validate error handling, data validation, and type safety.
+- Provide a foundation for robust integration and regression testing.
+
+### 2. Scope of Unit Testing
+
+#### A. Tile Discovery & Download
+- **Functions**: Tile list generation, tile server URL construction, bounding box calculations.
+- **Tests**:
+  - Correct tile list for given bbox/zoom.
+  - URL formatting for all provinces.
+  - Edge cases such as bboxes on province boundaries and invalid input values.
+
+#### B. MVT Decoding & Geometry Processing
+- **Functions**: MVT tile decoding, geometry validation, CRS transformation, geometry stitching.
+- **Tests**:
+  - Decoding valid and invalid MVT tiles.
+  - Geometry type checks (multipolygon, no self-intersections).
+  - CRS conversion accuracy.
+  - Handling of empty or malformed tiles.
+
+#### C. Database Utility Functions
+- **Functions**: Chunked inserts, upsert key generation, type casting, reference lookups.
+- **Tests**:
+  - Chunking logic for various batch sizes.
+  - Upsert key uniqueness and error handling.
+  - Type casting for all supported DB types.
+  - Reference table lookups such as province or municipality by name.
+
+#### D. Enrichment API Client
+- **Functions**: API request construction, response parsing, error handling, retry logic.
+- **Tests**:
+  - Correct API URL and payload for all endpoints.
+  - Parsing of valid and invalid API responses.
+  - Retry logic on timeouts or 5xx errors.
+  - Handling of missing or malformed data in API responses.
+
+#### E. Data Validation Utilities
+- **Functions**: Schema validation, foreign key checks, Arabic text handling, Unicode normalization.
+- **Tests**:
+  - Validation of all expected schema fields.
+  - Foreign key relationship checks (mocked DB).
+  - Correct storage and retrieval of Arabic or other Unicode text.
+  - Handling of missing or malformed fields.
+
+#### F. Configuration & Environment
+- **Functions**: Config file parsing, environment variable overrides, validation logic.
+- **Tests**:
+  - Parsing of valid and invalid YAML configuration files.
+  - Environment variable override precedence.
+  - Validation of required config fields and types.
+
+#### G. Logging & Error Handling
+- **Functions**: Structured logging, exception wrapping, error message formatting.
+- **Tests**:
+  - Logging output for success and failure cases.
+  - Exception propagation and custom error messages.
+  - Handling of partial failures, such as a batch with some errors.
+
+### 3. Test Organization
+- **Location**: Place unit tests in `tests/unit/` or `scripts/tests/` as appropriate.
+- **Framework**: Use `pytest` for async and DB-related tests.
+- **Mocking**: Utilize `unittest.mock` or `pytest-asyncio` to mock external dependencies.
+- **Mocked Dependencies**: External APIs, DB connections, and file I/O should be mocked.
+
+### 4. Coverage Checklist
+| Area                   | Example Test Cases |
+|------------------------|-------------------|
+| Tile Discovery         | Generates correct tile list, handles edge bboxes, invalid input |
+| MVT Decoding           | Decodes valid/invalid tiles, geometry type, CRS conversion, empty tiles |
+| Geometry Processing    | Stitching, validation, error on invalid geometry |
+| DB Utilities           | Chunking, upsert key, type casting, reference lookup |
+| API Client             | URL/payload, response parsing, retry logic, error handling |
+| Data Validation        | Schema fields, FK checks, Arabic/Unicode, missing fields |
+| Config Parsing         | Valid/invalid YAML, env overrides, required fields |
+| Logging/Error Handling | Log output, exception propagation, partial failure handling |
+
+### 5. Example Test Skeletons
+Provide minimal pytest examples for each module to guide future implementations.
+
+### 6. Best Practices
+- Test all edge cases: empty input, invalid data, and boundary conditions.
+- Isolate units: mock dependencies such as the DB, APIs, and file I/O.
+- Use fixtures for common test data and setup/teardown.
+- Automate test execution in CI/CD workflows.
+- Document each test with clear coverage goals and rationale.
+
+### 7. Next Steps
+- Set up the test directory structure if not already present.
+- Identify core utility modules and functions for each area above.
+- Write initial test skeletons for each area and run them incrementally.
+- Track coverage and expand tests to cover all critical paths and edge cases.
