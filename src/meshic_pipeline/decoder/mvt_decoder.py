@@ -193,8 +193,9 @@ class MVTDecoder:
                 )
         return gdfs
 
-    def apply_arabic_column_mapping(self, gdf):
-        """Rename all columns in the GDF according to ARABIC_COLUMN_MAP."""
+    @staticmethod
+    def apply_arabic_column_mapping(gdf):
+        """Rename all columns in ``gdf`` according to :data:`ARABIC_COLUMN_MAP`."""
         for src, dst in ARABIC_COLUMN_MAP.items():
             if src in gdf.columns:
                 gdf = gdf.rename(columns={src: dst})

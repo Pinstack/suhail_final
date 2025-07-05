@@ -262,7 +262,7 @@ async def run_pipeline(
             for coords, result_list in zip(keys, pbar):
                 tiles_processed_per_layer[layer].append(coords)
                 for _layer_name, gdf in result_list:
-                    gdf = MVTDecoder.apply_arabic_column_mapping(None, gdf)
+                    gdf = MVTDecoder.apply_arabic_column_mapping(gdf)
                     gdf_standardized = gdf.reindex(columns=list(all_columns))
                     persister.write(
                         gdf_standardized, layer, temp_table, if_exists="append"
