@@ -13,8 +13,8 @@ if [ -f .env ]; then
     echo "SUHAIL_API_BASE_URL=${SUHAIL_API_BASE_URL:-'not set'}"
 fi
 
-# Run the geometric pipeline (Stage 1) with database recreation to ensure fresh schema
-meshic-pipeline geometric --recreate-db
+# Run the geometric pipeline (Stage 1) without database recreation
+meshic-pipeline geometric
 
 # Run the enrichment pipeline (Stage 2)
 meshic-pipeline enrich fast-enrich 
