@@ -74,10 +74,18 @@ class GeometryStitcher:
         if agg_sql:
             agg_sql = ", " + agg_sql
 
+        # Determine the geometry type to extract from ST_Union
+        if layer_name.endswith("-centroids") or layer_name in ["metro_stations", "riyadh_bus_stations"]:
+            extract_code = 1  # Point geometries
+        elif layer_name in ["metro_lines", "bus_lines"]:
+            extract_code = 2  # Line geometries
+        else:
+            extract_code = 3  # Polygon geometries
+
         sql = f"""
         SELECT
             "{id_column}",
-            ST_CollectionExtract(ST_MakeValid(ST_Union(geometry)), 3) AS geometry{agg_sql}
+            ST_CollectionExtract(ST_MakeValid(ST_Union(geometry)), {extract_code}) AS geometry{agg_sql}
         FROM "{temp_table_name}"
         GROUP BY "{id_column}"
         """
