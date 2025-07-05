@@ -3,6 +3,7 @@ import subprocess
 import sys
 from typing import List, Optional
 from pathlib import Path
+from meshic_pipeline import run_enrichment_pipeline
 
 # Determine the directory containing this CLI file
 SCRIPT_DIR = Path(__file__).parent
@@ -45,11 +46,7 @@ def fast_enrich(
     limit: Optional[int] = typer.Option(None, "--limit", help="Limit parcels for testing"),
 ):
     """Enrich new parcels that have transaction prices but haven't been enriched yet."""
-    script = SCRIPT_DIR / "run_enrichment_pipeline.py"
-    cmd = [sys.executable, str(script), "fast-enrich", "--batch-size", str(batch_size)]
-    if limit is not None:
-        cmd += ["--limit", str(limit)]
-    subprocess.run(cmd, check=True)
+    run_enrichment_pipeline.fast_enrich(batch_size=batch_size, limit=limit)
 
 @app.command()
 def incremental_enrich(
@@ -58,12 +55,7 @@ def incremental_enrich(
     limit: Optional[int] = typer.Option(None, "--limit", help="Limit parcels for testing"),
 ):
     """Enrich parcels that haven't been updated in the specified number of days."""
-    script = SCRIPT_DIR / "run_enrichment_pipeline.py"
-    cmd = [sys.executable, str(script), "incremental-enrich", 
-           "--batch-size", str(batch_size), "--days-old", str(days_old)]
-    if limit is not None:
-        cmd += ["--limit", str(limit)]
-    subprocess.run(cmd, check=True)
+    run_enrichment_pipeline.incremental_enrich(batch_size=batch_size, days_old=days_old, limit=limit)
 
 @app.command()
 def full_refresh(
@@ -71,11 +63,7 @@ def full_refresh(
     limit: Optional[int] = typer.Option(None, "--limit", help="Limit parcels for testing"),
 ):
     """Enrich ALL parcels with transaction prices (complete refresh)."""
-    script = SCRIPT_DIR / "run_enrichment_pipeline.py"
-    cmd = [sys.executable, str(script), "full-refresh", "--batch-size", str(batch_size)]
-    if limit is not None:
-        cmd += ["--limit", str(limit)]
-    subprocess.run(cmd, check=True)
+    run_enrichment_pipeline.full_refresh(batch_size=batch_size, limit=limit)
 
 @app.command()
 def delta_enrich(
@@ -86,16 +74,7 @@ def delta_enrich(
     show_details: bool = typer.Option(True, "--show-details/--no-details", help="Show change analysis"),
 ):
     """🎯 Delta enrichment: Only process parcels with actual transaction price changes (most efficient)."""
-    script = SCRIPT_DIR / "run_enrichment_pipeline.py"
-    cmd = [sys.executable, str(script), "delta-enrich", 
-           "--batch-size", str(batch_size), "--fresh-table", fresh_table]
-    if limit is not None:
-        cmd += ["--limit", str(limit)]
-    if auto_geometric:
-        cmd += ["--auto-geometric"]
-    if not show_details:
-        cmd += ["--no-details"]
-    subprocess.run(cmd, check=True)
+    run_enrichment_pipeline.delta_enrich(batch_size=batch_size, limit=limit, fresh_mvt_table=fresh_table, auto_run_geometric=auto_geometric, show_details=show_details)
 
 @app.command()
 def smart_pipeline(

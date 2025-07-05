@@ -20,36 +20,36 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(project_root))
 
-from src.meshic_pipeline.persistence.models import (
+from meshic_pipeline.persistence.models import (
     Base,
     Transaction,
     ParcelPriceMetric,
     BuildingRule,
 )
-from src.meshic_pipeline.config import settings
+from meshic_pipeline.config import settings
 import logging
 from sqlalchemy import BigInteger, Column, DateTime, Float, Integer, String, JSON
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import ForeignKey
-from src.meshic_pipeline.exceptions import ValidationException
-from src.meshic_pipeline.logging_utils import get_logger
-from src.meshic_pipeline.enrichment.strategies import (
+from meshic_pipeline.exceptions import ValidationException
+from meshic_pipeline.logging_utils import get_logger
+from meshic_pipeline.enrichment.strategies import (
     get_unprocessed_parcel_ids,
     get_stale_parcel_ids,
     get_delta_parcel_ids,
     get_all_enrichable_parcel_ids,
     get_delta_parcel_ids_with_details,
 )
-from src.meshic_pipeline.enrichment.processor import fast_worker
-from src.meshic_pipeline.persistence.db import (
+from meshic_pipeline.enrichment.processor import fast_worker
+from meshic_pipeline.persistence.db import (
     get_async_db_engine,
     setup_database_async,
 )
-from src.meshic_pipeline.persistence.enrichment_persister import (
+from meshic_pipeline.persistence.enrichment_persister import (
     fast_store_batch_data,
 )
-from src.meshic_pipeline.enrichment.api_client import SuhailAPIClient
+from meshic_pipeline.enrichment.api_client import SuhailAPIClient
 
 logger = get_logger(__name__)
 app = typer.Typer()
