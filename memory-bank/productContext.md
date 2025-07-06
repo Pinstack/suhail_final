@@ -62,3 +62,9 @@ Scalable geospatial data processing pipeline for Riyadh real estate parcels, cur
 - **Data Insights**: Comprehensive real estate analytics
 - **Decision Support**: Enriched spatial data for planning
 - **Operational Efficiency**: Reduced manual processing overhead
+
+## 🆕 Province Sync & Schema Alignment
+- Province data is always synced from the Suhail API before pipeline runs.
+- The `parcels` table includes a nullable `region_id` (BIGINT) column.
+- All schema changes are managed via Alembic migrations.
+- For reproducibility, recommend DB reset + province sync + pipeline run in CI/CD.

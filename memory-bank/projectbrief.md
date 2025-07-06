@@ -66,6 +66,12 @@ Extract and process Saudi Arabian real estate data to build commercial analytics
 - **Benefit**: Eliminate manual coordinate management for province coverage
 - **Timeline**: After baseline validation complete
 
+## 🆕 Province Sync & Schema Alignment
+- Province data is now always synced from the Suhail API before pipeline runs.
+- The `parcels` table includes a nullable `region_id` (BIGINT) column.
+- All schema changes are managed via Alembic migrations.
+- For reproducibility, recommend DB reset + province sync + pipeline run in CI/CD.
+
 ## Deliverables
 
 1. **Validated Pipeline**: 3x3 test grid working end-to-end

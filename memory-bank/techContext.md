@@ -234,4 +234,10 @@ python scripts/check_db.py             # Database validation
 - **Dynamic Discovery**: Automated boundary detection system
 - **Commercial Deployment**: Client-ready data products
 
+## 🆕 Province Sync & Schema Alignment
+- Province data is always synced from the Suhail API before pipeline runs.
+- The `parcels` table includes a nullable `region_id` (BIGINT) column.
+- All schema changes are managed via Alembic migrations.
+- For reproducibility, recommend DB reset + province sync + pipeline run in CI/CD.
+
 This technical context reflects the actual current state: fresh database foundation, proven async architecture ready for validation, and systematic approach to building commercial-grade Saudi Arabian real estate data processing capabilities. 

@@ -366,3 +366,27 @@ You may see a warning like:
 PydanticDeprecatedSince20: Using extra keyword arguments on `Field` is deprecated and will be removed. Use json_schema_extra instead. (Extra keys: 'env').
 ```
 This does not affect current functionality but should be addressed in the future for compatibility.
+
+## 🆕 Province Sync & Schema Requirements
+
+### Province Data Sync
+- The pipeline now requires up-to-date province data from the authoritative Suhail API.
+- Before running the geometric or enrichment pipeline, run:
+  ```bash
+  source .venv/bin/activate
+  python scripts/util/sync_provinces.py
+  ```
+- This script fetches and upserts all provinces from https://api2.suhail.ai/regions, ensuring all referenced province IDs are present.
+- The sync is also integrated at the start of the geometric pipeline for safety.
+
+### Schema Requirements
+- The `parcels` table must include a `region_id` column of type BIGINT (nullable).
+- If you update models, always update the Alembic migration baseline.
+
+## ⚙️ Automation & CI/CD
+- For reproducibility, add the following to your CI/CD pipeline:
+  1. **Reset DB** (drop/create, migrate, enable PostGIS)
+  2. **Run province sync** (`python scripts/util/sync_provinces.py`)
+  3. **Run geometric pipeline**
+  4. **Run enrichment pipeline**
+- Optionally, schedule the province sync as a cron job if the DB is long-lived.

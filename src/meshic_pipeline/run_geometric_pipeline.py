@@ -1,5 +1,7 @@
 import asyncio
 import logging
+import subprocess
+import sys
 from typing import List, Tuple, Optional
 
 import typer
@@ -66,6 +68,13 @@ def main(
     - Province: Enhanced province discovery (--province al_qassim)
     - Saudi Arabia: All provinces (--saudi-arabia)
     """
+    # --- Province sync integration ---
+    try:
+        subprocess.run([sys.executable, "scripts/util/sync_provinces.py"], check=True)
+    except Exception as e:
+        logger.error(f"Province sync failed: {e}")
+        raise typer.Exit(code=1)
+
     # Apply memory configuration overrides
     if max_memory is not None:
         settings.memory_config.max_memory_usage_mb = max_memory

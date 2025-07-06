@@ -374,4 +374,10 @@ async def test_enrichment_pipeline(mock_suhail_api):
 - **Performance Optimization**: Chunked processing and concurrency control
 - **Monitoring**: Structured logging and metrics collection ready
 
+## 🆕 Province Sync & Schema Alignment Pattern
+- **Authoritative Data Sync**: Province data is always pulled from the Suhail API before pipeline runs.
+- **Schema Alignment**: All models and DB tables (e.g., parcels.region_id) are kept in sync via Alembic migrations.
+- **Automation/CI**: For reproducibility, the workflow is: DB reset → province sync → pipeline run (geometric + enrichment).
+- **Integration**: Province sync is both a manual script and integrated at pipeline start for safety.
+
 This system architecture reflects the actual current implementation: functional async design, fresh database foundation, and systematic validation approach for commercial Saudi Arabia real estate data processing. 
