@@ -5,13 +5,14 @@
 zoom: 15
 center_x: 20632  # Riyadh center
 center_y: 14061
-grid_w: 3
-grid_h: 3
+grid_w: 5  # 5x5 grid for Eastern Province test
+grid_h: 5
 
 # Enhanced Province Discovery Settings
 enhanced_discovery:
   enabled: true
   default_strategy: "optimal"  # optimal, efficient, comprehensive
+  default_province: "eastern"  # Set default province to Eastern
   
   # Province-specific configurations
   provinces:
