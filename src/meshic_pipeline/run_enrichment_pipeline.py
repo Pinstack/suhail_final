@@ -152,6 +152,7 @@ def delta_enrich(
     typer.echo("=" * 70)
     
     async def run_delta_enrichment():
+        start_time = datetime.utcnow()
         engine = get_async_db_engine()
         
         # Auto-run geometric pipeline if requested
@@ -202,8 +203,27 @@ def delta_enrich(
             parcel_ids = await get_delta_parcel_ids(engine, fresh_mvt_table, limit)
         
         if not parcel_ids:
+            end_time = datetime.utcnow()
+            metrics = {
+                "run_timestamp_utc": start_time.isoformat(),
+                "run_duration_seconds": (end_time - start_time).total_seconds(),
+                "strategy": "delta_enrich",
+                "parcels_identified_for_enrichment": 0,
+                "enriched_transactions_count": 0,
+                "enriched_building_rules_count": 0,
+                "enriched_price_metrics_count": 0,
+            }
+
             typer.echo("\n✅ No transaction price changes detected!")
-            typer.echo("All parcels are up-to-date. No enrichment needed.")
+            typer.echo(
+                f"All parcels are up-to-date. No enrichment needed. (0 parcels, {metrics['run_duration_seconds']:.2f}s)"
+            )
+
+            logger.info(
+                "Delta enrichment run complete - nothing to process",
+                extra={"metrics": metrics},
+            )
+
             # Clean up temp table if we auto-created it
             if auto_run_geometric:
                 try:
