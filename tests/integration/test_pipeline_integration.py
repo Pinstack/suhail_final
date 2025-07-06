@@ -78,10 +78,13 @@ def test_run_pipeline_with_mocks(monkeypatch):
 
         def recreate_database(self):
             pass
+
         def execute(self, *args, **kwargs):
             pass
+
         def read_sql(self, sql, geom_col="geometry"):
             return persisted.get("parcels", gpd.GeoDataFrame())
+
         def create_table_from_gdf(self, *args, **kwargs):
             table = args[1]
             temp_tables[table] = []
@@ -95,6 +98,15 @@ def test_run_pipeline_with_mocks(monkeypatch):
     )
 
     def dummy_read_postgis(sql, engine, geom_col="geometry"):
+        if "neighborhoods" in sql:
+            return gpd.GeoDataFrame(
+                {
+                    "region_id": [1],
+                    "geometry": [Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])],
+                },
+                geometry="geometry",
+                crs=settings.default_crs,
+            )
         return gpd.GeoDataFrame(
             {"parcel_id": [1], "geometry": [Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])]},
             geometry="geometry",
@@ -131,6 +143,7 @@ def test_run_pipeline_with_mocks(monkeypatch):
 
     # limit to a single layer
     monkeypatch.setattr(settings, "layers_to_process", ["parcels"])
+    monkeypatch.setitem(settings.id_column_per_layer, "parcels", "parcel_id")
 
     # run the pipeline
     asyncio.run(run_pipeline(aoi_bbox=(0, 0, 1, 1), zoom=15))
@@ -138,3 +151,135 @@ def test_run_pipeline_with_mocks(monkeypatch):
     assert "parcels" in persisted
     assert len(persisted["parcels"]) == 1
     assert persisted["parcels"].iloc[0]["parcel_id"] == 1
+
+
+def test_run_pipeline_with_save_as_temp(monkeypatch):
+    """Pipeline writes parcels to a temp table and creates indexes."""
+    tile_bytes = mapbox_vector_tile.encode(
+        {
+            "name": "parcels",
+            "features": [
+                {
+                    "geometry": Polygon([(0, 0), (1, 0), (1, 1), (0, 1)]),
+                    "properties": {"parcel_id": 2},
+                }
+            ],
+        },
+        quantize_bounds=(0, 0, 1, 1),
+        extents=4096,
+    )
+
+    monkeypatch.setattr(
+        "meshic_pipeline.pipeline_orchestrator.get_tile_coordinates_for_bounds",
+        lambda bbox, zoom: [(15, 0, 0)],
+    )
+
+    class DummyDownloader:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
+            pass
+
+        async def download_many(self, tiles):
+            return {tiles[0]: tile_bytes}
+
+    monkeypatch.setattr(
+        "meshic_pipeline.pipeline_orchestrator.AsyncTileDownloader",
+        DummyDownloader,
+    )
+
+    persisted_tables: list[str] = []
+    executed_sql: list[str] = []
+
+    class DummyPersister:
+        def __init__(self, *args, **kwargs):
+            self.engine = None
+
+        def write(
+            self,
+            gdf,
+            layer_name,
+            table,
+            if_exists="append",
+            id_column=None,
+            schema="public",
+            chunksize=5000,
+            geometry_type=None,
+        ):
+            persisted_tables.append(table)
+
+        def recreate_database(self):
+            pass
+
+        def execute(self, sql, *args, **kwargs):
+            executed_sql.append(sql)
+
+        def read_sql(self, sql, geom_col="geometry"):
+            return gpd.GeoDataFrame()
+
+        def create_table_from_gdf(self, *args, **kwargs):
+            pass
+
+        def drop_table(self, table, schema="public"):
+            pass
+
+    monkeypatch.setattr(
+        "meshic_pipeline.pipeline_orchestrator.PostGISPersister",
+        DummyPersister,
+    )
+
+    def dummy_read_postgis(sql, engine, geom_col="geometry"):
+        if "neighborhoods" in sql:
+            return gpd.GeoDataFrame(
+                {
+                    "region_id": [1],
+                    "geometry": [Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])],
+                },
+                geometry="geometry",
+                crs=settings.default_crs,
+            )
+        return gpd.GeoDataFrame(
+            {"parcel_id": [2], "geometry": [Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])]},
+            geometry="geometry",
+            crs=settings.default_crs,
+        )
+
+    monkeypatch.setattr(gpd, "read_postgis", dummy_read_postgis)
+
+    def dummy_stitch(self, table_name, layer_name, id_column, agg_rules, known_columns):
+        return gpd.GeoDataFrame(
+            {"parcel_id": [2], "geometry": [Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])]},
+            geometry="geometry",
+            crs=settings.default_crs,
+        )
+
+    monkeypatch.setattr(
+        "meshic_pipeline.pipeline_orchestrator.GeometryStitcher.stitch_from_table",
+        dummy_stitch,
+    )
+
+    class DummyExecutor:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, tb):
+            pass
+
+        def map(self, func, *iterables):
+            return map(func, *iterables)
+
+    monkeypatch.setattr("concurrent.futures.ProcessPoolExecutor", DummyExecutor)
+
+    monkeypatch.setattr(settings, "layers_to_process", ["parcels"])
+    monkeypatch.setitem(settings.id_column_per_layer, "parcels", "parcel_id")
+
+    asyncio.run(
+        run_pipeline(aoi_bbox=(0, 0, 1, 1), zoom=15, save_as_temp="temp_parcels")
+    )
+
+    assert "temp_parcels" in persisted_tables
+    assert any("CREATE INDEX" in sql and "temp_parcels" in sql for sql in executed_sql)

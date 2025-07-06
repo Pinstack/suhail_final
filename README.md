@@ -174,6 +174,9 @@ meshic-pipeline enrich delta-enrich --limit 100 --auto-geometric
 - **Ultimate efficiency**: Maximum resource optimization
 - **Auto-geometric**: Automatically runs geometric pipeline to get fresh MVT data
 - **Use case**: Automated monthly/weekly runs, maximum precision operations
+- **Consistent errors**: Follows `❌ ERROR`/`💡 HINT` pattern for all CLI failures
+- **Metrics logged**: Summary statistics and structured JSON are printed at the end of each run
+- **Temp table cleanup**: Auto-created tables are dropped on success or failure
 
 ## 📊 Monitoring & Operations
 

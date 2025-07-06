@@ -133,13 +133,18 @@ def _get_delta_query(fresh_mvt_table: str) -> str:
                     WHEN p.parcel_objectid IS NULL THEN 'new_parcel_with_transaction'
                     WHEN p.transaction_price IS NULL AND f.transaction_price > 0 THEN 'null_to_positive'
                     WHEN p.transaction_price = 0 AND f.transaction_price > 0 THEN 'zero_to_positive'
-                    WHEN p.transaction_price != f.transaction_price THEN 'price_changed'
+                    WHEN p.transaction_price > 0 AND f.transaction_price > 0 AND p.transaction_price != f.transaction_price THEN 'price_changed'
+                    WHEN p.transaction_price > 0 AND COALESCE(f.transaction_price, 0) <= 0 THEN 'price_disappeared'
                     ELSE 'no_change'
                 END as change_type
             FROM public.parcels p
             FULL OUTER JOIN public.{fresh_mvt_table} f
                 ON p.parcel_objectid = f.parcel_objectid
-            WHERE f.transaction_price > 0
+            WHERE (
+                (COALESCE(p.transaction_price, 0) <= 0 AND f.transaction_price > 0)
+                OR (p.transaction_price > 0 AND f.transaction_price > 0 AND p.transaction_price != f.transaction_price)
+                OR (p.transaction_price > 0 AND COALESCE(f.transaction_price, 0) <= 0)
+            )
         )
     """
 
