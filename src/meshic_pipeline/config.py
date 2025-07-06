@@ -19,7 +19,6 @@ PIPELINE_CFG = yaml.safe_load(PIPELINE_CONFIG_PATH.read_text())
 # Centralized mapping for all Arabic/text columns to canonical _ar names
 ARABIC_COLUMN_MAP = {
     "neighborhaname": "neighborhood_ar",
-    "municipality_aname": "municipality_ar",
     "provinceaname": "province_ar",
     "regionaname": "region_ar",
     "cityaname": "city_ar",

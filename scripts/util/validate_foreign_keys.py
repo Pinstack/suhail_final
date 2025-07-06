@@ -21,7 +21,6 @@ def main():
         ('parcels', 'neighborhood_id', 'neighborhoods', 'neighborhood_id'),
         ('parcels', 'province_id', 'provinces', 'province_id'),
         ('neighborhoods', 'province_id', 'provinces', 'province_id'),
-        ('municipalities', 'province_id', 'provinces', 'province_id'),
         ('subdivisions', 'province_id', 'provinces', 'province_id'),
     ]
 

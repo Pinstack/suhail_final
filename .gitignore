@@ -172,3 +172,7 @@ tile_list.txt
 
 # Package metadata
 *.egg-info/
+
+# Allow all files in sample_data to be tracked, even if normally ignored
+!/sample_data/
+!/sample_data/**

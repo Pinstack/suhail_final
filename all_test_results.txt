@@ -1,28 +1,260 @@
-============================= test session starts ==============================
-platform darwin -- Python 3.11.13, pytest-8.4.1, pluggy-1.6.0
-rootdir: /Users/raedmundjennings/Projects/Suhail_Final
-configfile: pyproject.toml
-plugins: anyio-4.9.0, asyncio-1.0.0
-asyncio: mode=Mode.AUTO, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
-collected 16 items
-
-tests/integration/test_pipeline_integration.py .                         [  6%]
-tests/test_async_tile_downloader.py ..                                   [ 18%]
-tests/unit/test_async_tile_downloader.py ..                              [ 31%]
-tests/unit/test_config.py ...                                            [ 50%]
-tests/unit/test_data_validation.py .                                     [ 56%]
-tests/unit/test_decoder.py ...                                           [ 75%]
-tests/unit/test_discovery.py ..                                          [ 87%]
-tests/unit/test_validator.py ..                                          [100%]
-
-=============================== warnings summary ===============================
-tests/integration/test_pipeline_integration.py::test_run_pipeline_with_mocks
-  /Users/raedmundjennings/Projects/Suhail_Final/tests/integration/test_pipeline_integration.py:16: DeprecationWarning: `encode` signature has changed, use `default_options` instead
-    tile_bytes = mapbox_vector_tile.encode(
-
-tests/integration/test_pipeline_integration.py::test_run_pipeline_with_mocks
-  /Users/raedmundjennings/Projects/Suhail_Final/.venv/lib/python3.11/site-packages/pyogrio/__init__.py:7: DeprecationWarning: The 'shapely.geos' module is deprecated, and will be removed in a future version. All attributes of 'shapely.geos' are available directly from the top-level 'shapely' namespace (since shapely 2.0.0).
-    import shapely.geos  # noqa: F401
-
--- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-======================== 16 passed, 2 warnings in 1.26s ========================
+2025-07-06 14:37:17,380 - meshic_pipeline.persistence.db - INFO - Setting up database tables...
+2025-07-06 14:37:17,412 - meshic_pipeline.persistence.db - INFO - Tables checked/created successfully.
+2025-07-06 14:37:17,415 - meshic_pipeline.enrichment.strategies - INFO - Found 126 enrichable parcels (including previously processed).
+2025-07-06 14:37:17,415 - __main__ - INFO - Starting get_all_enrichable_parcel_ids for 126 parcels with batch size 50
+2025-07-06 14:37:17,415 - meshic_pipeline.enrichment.processor - INFO - 🚀 Processing batch 1/3 (50 parcels)
+2025-07-06 14:37:17,416 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,416 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,416 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,416 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,416 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,416 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,416 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,416 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,417 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,417 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,417 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,417 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,417 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,417 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,417 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,417 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,417 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,417 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,417 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,417 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,418 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,418 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,418 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,418 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,418 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,418 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,418 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,418 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,418 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,418 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,418 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,418 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,419 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,419 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,419 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,419 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,419 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,419 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,419 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,419 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,419 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,419 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,419 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,420 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,420 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,420 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,420 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,420 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,420 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,420 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:17,906 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,909 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,909 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,926 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,927 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,927 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,927 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,929 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,929 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,929 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,929 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,929 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,930 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,930 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,930 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,930 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,930 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,931 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,931 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,931 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,931 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,931 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,931 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,932 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,933 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,933 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,933 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,934 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,934 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,934 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,934 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,935 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,935 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:17,935 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,002 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,050 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,052 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,057 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,058 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,058 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,063 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,064 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,064 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,064 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,064 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,064 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,065 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,065 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,065 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,081 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,507 - meshic_pipeline.enrichment.processor - INFO - 🚀 Processing batch 2/3 (50 parcels)
+2025-07-06 14:37:18,508 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,508 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,508 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,508 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,509 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,509 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,509 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,509 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,509 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,509 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,509 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,509 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,509 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,509 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,510 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,510 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,510 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,510 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,510 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,510 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,510 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,510 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,510 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,510 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,511 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,511 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,511 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,511 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,511 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,511 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,511 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,511 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,511 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,511 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,512 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,512 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,512 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,512 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,512 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,512 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,512 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,512 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,512 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,512 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,513 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,513 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,513 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,513 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,513 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,513 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:18,632 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,633 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,633 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,633 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,634 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,635 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,635 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,636 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,637 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,637 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,638 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,638 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,638 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,639 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,640 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,640 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,640 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,640 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,641 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,641 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,641 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,642 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,642 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,643 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,643 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,643 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,643 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,644 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,644 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,644 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,644 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,644 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,644 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,644 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,645 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,645 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,645 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,646 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,646 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,646 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,647 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,647 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,647 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,647 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,647 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,656 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,677 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,939 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,940 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:18,970 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,100 - meshic_pipeline.enrichment.processor - INFO - 🚀 Processing batch 3/3 (26 parcels)
+2025-07-06 14:37:19,100 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,101 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,101 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,101 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,101 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,101 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,101 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,101 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,101 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,102 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,102 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,102 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,102 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,102 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,102 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,102 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,102 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,102 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,102 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,103 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,103 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,103 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,103 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,103 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,103 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,103 - meshic_pipeline.enrichment.api_client - INFO - Starting operation: fetch_transactions
+2025-07-06 14:37:19,226 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,227 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,227 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,227 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,227 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,228 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,228 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,229 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,229 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,229 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,229 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,229 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,229 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,229 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,229 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,231 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,231 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,231 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,232 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,233 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,234 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,234 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,234 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,234 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,234 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,258 - meshic_pipeline.enrichment.api_client - INFO - Completed operation: fetch_transactions
+2025-07-06 14:37:19,396 - __main__ - INFO - Finished get_all_enrichable_parcel_ids. Added 76 transactions, 124 building rules, 876 price metrics.

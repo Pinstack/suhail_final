@@ -150,17 +150,7 @@ class Province(Base):
 
     parcels = relationship("Parcel", back_populates="province")
     neighborhoods = relationship("Neighborhood", back_populates="province")
-    municipalities = relationship("Municipality", back_populates="province")
     subdivisions = relationship("Subdivision", back_populates="province")
-
-class Municipality(Base):
-    __tablename__ = 'municipalities'
-    municipality_id = Column(BigInteger, primary_key=True)
-    municipality_name = Column(String)
-    province_id = Column(BigInteger, ForeignKey('provinces.province_id'), nullable=True)
-    geometry = Column(Geometry('MULTIPOLYGON', srid=4326))
-
-    province = relationship("Province", back_populates="municipalities")
 
 class Subdivision(Base):
     __tablename__ = 'subdivisions'

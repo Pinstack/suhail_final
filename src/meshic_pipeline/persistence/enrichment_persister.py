@@ -2,6 +2,7 @@ from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy import text
+from math import ceil
 
 from .models import Transaction, BuildingRule, ParcelPriceMetric
 from meshic_pipeline.logging_utils import get_logger
@@ -15,7 +16,12 @@ async def fast_store_batch_data(
     rules: List[BuildingRule],
     metrics: List[ParcelPriceMetric],
 ) -> tuple[int, int, int]:
-    """Optimized batch storage with minimal overhead."""
+    """Optimized batch storage with minimal overhead. Now with safe batching to avoid SQL parameter overflow."""
+
+    PARAMETER_LIMIT = 32000  # Safe upper bound for PostgreSQL
+
+    def get_batch_size(num_columns: int) -> int:
+        return max(1, PARAMETER_LIMIT // num_columns)
 
     # Bulk insert transactions
     tx_count = 0
@@ -32,10 +38,14 @@ async def fast_store_batch_data(
             }
             for tx in transactions
         ]
-        stmt = pg_insert(Transaction).values(tx_values)
-        stmt = stmt.on_conflict_do_nothing(index_elements=["transaction_id"])
-        result = await async_session.execute(stmt)
-        tx_count = result.rowcount
+        num_cols = len(tx_values[0]) if tx_values else 1
+        batch_size = get_batch_size(num_cols)
+        for i in range(0, len(tx_values), batch_size):
+            batch = tx_values[i:i+batch_size]
+            stmt = pg_insert(Transaction).values(batch)
+            stmt = stmt.on_conflict_do_nothing(index_elements=["transaction_id"])
+            result = await async_session.execute(stmt)
+            tx_count += result.rowcount or 0
 
     # Bulk insert rules (deduplicated)
     rules_count = 0
@@ -64,10 +74,14 @@ async def fast_store_batch_data(
             }
             for r in unique_rules.values()
         ]
-        stmt = pg_insert(BuildingRule).values(rules_values)
-        stmt = stmt.on_conflict_do_nothing(index_elements=["parcel_objectid", "building_rule_id"])
-        result = await async_session.execute(stmt)
-        rules_count = result.rowcount
+        num_cols = len(rules_values[0]) if rules_values else 1
+        batch_size = get_batch_size(num_cols)
+        for i in range(0, len(rules_values), batch_size):
+            batch = rules_values[i:i+batch_size]
+            stmt = pg_insert(BuildingRule).values(batch)
+            stmt = stmt.on_conflict_do_nothing(index_elements=["parcel_objectid", "building_rule_id"])
+            result = await async_session.execute(stmt)
+            rules_count += result.rowcount or 0
 
     # Bulk insert metrics
     metrics_count = 0
@@ -82,12 +96,16 @@ async def fast_store_batch_data(
             }
             for m in metrics
         ]
-        stmt = pg_insert(ParcelPriceMetric).values(metrics_values)
-        stmt = stmt.on_conflict_do_nothing(
-            index_elements=["parcel_objectid", "month", "year", "metrics_type"]
-        )
-        result = await async_session.execute(stmt)
-        metrics_count = result.rowcount
+        num_cols = len(metrics_values[0]) if metrics_values else 1
+        batch_size = get_batch_size(num_cols)
+        for i in range(0, len(metrics_values), batch_size):
+            batch = metrics_values[i:i+batch_size]
+            stmt = pg_insert(ParcelPriceMetric).values(batch)
+            stmt = stmt.on_conflict_do_nothing(
+                index_elements=["parcel_objectid", "month", "year", "metrics_type"]
+            )
+            result = await async_session.execute(stmt)
+            metrics_count += result.rowcount or 0
 
     # Update enrichment timestamp for processed parcels
     if transactions or rules or metrics:
