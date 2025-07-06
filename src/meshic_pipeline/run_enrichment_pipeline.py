@@ -9,7 +9,7 @@ import aiohttp
 import typer
 from typing import List, Optional
 from sqlalchemy import create_engine, text
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncEngine
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from datetime import datetime, timedelta
 
@@ -50,10 +50,26 @@ from meshic_pipeline.persistence.enrichment_persister import (
     fast_store_batch_data,
 )
 from meshic_pipeline.enrichment.api_client import SuhailAPIClient
+from rich import print as rprint
 
 logger = get_logger(__name__)
 app = typer.Typer()
 Base = declarative_base()
+
+
+def exit_with_error(summary: str, hint: str) -> None:
+    """Print a formatted error message and exit."""
+    rprint(f"[bold red]❌ ERROR: {summary}[/bold red]")
+    rprint(f"[bold yellow]   💡 HINT: {hint}[/bold yellow]")
+    raise typer.Exit(code=1)
+
+
+async def _table_exists(engine: AsyncEngine, table: str) -> bool:
+    """Check if the given table exists in the public schema."""
+    query = text("SELECT to_regclass(:tbl)")
+    async with engine.begin() as conn:
+        result = await conn.scalar(query, {"tbl": f"public.{table}"})
+        return result is not None
 
 async def run_enrichment_for_ids(
     parcel_ids: List[str], batch_size: int, process_name: str
@@ -69,6 +85,7 @@ async def run_enrichment_for_ids(
 
     async_engine = get_async_db_engine()
     async_session_factory = async_sessionmaker(async_engine, expire_on_commit=False)
+    total_tx = total_rules = total_metrics = 0
 
     connector = aiohttp.TCPConnector(limit_per_host=50)
     async with aiohttp.ClientSession(connector=connector) as session:
@@ -81,9 +98,17 @@ async def run_enrichment_for_ids(
                 continue
 
             async with async_session_factory() as db_session:
-                await fast_store_batch_data(db_session, transactions, rules, metrics)
+                tx_count, rules_count, metrics_count = await fast_store_batch_data(
+                    db_session, transactions, rules, metrics
+                )
+                total_tx += tx_count
+                total_rules += rules_count
+                total_metrics += metrics_count
 
-    logger.info(f"Finished {process_name}.")
+    logger.info(
+        f"Finished {process_name}. Added {total_tx} transactions, {total_rules} building rules, {total_metrics} price metrics."
+    )
+    return total_tx, total_rules, total_metrics
 
 async def _run_enrichment(strategy_func, engine, batch_size, limit, **kwargs):
     """A single async function to orchestrate the entire enrichment process."""
@@ -153,59 +178,125 @@ def delta_enrich(
     
     async def run_delta_enrichment():
         engine = get_async_db_engine()
-        
-        # Auto-run geometric pipeline if requested
-        if auto_run_geometric:
-            typer.echo("🏗️ Auto-running geometric pipeline to get fresh MVT data...")
-            try:
-                # Import here to avoid circular imports
-                import subprocess
-                import sys
-                from pathlib import Path
-                
-                script_path = Path(__file__).parent / "run_geometric_pipeline.py"
-                result = subprocess.run([
-                    sys.executable, str(script_path), 
-                    "--layers", "parcels",
-                    "--save-temp-table", fresh_mvt_table
-                ], capture_output=True, text=True)
-                
-                if result.returncode == 0:
-                    typer.echo("✅ Geometric pipeline completed successfully")
-                    typer.echo(f"📊 Fresh MVT data saved to table: {fresh_mvt_table}")
-                else:
-                    typer.echo(f"❌ Geometric pipeline failed: {result.stderr}")
-                    return
-                    
-            except Exception as e:
-                typer.echo(f"❌ Error running geometric pipeline: {e}")
-                return
-        
-        # Get delta parcels with details
-        if show_details:
-            parcel_ids, change_stats = await get_delta_parcel_ids_with_details(
-                engine, fresh_mvt_table, limit
-            )
-            
-            if change_stats:
-                typer.echo(f"\n📊 CHANGE DETECTION ANALYSIS:")
-                typer.echo(f"  Total changes detected: {len(parcel_ids):,}")
-                for change_type, count in change_stats.items():
-                    type_desc = {
-                        'new_parcel_with_transaction': 'New parcels with transactions',
-                        'null_to_positive': 'Previously null → positive price',
-                        'zero_to_positive': 'Previously zero → positive price', 
-                        'price_changed': 'Transaction price changed'
-                    }.get(change_type, change_type)
-                    typer.echo(f"  • {type_desc}: {count:,}")
-        else:
-            parcel_ids = await get_delta_parcel_ids(engine, fresh_mvt_table, limit)
-        
-        if not parcel_ids:
-            typer.echo("\n✅ No transaction price changes detected!")
-            typer.echo("All parcels are up-to-date. No enrichment needed.")
-            # Clean up temp table if we auto-created it
+
+        start_time = datetime.utcnow()
+        auto_created_table = False
+        metrics = {}
+        enrichment_status = "failed"
+
+        try:
             if auto_run_geometric:
+                typer.echo("🏗️ Auto-running geometric pipeline to get fresh MVT data...")
+                try:
+                    import subprocess
+                    import sys
+                    from pathlib import Path
+
+                    script_path = Path(__file__).parent / "run_geometric_pipeline.py"
+                    result = subprocess.run(
+                        [
+                            sys.executable,
+                            str(script_path),
+                            "--layers",
+                            "parcels",
+                            "--save-temp-table",
+                            fresh_mvt_table,
+                        ],
+                        capture_output=True,
+                        text=True,
+                    )
+
+                    if result.returncode == 0:
+                        typer.echo("✅ Geometric pipeline completed successfully")
+                        typer.echo(f"📊 Fresh MVT data saved to table: {fresh_mvt_table}")
+                        auto_created_table = True
+                    else:
+                        exit_with_error(
+                            "Geometric pipeline failed to create fresh data table.",
+                            "Check the pipeline logs and retry."
+                        )
+                except Exception as e:
+                    exit_with_error(
+                        f"Error running geometric pipeline: {e}",
+                        "Ensure the geometric pipeline is functional."
+                    )
+
+            if not await _table_exists(engine, fresh_mvt_table):
+                exit_with_error(
+                    f'The specified fresh data table "{fresh_mvt_table}" does not exist.',
+                    "Verify the table name or use the '--auto-geometric' flag to create it automatically."
+                )
+
+            async with engine.begin() as conn:
+                db_count = await conn.scalar(text("SELECT COUNT(*) FROM public.parcels"))
+                mvt_count = await conn.scalar(text(f"SELECT COUNT(*) FROM public.{fresh_mvt_table}"))
+
+            if show_details:
+                parcel_ids, change_stats = await get_delta_parcel_ids_with_details(
+                    engine, fresh_mvt_table, limit
+                )
+
+                if change_stats:
+                    typer.echo(f"\n📊 CHANGE DETECTION ANALYSIS:")
+                    typer.echo(f"  Total changes detected: {len(parcel_ids):,}")
+                    for change_type, count in change_stats.items():
+                        type_desc = {
+                            'new_parcel_with_transaction': 'New parcels with transactions',
+                            'null_to_positive': 'Previously null → positive price',
+                            'zero_to_positive': 'Previously zero → positive price',
+                            'price_changed': 'Transaction price changed',
+                            'price_disappeared': 'Price disappeared',
+                        }.get(change_type, change_type)
+                        typer.echo(f"  • {type_desc}: {count:,}")
+            else:
+                parcel_ids = await get_delta_parcel_ids(engine, fresh_mvt_table, limit)
+                change_stats = {}
+
+            metrics["parcels_scanned_in_db"] = db_count
+            metrics["parcels_scanned_from_mvt"] = mvt_count
+
+            if not parcel_ids:
+                typer.echo("\n✅ No transaction price changes detected!")
+                typer.echo("All parcels are up-to-date. No enrichment needed.")
+                enrichment_status = "success"
+                return
+
+            typer.echo(f"\n🎯 Processing {len(parcel_ids):,} parcels with detected changes...")
+            tx_count, rules_count, metrics_count = await run_enrichment_for_ids(parcel_ids, batch_size, "DELTA")
+
+            metrics.update({
+                "enriched_transactions_count": tx_count,
+                "enriched_rules_count": rules_count,
+                "enriched_metrics_count": metrics_count,
+            })
+            enrichment_status = "success"
+
+            duration = datetime.utcnow() - start_time
+            typer.echo("\n✅ Delta Enrichment Complete!\n")
+            typer.echo("--- Run Summary ---")
+            typer.echo(f"Duration:          {int(duration.total_seconds())}s")
+            typer.echo(f"Changes Detected:  {len(parcel_ids)} parcels")
+            for ctype, count in change_stats.items():
+                typer.echo(f"  - {ctype}: {count}")
+            typer.echo("Records Created:")
+            typer.echo(f"  - Transactions:  {tx_count}")
+            typer.echo(f"  - Building Rules: {rules_count}")
+            typer.echo(f"  - Price Metrics:  {metrics_count}")
+
+            metrics.update({
+                "run_timestamp_utc": start_time.isoformat() + "Z",
+                "run_duration_seconds": duration.total_seconds(),
+                "strategy": "delta_enrichment",
+                "parcels_identified_for_enrichment": len(parcel_ids),
+                "change_statistics": change_stats,
+                "enrichment_status": enrichment_status,
+            })
+
+            logger.info("Delta enrichment run completed successfully.", extra={"metrics": metrics})
+
+        finally:
+            if auto_created_table:
+                typer.echo("🧹 Cleaning up auto-generated temporary table...")
                 try:
                     from src.meshic_pipeline.persistence.postgis_persister import PostGISPersister
                     persister = PostGISPersister(str(settings.database_url))
@@ -213,20 +304,6 @@ def delta_enrich(
                     typer.echo(f"🧹 Cleaned up temporary table: {fresh_mvt_table}")
                 except Exception as e:
                     typer.echo(f"⚠️ Warning: Could not clean up temp table: {e}")
-            return
-            
-        typer.echo(f"\n🎯 Processing {len(parcel_ids):,} parcels with detected changes...")
-        await run_enrichment_for_ids(parcel_ids, batch_size, "DELTA")
-        
-        # Clean up temp table if we auto-created it
-        if auto_run_geometric:
-            try:
-                from src.meshic_pipeline.persistence.postgis_persister import PostGISPersister
-                persister = PostGISPersister(str(settings.database_url))
-                persister.drop_table(fresh_mvt_table)
-                typer.echo(f"🧹 Cleaned up temporary table: {fresh_mvt_table}")
-            except Exception as e:
-                typer.echo(f"⚠️ Warning: Could not clean up temp table: {e}")
     
     asyncio.run(run_delta_enrichment())
 
