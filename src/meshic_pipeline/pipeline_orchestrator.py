@@ -270,7 +270,7 @@ async def run_pipeline(
             "Memory at layer start %.2fMB",
             layer_start_stats.process_mb,
         )
-        
+
         temp_table = f"temp_decoded_{layer}_{uuid.uuid4().hex[:8]}"
         # --- Pass 1: Discover full schema from all tiles ---
         all_columns = set()
@@ -408,32 +408,51 @@ async def run_pipeline(
         stitched_gdf.to_file(out_path, driver="GeoJSON")
 
         # Persist to PostGIS
-        table_name = settings.table_name_mapping.get(layer, layer)
-        logger.info(
-            "Persisting %d features for layer '%s' to table '%s'",
-            len(stitched_gdf),
-            layer,
-            table_name,
-        )
-
-        # Determine write mode: upsert if id_col is set, else replace (see WHAT_TO_DO_NEXT_PIPELINE_TABLES.md)
-        if id_col:
-            persister.write(
-                stitched_gdf,
-                layer,
-                table_name,
-                id_column=id_col,
-                chunksize=settings.db_chunk_size,
+        if layer == "parcels" and save_as_temp:
+            logger.info(
+                "Writing parcels to temp table %s for delta comparison", save_as_temp
             )
-        else:
             persister.write(
                 stitched_gdf,
                 layer,
-                table_name,
+                save_as_temp,
                 if_exists="replace",
                 id_column=None,
                 chunksize=settings.db_chunk_size,
             )
+            persister.execute(
+                f'CREATE INDEX IF NOT EXISTS idx_{save_as_temp}_id ON public."{save_as_temp}" (parcel_objectid)'
+            )
+            persister.execute(
+                f'CREATE INDEX IF NOT EXISTS idx_{save_as_temp}_geom ON public."{save_as_temp}" USING GIST("geometry")'
+            )
+        else:
+            table_name = settings.table_name_mapping.get(layer, layer)
+            logger.info(
+                "Persisting %d features for layer '%s' to table '%s'",
+                len(stitched_gdf),
+                layer,
+                table_name,
+            )
+
+            # Determine write mode: upsert if id_col is set, else replace (see WHAT_TO_DO_NEXT_PIPELINE_TABLES.md)
+            if id_col:
+                persister.write(
+                    stitched_gdf,
+                    layer,
+                    table_name,
+                    id_column=id_col,
+                    chunksize=settings.db_chunk_size,
+                )
+            else:
+                persister.write(
+                    stitched_gdf,
+                    layer,
+                    table_name,
+                    if_exists="replace",
+                    id_column=None,
+                    chunksize=settings.db_chunk_size,
+                )
         layer_end_stats = get_memory_monitor().get_memory_stats()
         logger.debug(
             "Memory at layer end %.2fMB",

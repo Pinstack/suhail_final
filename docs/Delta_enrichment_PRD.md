@@ -34,3 +34,10 @@
 - **FR3:** `delta-enrich` CLI automates the workflow, supports `--auto-geometric`
 - **FR4:** Guaranteed cleanup of temp tables (even on failure)
 - **FR5:** Actionable, user-friendly error messages (no raw tracebacks)
+
+## Implementation Notes
+
+- Temp tables are cleaned up *only* when created automatically via `--auto-geometric`. Manually supplied tables are preserved.
+- CLI errors should follow a standard pattern using a red "❌ ERROR:" prefix and a yellow "💡 HINT:" line.
+- Delta detection focuses on positive transaction price changes. Negative values are stored but do not trigger enrichment.
+- `delta-enrich` must log structured metrics (timestamp, duration, counts) and print a concise summary after each run.
