@@ -98,6 +98,12 @@ meshic-pipeline geometric
 
 # Or specify custom bounding box
 meshic-pipeline geometric --bbox 46.428223 24.367114 47.010498 24.896402
+
+# Process a specific province
+meshic-pipeline geometric --province riyadh
+
+# Process all provinces
+meshic-pipeline geometric --all-provinces
 ```
 
 #### **Stage 2: Business Intelligence Enrichment**
@@ -378,6 +384,15 @@ This does not affect current functionality but should be addressed in the future
   ```
 - This script fetches and upserts all provinces from https://api2.suhail.ai/regions, ensuring all referenced province IDs are present.
 - The sync is also integrated at the start of the geometric pipeline for safety.
+
+### Province Metadata File
+The `provinces.yaml` file defines bounding boxes and tile server URLs for each
+Saudi province. It is loaded automatically when the pipeline starts so that
+`--province` accepts only valid names. To list all available provinces and
+their statistics, run:
+```bash
+meshic-pipeline discovery-summary
+```
 
 ### Schema Requirements
 - The `parcels` table must include a `region_id` column of type BIGINT (nullable).
