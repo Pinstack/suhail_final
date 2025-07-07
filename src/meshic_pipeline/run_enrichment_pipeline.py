@@ -12,6 +12,8 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncEngine
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from datetime import datetime, timedelta
+import time
+import psutil
 
 import sys
 from pathlib import Path
@@ -50,10 +52,13 @@ from meshic_pipeline.persistence.enrichment_persister import (
 )
 from meshic_pipeline.enrichment.api_client import SuhailAPIClient
 from rich import print as rprint
+from meshic_pipeline.pipeline_orchestrator import PipelineAutotuner
 
 logger = get_logger(__name__)
 app = typer.Typer()
 
+# At the start of the file, after settings import:
+autotuner = PipelineAutotuner(settings)
 
 def exit_with_error(summary: str, hint: str) -> None:
     """Print a formatted error message and exit."""
@@ -88,11 +93,14 @@ async def run_enrichment_for_ids(
     connector = aiohttp.TCPConnector(limit_per_host=50)
     async with aiohttp.ClientSession(connector=connector) as session:
         api_client = SuhailAPIClient(session)
-        
+        batch_num = 0
         async for transactions, rules, metrics in fast_worker(
             parcel_ids, batch_size, api_client
         ):
+            batch_num += 1
+            start_batch = time.time()
             if not transactions and not rules and not metrics:
+                autotuner.record_enrichment(1, time.time() - start_batch, errors=1)
                 continue
 
             async with async_session_factory() as db_session:
@@ -102,10 +110,13 @@ async def run_enrichment_for_ids(
                 total_tx += tx_count
                 total_rules += rules_count
                 total_metrics += metrics_count
+            elapsed_batch = time.time() - start_batch
+            autotuner.record_enrichment(1, elapsed_batch, errors=0)
 
     logger.info(
         f"Finished {process_name}. Added {total_tx} transactions, {total_rules} building rules, {total_metrics} price metrics."
     )
+    logger.info("[autotune] Enrichment summary of parameter adjustments:\n%s", autotuner.summary())
     return total_tx, total_rules, total_metrics
 
 async def _run_enrichment(strategy_func, engine, batch_size, limit, **kwargs):
@@ -123,7 +134,9 @@ def fast_enrich(
 ):
     """Enriches new parcels."""
     engine = get_async_db_engine()
-    asyncio.run(_run_enrichment(get_unprocessed_parcel_ids, engine, batch_size, limit))
+    # Use autotuned batch size if enabled
+    bs = settings.enrichment_batch_size if getattr(settings, 'autotune', True) else batch_size
+    asyncio.run(_run_enrichment(get_unprocessed_parcel_ids, engine, bs, limit))
 
 @app.command()
 def incremental_enrich(

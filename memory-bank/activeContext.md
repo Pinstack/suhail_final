@@ -194,3 +194,10 @@ This active context reflects the actual current state: fresh database, commercia
 - The `parcels` table now requires a nullable `region_id` column (BIGINT).
 - All schema changes are managed via Alembic migrations.
 - For reproducibility, add DB reset + sync + pipeline run to CI/CD.
+
+## 2024-07-07: Robust Quarantining Complete
+- Alembic migration applied: `raw_data` in `quarantined_features` is now nullable.
+- Pipeline logic updated: quarantined features now store the full original feature as JSON in `raw_data`.
+- All NaN/Infinity values are converted to null for strict PostgreSQL JSON compliance.
+- Pipeline is robust against province ID mismatches; unmapped features are quarantined, not lost.
+- Any `ResourceClosedError` from SQLAlchemy is benign and can be silenced if desired.

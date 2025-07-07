@@ -142,12 +142,35 @@ class Neighborhood(Base):
     price_metrics = relationship("ParcelPriceMetric", back_populates="neighborhood")
     province = relationship("Province", back_populates="neighborhoods")
 
+class Region(Base):
+    __tablename__ = 'regions'
+    region_id = Column(BigInteger, primary_key=True)
+    region_key = Column(String(64))
+    region_name = Column(String(128))
+    map_style_url = Column(String(256))
+    map_zoom_level = Column(Float)
+    metrics_url = Column(String(256))
+    default_transactions_date_range = Column(String(32))
+    centroid_x = Column(Float)
+    centroid_y = Column(Float)
+    bbox_sw_x = Column(Float)
+    bbox_sw_y = Column(Float)
+    bbox_ne_x = Column(Float)
+    bbox_ne_y = Column(Float)
+    image_url = Column(String(256))
+
+    provinces = relationship("Province", back_populates="region")
+
 class Province(Base):
     __tablename__ = 'provinces'
     province_id = Column(BigInteger, primary_key=True)
     province_name = Column(String)
     geometry = Column(Geometry('MULTIPOLYGON', srid=4326))
+    region_id = Column(BigInteger, ForeignKey('regions.region_id'))
+    centroid_x = Column(Float)
+    centroid_y = Column(Float)
 
+    region = relationship("Region", back_populates="provinces")
     parcels = relationship("Parcel", back_populates="province")
     neighborhoods = relationship("Neighborhood", back_populates="province")
     subdivisions = relationship("Subdivision", back_populates="province")

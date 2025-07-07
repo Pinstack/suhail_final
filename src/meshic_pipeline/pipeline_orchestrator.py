@@ -4,12 +4,18 @@ import logging
 from typing import Dict, List, Tuple
 import uuid
 import concurrent.futures
+import time
+import psutil
+import os
+import json
+import math
 
 import geopandas as gpd
 import sys
 from tqdm import tqdm
 import pandas as pd
 from sqlalchemy import create_engine, inspect
+import sqlalchemy as sa
 
 from .config import settings
 from .discovery.tile_endpoint_discovery import (
@@ -153,6 +159,67 @@ def decode_and_validate_tile(
     return validated_gdfs
 
 
+class PipelineAutotuner:
+    def __init__(self, settings):
+        self.settings = settings
+        self.enabled = getattr(settings, 'autotune', True)
+        # Initial values
+        self.max_concurrent_downloads = settings.max_concurrent_downloads
+        self.db_chunk_size = settings.db_chunk_size
+        self.enrichment_batch_size = getattr(settings, 'enrichment_batch_size', 200)
+        # Metrics
+        self.last_download_time = None
+        self.last_db_write_time = None
+        self.last_enrich_time = None
+        self.error_count = 0
+        self.memory_limit_mb = 0.8 * psutil.virtual_memory().total / 1024 / 1024  # 80% of system RAM
+        self.log = []
+
+    def record_download(self, n_tiles, elapsed, errors=0):
+        if not self.enabled:
+            return
+        throughput = n_tiles / elapsed if elapsed > 0 else 0
+        self.log.append(f"[autotune] Downloaded {n_tiles} tiles in {elapsed:.2f}s ({throughput:.2f} tiles/s), errors={errors}")
+        # Simple feedback: increase concurrency if fast/no errors, decrease if slow/errors
+        if errors == 0 and throughput > 5 and self.max_concurrent_downloads < 100:
+            self.max_concurrent_downloads += 2
+        elif errors > 0 or throughput < 1:
+            self.max_concurrent_downloads = max(2, self.max_concurrent_downloads // 2)
+        # Memory check
+        if psutil.virtual_memory().used / 1024 / 1024 > self.memory_limit_mb:
+            self.max_concurrent_downloads = max(2, self.max_concurrent_downloads // 2)
+        self.settings.max_concurrent_downloads = self.max_concurrent_downloads
+
+    def record_db_write(self, n_rows, elapsed, errors=0):
+        if not self.enabled:
+            return
+        throughput = n_rows / elapsed if elapsed > 0 else 0
+        self.log.append(f"[autotune] Wrote {n_rows} rows in {elapsed:.2f}s ({throughput:.2f} rows/s), errors={errors}")
+        if errors == 0 and throughput > 1000 and self.db_chunk_size < 50000:
+            self.db_chunk_size += 1000
+        elif errors > 0 or throughput < 100:
+            self.db_chunk_size = max(1000, self.db_chunk_size // 2)
+        if psutil.virtual_memory().used / 1024 / 1024 > self.memory_limit_mb:
+            self.db_chunk_size = max(1000, self.db_chunk_size // 2)
+        self.settings.db_chunk_size = self.db_chunk_size
+
+    def record_enrichment(self, n_batches, elapsed, errors=0):
+        if not self.enabled:
+            return
+        throughput = n_batches / elapsed if elapsed > 0 else 0
+        self.log.append(f"[autotune] Enriched {n_batches} batches in {elapsed:.2f}s ({throughput:.2f} batches/s), errors={errors}")
+        if errors == 0 and throughput > 2 and self.enrichment_batch_size < 2000:
+            self.enrichment_batch_size += 100
+        elif errors > 0 or throughput < 0.5:
+            self.enrichment_batch_size = max(50, self.enrichment_batch_size // 2)
+        if psutil.virtual_memory().used / 1024 / 1024 > self.memory_limit_mb:
+            self.enrichment_batch_size = max(50, self.enrichment_batch_size // 2)
+        self.settings.enrichment_batch_size = self.enrichment_batch_size
+
+    def summary(self):
+        return "\n".join(self.log)
+
+
 async def run_pipeline(
     aoi_bbox: Tuple[float, float, float, float] = None,
     zoom: int = None,
@@ -189,43 +256,53 @@ async def run_pipeline(
     )
     logger.debug("Using settings: %s", settings.model_dump_json(indent=2))
 
-    # Tile discovery based on province metadata
-    if saudi_arabia_mode:
-        tiles = []
-        for prov_key in settings.list_provinces():
-            meta = settings.get_province_meta(prov_key)
-            tiles.extend(tiles_from_bbox_z(meta["bbox_z15"], zoom=15))
-        logger.info(
-            "🇸🇦 Saudi Arabia mode: Discovered %d tiles across all provinces",
-            len(tiles),
-        )
-    elif province:
-        meta = settings.get_province_meta(province)
-        tiles = tiles_from_bbox_z(meta["bbox_z15"], zoom=15)
-        logger.info(
-            "🏛️ Province mode (%s): Discovered %d tiles",
-            province,
-            len(tiles),
-        )
-    elif aoi_bbox:
-        # Traditional bbox discovery
-        tiles = get_tile_coordinates_for_bounds(aoi_bbox, zoom)
-        logger.info("📦 Bbox mode: Discovered %d tiles for AOI", len(tiles))
+    # Initialize autotuner early so it can be used throughout the run
+    autotuner = PipelineAutotuner(settings)
+
+    # --- New: Load tiles from z15_tiles_to_scrape.json if present ---
+    z15_tile_file = os.path.join(os.getcwd(), "z15_tiles_to_scrape.json")
+    if os.path.exists(z15_tile_file):
+        with open(z15_tile_file) as f:
+            tiles = [tuple(t) for t in json.load(f)]
+        logger.info(f"Loaded {len(tiles)} z15 tiles from {z15_tile_file}")
     else:
-        # Default grid discovery
-        tiles = get_tile_coordinates_for_grid(
-            settings.center_x,
-            settings.center_y,
-            settings.grid_w,
-            settings.grid_h,
-            zoom,
-        )
-        logger.info(
-            "🔢 Grid mode: Discovered %d tiles for %dx%d grid",
-            len(tiles),
-            settings.grid_w,
-            settings.grid_h,
-        )
+        # Tile discovery based on province metadata
+        if saudi_arabia_mode:
+            tiles = []
+            for prov_key in settings.list_provinces():
+                meta = settings.get_province_meta(prov_key)
+                tiles.extend(tiles_from_bbox_z(meta["bbox_z15"], zoom=15))
+            logger.info(
+                "🇸🇦 Saudi Arabia mode: Discovered %d tiles across all provinces",
+                len(tiles),
+            )
+        elif province:
+            meta = settings.get_province_meta(province)
+            tiles = tiles_from_bbox_z(meta["bbox_z15"], zoom=15)
+            logger.info(
+                "🏛️ Province mode (%s): Discovered %d tiles",
+                province,
+                len(tiles),
+            )
+        elif aoi_bbox:
+            # Traditional bbox discovery
+            tiles = get_tile_coordinates_for_bounds(aoi_bbox, zoom)
+            logger.info("📦 Bbox mode: Discovered %d tiles for AOI", len(tiles))
+        else:
+            # Default grid discovery
+            tiles = get_tile_coordinates_for_grid(
+                settings.center_x,
+                settings.center_y,
+                settings.grid_w,
+                settings.grid_h,
+                zoom,
+            )
+            logger.info(
+                "🔢 Grid mode: Discovered %d tiles for %dx%d grid",
+                len(tiles),
+                settings.grid_w,
+                settings.grid_h,
+            )
 
     # 2. Determine tile server URL
     if province:
@@ -240,7 +317,11 @@ async def run_pipeline(
 
     # Create downloader with correct base URL
     async with AsyncTileDownloader(base_url=tile_base_url) as dl:
+        start_dl = time.time()
         raw_tiles = await dl.download_many(tiles)
+        elapsed_dl = time.time() - start_dl
+        failed_downloads = len(tiles) - len(raw_tiles)
+        autotuner.record_download(len(tiles), elapsed_dl, errors=failed_downloads)
 
     # Filter out empty tiles once to avoid re-checking in the loop
     non_empty_tiles = {}
@@ -253,6 +334,12 @@ async def run_pipeline(
     # Initialize components once
     persister = PostGISPersister(str(settings.database_url))
     stitcher = GeometryStitcher(target_crs=settings.default_crs, persister=persister)
+    engine = persister.engine
+    # Load province_id mapping into memory
+    with sa.create_engine(str(settings.database_url)).connect() as conn:
+        province_id_map = dict(conn.execute(
+            sa.text('SELECT source_province_id, canonical_province_id FROM province_id_mapping')
+        ).fetchall())
     if recreate_db:
         logger.info("Recreating database: %s", settings.database_url.path)
         persister.recreate_database()
@@ -288,6 +375,35 @@ async def run_pipeline(
 
         for layer, gdf_list in layer_gdfs.items():
             gdf = gpd.GeoDataFrame(pd.concat(gdf_list, ignore_index=True))
+            # --- Province ID mapping and quarantine ---
+            if 'province_id' in gdf.columns:
+                orig_count = len(gdf)
+                # Map province_id using mapping table
+                gdf['canonical_province_id'] = gdf['province_id'].map(province_id_map)
+                # Quarantine features with unknown province_id
+                quarantine_mask = gdf['canonical_province_id'].isna()
+                if quarantine_mask.any():
+                    quarantined = gdf[quarantine_mask]
+                    logger.warning(f"Quarantining {quarantined.shape[0]} features in layer '{layer}' with unknown province_id(s): {quarantined['province_id'].unique().tolist()}")
+                    # Insert into quarantined_features table
+                    with engine.begin() as conn:
+                        quarantined.apply(lambda row: conn.execute(
+                            sa.text('INSERT INTO quarantined_features (feature_type, feature_id, province_id, region_id, geometry, properties, quarantined_at, raw_data) VALUES (:ft, :fid, :pid, :rid, ST_GeomFromText(:geom, 4326), :props, now(), :raw_data)'),
+                            {
+                                'ft': layer,
+                                'fid': row.get('neighborhood_id') or row.get('parcel_objectid') or row.get('id'),
+                                'pid': row.get('province_id'),
+                                'rid': row.get('region_id'),
+                                'geom': row['geometry'].wkt if hasattr(row['geometry'], 'wkt') else None,
+                                'props': json.dumps(row.drop('geometry').to_dict(), default=str),
+                                'raw_data': json.dumps({k: (None if (isinstance(v, float) and (math.isnan(v) or math.isinf(v))) else v) for k, v in row.to_dict().items()}, default=str, allow_nan=False),
+                            }
+                        ), axis=1)
+                # Only keep features with mapped province_id
+                gdf = gdf[~quarantine_mask].copy()
+                gdf['province_id'] = gdf['canonical_province_id']
+                gdf = gdf.drop(columns=['canonical_province_id'])
+                logger.info(f"Mapped province_id for {len(gdf)}/{orig_count} features in layer '{layer}'.")
             # Deduplicate by primary key if applicable (DRY for all layers)
             pk_col = settings.id_column_per_layer.get(layer)
             if pk_col and pk_col in gdf.columns:
@@ -298,7 +414,6 @@ async def run_pipeline(
                     logger.warning(f"Dropped {before - after} duplicate rows for primary key '{pk_col}' in layer '{layer}' before DB write.")
             # --- Audit for unseen ruleid values before DB write (parcels only) ---
             if layer == 'parcels' and 'ruleid' in gdf.columns:
-                engine = persister.engine
                 zoning_rules = pd.read_sql('SELECT ruleid FROM zoning_rules', engine)
                 incoming_ruleids = set(gdf['ruleid'].dropna().unique())
                 existing_ruleids = set(zoning_rules['ruleid'])
@@ -320,6 +435,7 @@ async def run_pipeline(
                 else:
                     print("[INFO] All ruleid values present in zoning_rules.")
             # Write to DB in a single operation
+            start_db = time.time()
             persister.write(
                 gdf,
                 layer,
@@ -327,6 +443,8 @@ async def run_pipeline(
                 if_exists="replace",
                 id_column=None,
             )
+            elapsed_db = time.time() - start_db
+            autotuner.record_db_write(len(gdf), elapsed_db, errors=0)  # TODO: count actual errors
 
         # --- Enrichment Step: Assign region_id to parcels ---
         if layer == "parcels":
@@ -426,9 +544,19 @@ async def run_pipeline(
         )
         start_mem = layer_mem
 
+        # --- Cleanup temp table unless keep_temp_tables is set ---
+        if not getattr(settings, 'keep_temp_tables', False):
+            try:
+                persister.drop_table(temp_table)
+                logger.info("Dropped temp table: %s", temp_table)
+            except Exception as e:
+                logger.warning("Failed to drop temp table %s: %s", temp_table, e)
+
     final_mem = monitor.get_memory_stats().process_mb
     logger.info("🎉 Pipeline finished successfully. 🎉")
     logger.info(
         "Total memory change during run: %.2fMB",
         final_mem - overall_start_mem,
     )
+
+    logger.info("[autotune] Summary of parameter adjustments:\n%s", autotuner.summary())

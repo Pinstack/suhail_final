@@ -2,7 +2,10 @@ import requests
 import logging
 import sys
 from sqlalchemy import create_engine, text
+from sqlalchemy.dialects.postgresql import insert
 import os
+from src.meshic_pipeline.persistence.models import Region, Province
+import sqlalchemy as sa
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
@@ -85,14 +88,85 @@ def upsert_provinces(engine, provinces):
             '''), prov)
         logging.info(f"Upserted {len(provinces)} provinces.")
 
+def sync_regions_and_provinces(engine):
+    url = "https://api2.suhail.ai/regions"
+    resp = requests.get(url)
+    resp.raise_for_status()
+    data = resp.json()["data"]
+    canonical_ids = set()
+    with engine.begin() as conn:
+        for region in data:
+            region_obj = {
+                "region_id": region["id"],
+                "region_key": region["key"],
+                "region_name": region["name"],
+                "map_style_url": region.get("mapStyleUrl"),
+                "map_zoom_level": region.get("mapZoomLevel"),
+                "metrics_url": region.get("metricsUrl"),
+                "default_transactions_date_range": region.get("defaultTransactionsDateRange"),
+                "centroid_x": region["centroid"]["x"],
+                "centroid_y": region["centroid"]["y"],
+                "bbox_sw_x": region["restrictBoundaryBox"]["southwest"]["x"],
+                "bbox_sw_y": region["restrictBoundaryBox"]["southwest"]["y"],
+                "bbox_ne_x": region["restrictBoundaryBox"]["northeast"]["x"],
+                "bbox_ne_y": region["restrictBoundaryBox"]["northeast"]["y"],
+                "image_url": region.get("image"),
+            }
+            conn.execute(insert(Region).values(**region_obj).on_conflict_do_update(
+                index_elements=[Region.region_id],
+                set_=region_obj,
+            ))
+            for prov in region["provinces"]:
+                province_obj = {
+                    "province_id": prov["id"],
+                    "province_name": prov["name"],
+                    "region_id": region["id"],
+                    "centroid_x": prov["centroid"]["x"],
+                    "centroid_y": prov["centroid"]["y"],
+                }
+                conn.execute(insert(Province).values(**province_obj).on_conflict_do_update(
+                    index_elements=[Province.province_id],
+                    set_=province_obj,
+                ))
+                # Populate mapping table (identity mapping)
+                conn.execute(insert(sa.table('province_id_mapping',
+                    sa.Column('source_province_id', sa.BigInteger),
+                    sa.Column('canonical_province_id', sa.BigInteger),
+                    sa.Column('mapping_reason', sa.String),
+                )).values(
+                    source_province_id=prov["id"],
+                    canonical_province_id=prov["id"],
+                    mapping_reason="canonical from API"
+                ).on_conflict_do_update(
+                    index_elements=['source_province_id'],
+                    set_={
+                        'canonical_province_id': prov["id"],
+                        'mapping_reason': "canonical from API"
+                    }
+                ))
+                canonical_ids.add(prov["id"])
+        # Add known legacy mapping for 101004 -> 101000
+        if 101000 in canonical_ids:
+            conn.execute(insert(sa.table('province_id_mapping',
+                sa.Column('source_province_id', sa.BigInteger),
+                sa.Column('canonical_province_id', sa.BigInteger),
+                sa.Column('mapping_reason', sa.String),
+            )).values(
+                source_province_id=101004,
+                canonical_province_id=101000,
+                mapping_reason="legacy split/merge"
+            ).on_conflict_do_update(
+                index_elements=['source_province_id'],
+                set_={
+                    'canonical_province_id': 101000,
+                    'mapping_reason': "legacy split/merge"
+                }
+            ))
+
 def main():
     try:
-        provinces = fetch_provinces()
-        if not provinces:
-            logging.error("No provinces found in API response.")
-            sys.exit(1)
         engine = create_engine(DATABASE_URL)
-        upsert_provinces(engine, provinces)
+        sync_regions_and_provinces(engine)
         logging.info("Province sync complete.")
     except Exception as e:
         logging.error(f"Province sync failed: {e}")

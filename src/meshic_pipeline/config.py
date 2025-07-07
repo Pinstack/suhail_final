@@ -277,6 +277,9 @@ class Settings(BaseSettings):
         description="A list of all layer names to be processed by the pipeline.",
     )
 
+    # --- Autotuning ---
+    autotune: bool = Field(True, description="Enable autotuning of concurrency and batch parameters (default: True)")
+
     # --- Methods ---
     def get_tile_cache_path(self, z: int, x: int, y: int) -> Path:
         """Constructs the cache path for a specific tile."""

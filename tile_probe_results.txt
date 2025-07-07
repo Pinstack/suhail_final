@@ -1,0 +1,168 @@
+
+riyadh:
+  404: https://tiles.suhail.ai/maps/riyadh/15/20096/13696.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20096/13919.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20096/14143.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20096/14367.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20096/14591.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20319/13696.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20319/13919.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20319/14143.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20319/14367.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20319/14591.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20543/13696.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20543/13919.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20543/14143.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20543/14367.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20543/14591.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20767/13696.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/riyadh/15/20767/13919.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/riyadh/15/20767/14143.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20767/14367.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20767/14591.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20991/13696.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20991/13919.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20991/14143.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20991/14367.vector.pbf
+  404: https://tiles.suhail.ai/maps/riyadh/15/20991/14591.vector.pbf
+  Found 2/25 tiles (HTTP 200)
+
+madinah:
+  404: https://tiles.suhail.ai/maps/al_madenieh/15/19840/13952.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_madenieh/15/19840/14015.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_madenieh/15/19840/14079.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_madenieh/15/19840/14143.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_madenieh/15/19840/14207.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_madenieh/15/19935/13952.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/al_madenieh/15/19935/14015.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/al_madenieh/15/19935/14079.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/al_madenieh/15/19935/14143.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_madenieh/15/19935/14207.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_madenieh/15/20031/13952.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/al_madenieh/15/20031/14015.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/al_madenieh/15/20031/14079.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/al_madenieh/15/20031/14143.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_madenieh/15/20031/14207.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_madenieh/15/20127/13952.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_madenieh/15/20127/14015.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_madenieh/15/20127/14079.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_madenieh/15/20127/14143.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_madenieh/15/20127/14207.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_madenieh/15/20223/13952.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_madenieh/15/20223/14015.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_madenieh/15/20223/14079.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_madenieh/15/20223/14143.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_madenieh/15/20223/14207.vector.pbf
+  Found 6/25 tiles (HTTP 200)
+
+eastern:
+  404: https://tiles.suhail.ai/maps/eastern_region/15/20736/13696.vector.pbf
+  404: https://tiles.suhail.ai/maps/eastern_region/15/20736/13791.vector.pbf
+  404: https://tiles.suhail.ai/maps/eastern_region/15/20736/13887.vector.pbf
+  404: https://tiles.suhail.ai/maps/eastern_region/15/20736/13983.vector.pbf
+  404: https://tiles.suhail.ai/maps/eastern_region/15/20736/14079.vector.pbf
+  404: https://tiles.suhail.ai/maps/eastern_region/15/20831/13696.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/eastern_region/15/20831/13791.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/eastern_region/15/20831/13887.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/eastern_region/15/20831/13983.vector.pbf
+  404: https://tiles.suhail.ai/maps/eastern_region/15/20831/14079.vector.pbf
+  404: https://tiles.suhail.ai/maps/eastern_region/15/20927/13696.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/eastern_region/15/20927/13791.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/eastern_region/15/20927/13887.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/eastern_region/15/20927/13983.vector.pbf
+  404: https://tiles.suhail.ai/maps/eastern_region/15/20927/14079.vector.pbf
+  404: https://tiles.suhail.ai/maps/eastern_region/15/21023/13696.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/eastern_region/15/21023/13791.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/eastern_region/15/21023/13887.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/eastern_region/15/21023/13983.vector.pbf
+  404: https://tiles.suhail.ai/maps/eastern_region/15/21023/14079.vector.pbf
+  404: https://tiles.suhail.ai/maps/eastern_region/15/21119/13696.vector.pbf
+  404: https://tiles.suhail.ai/maps/eastern_region/15/21119/13791.vector.pbf
+  404: https://tiles.suhail.ai/maps/eastern_region/15/21119/13887.vector.pbf
+  404: https://tiles.suhail.ai/maps/eastern_region/15/21119/13983.vector.pbf
+  404: https://tiles.suhail.ai/maps/eastern_region/15/21119/14079.vector.pbf
+  Found 9/25 tiles (HTTP 200)
+
+makkah:
+  404: https://tiles.suhail.ai/maps/makkah_region/15/19840/14080.vector.pbf
+  404: https://tiles.suhail.ai/maps/makkah_region/15/19840/14175.vector.pbf
+  404: https://tiles.suhail.ai/maps/makkah_region/15/19840/14271.vector.pbf
+  404: https://tiles.suhail.ai/maps/makkah_region/15/19840/14367.vector.pbf
+  404: https://tiles.suhail.ai/maps/makkah_region/15/19840/14463.vector.pbf
+  404: https://tiles.suhail.ai/maps/makkah_region/15/19935/14080.vector.pbf
+  404: https://tiles.suhail.ai/maps/makkah_region/15/19935/14175.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/makkah_region/15/19935/14271.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/makkah_region/15/19935/14367.vector.pbf
+  404: https://tiles.suhail.ai/maps/makkah_region/15/19935/14463.vector.pbf
+  404: https://tiles.suhail.ai/maps/makkah_region/15/20031/14080.vector.pbf
+  404: https://tiles.suhail.ai/maps/makkah_region/15/20031/14175.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/makkah_region/15/20031/14271.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/makkah_region/15/20031/14367.vector.pbf
+  404: https://tiles.suhail.ai/maps/makkah_region/15/20031/14463.vector.pbf
+  404: https://tiles.suhail.ai/maps/makkah_region/15/20127/14080.vector.pbf
+  404: https://tiles.suhail.ai/maps/makkah_region/15/20127/14175.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/makkah_region/15/20127/14271.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/makkah_region/15/20127/14367.vector.pbf
+  404: https://tiles.suhail.ai/maps/makkah_region/15/20127/14463.vector.pbf
+  404: https://tiles.suhail.ai/maps/makkah_region/15/20223/14080.vector.pbf
+  404: https://tiles.suhail.ai/maps/makkah_region/15/20223/14175.vector.pbf
+  404: https://tiles.suhail.ai/maps/makkah_region/15/20223/14271.vector.pbf
+  404: https://tiles.suhail.ai/maps/makkah_region/15/20223/14367.vector.pbf
+  404: https://tiles.suhail.ai/maps/makkah_region/15/20223/14463.vector.pbf
+  Found 6/25 tiles (HTTP 200)
+
+al_qassim:
+  404: https://tiles.suhail.ai/maps/al_qassim/15/17964/13824.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/17964/13855.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/17964/13887.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/17964/13919.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/17964/13951.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/18592/13824.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/18592/13855.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/18592/13887.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/18592/13919.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/18592/13951.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/19221/13824.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/19221/13855.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/19221/13887.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/19221/13919.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/19221/13951.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/19850/13824.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/19850/13855.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/19850/13887.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/19850/13919.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/19850/13951.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/20479/13824.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/20479/13855.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/20479/13887.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/20479/13919.vector.pbf
+  404: https://tiles.suhail.ai/maps/al_qassim/15/20479/13951.vector.pbf
+  Found 0/25 tiles (HTTP 200)
+
+asir:
+  404: https://tiles.suhail.ai/maps/asir_region/15/20096/14336.vector.pbf
+  404: https://tiles.suhail.ai/maps/asir_region/15/20096/14463.vector.pbf
+  404: https://tiles.suhail.ai/maps/asir_region/15/20096/14591.vector.pbf
+  404: https://tiles.suhail.ai/maps/asir_region/15/20096/14719.vector.pbf
+  404: https://tiles.suhail.ai/maps/asir_region/15/20096/14847.vector.pbf
+  404: https://tiles.suhail.ai/maps/asir_region/15/20191/14336.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/asir_region/15/20191/14463.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/asir_region/15/20191/14591.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/asir_region/15/20191/14719.vector.pbf
+  404: https://tiles.suhail.ai/maps/asir_region/15/20191/14847.vector.pbf
+  404: https://tiles.suhail.ai/maps/asir_region/15/20287/14336.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/asir_region/15/20287/14463.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/asir_region/15/20287/14591.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/asir_region/15/20287/14719.vector.pbf
+  404: https://tiles.suhail.ai/maps/asir_region/15/20287/14847.vector.pbf
+  404: https://tiles.suhail.ai/maps/asir_region/15/20383/14336.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/asir_region/15/20383/14463.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/asir_region/15/20383/14591.vector.pbf
+  OK:    https://tiles.suhail.ai/maps/asir_region/15/20383/14719.vector.pbf
+  404: https://tiles.suhail.ai/maps/asir_region/15/20383/14847.vector.pbf
+  404: https://tiles.suhail.ai/maps/asir_region/15/20479/14336.vector.pbf
+  404: https://tiles.suhail.ai/maps/asir_region/15/20479/14463.vector.pbf
+  404: https://tiles.suhail.ai/maps/asir_region/15/20479/14591.vector.pbf
+  404: https://tiles.suhail.ai/maps/asir_region/15/20479/14719.vector.pbf
+  404: https://tiles.suhail.ai/maps/asir_region/15/20479/14847.vector.pbf
+  Found 9/25 tiles (HTTP 200)

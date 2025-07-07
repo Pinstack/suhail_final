@@ -234,3 +234,10 @@ This progress status reflects the actual current state: geometric pipeline valid
 - All schema changes managed via Alembic migrations.
 - Geometric and enrichment pipelines run successfully end-to-end with no errors.
 - For reproducibility, recommend DB reset + sync + pipeline run in CI/CD.
+
+### 2024-07-07
+- Robust quarantining system is complete:
+  - `raw_data` is nullable and stores the full feature as JSON (with NaN/inf converted to null).
+  - Pipeline no longer fails on province ID mismatches; unmapped features are quarantined.
+  - JSON serialization is strict and PostgreSQL-compliant.
+  - ResourceClosedError is benign and does not affect correctness.

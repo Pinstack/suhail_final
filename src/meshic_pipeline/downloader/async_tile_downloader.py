@@ -67,11 +67,22 @@ class AsyncTileDownloader:
             return cache_path.read_bytes()
 
         url = f"{self.base_url}/{z}/{x}/{y}.vector.pbf"
-        async with self.semaphore:
+        logger.debug(f"Attempting to acquire semaphore for tile {z}/{x}/{y}")
+        acquired = False
+        try:
+            try:
+                await asyncio.wait_for(self.semaphore.acquire(), timeout=30)
+                acquired = True
+            except asyncio.TimeoutError:
+                logger.error(f"Timeout acquiring semaphore for tile {z}/{x}/{y}")
+                return None
+
+            logger.debug(f"Semaphore acquired for tile {z}/{x}/{y}")
             assert self.session is not None
+
             # Stagger requests slightly to be a good neighbor
             await asyncio.sleep(settings.request_delay_seconds)
-            
+
             for attempt in range(settings.retry_config.max_attempts):
                 try:
                     logger.debug("Downloading tile: %s", url)
@@ -80,7 +91,6 @@ class AsyncTileDownloader:
                             logger.warning("Tile %s not found (404), skipping.", url)
                             return None
                         resp.raise_for_status()
-                        
                         data = await resp.read()
                         cache_path.parent.mkdir(parents=True, exist_ok=True)
                         cache_path.write_bytes(data)
@@ -94,10 +104,13 @@ class AsyncTileDownloader:
                         settings.retry_config.max_attempts,
                         e,
                     )
-                    await asyncio.sleep(2**attempt) # Exponential backoff
-            
+                    await asyncio.sleep(2**attempt)  # Exponential backoff
+
             logger.error("Failed to download tile %s after multiple retries.", url)
             return None
+        finally:
+            if acquired:
+                self.semaphore.release()
 
     async def download_many(
         self, tiles: Sequence[Tuple[int, int, int]]
