@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Sequence, Tuple
 
 import aiohttp
-from tqdm.asyncio import tqdm_asyncio
+from tqdm.asyncio import tqdm
 
 from ..config import settings
 
@@ -70,12 +70,8 @@ class AsyncTileDownloader:
         logger.debug(f"Attempting to acquire semaphore for tile {z}/{x}/{y}")
         acquired = False
         try:
-            try:
-                await asyncio.wait_for(self.semaphore.acquire(), timeout=30)
-                acquired = True
-            except asyncio.TimeoutError:
-                logger.error(f"Timeout acquiring semaphore for tile {z}/{x}/{y}")
-                return None
+            await self.semaphore.acquire()
+            acquired = True
 
             logger.debug(f"Semaphore acquired for tile {z}/{x}/{y}")
             assert self.session is not None
@@ -113,22 +109,27 @@ class AsyncTileDownloader:
                 self.semaphore.release()
 
     async def download_many(
-        self, tiles: Sequence[Tuple[int, int, int]]
+        self, tiles: Sequence[Tuple[int, int, int]], batch_size: int | None = None
     ) -> dict[Tuple[int, int, int], bytes]:
-        """Downloads a sequence of tiles concurrently with a progress bar."""
-        tasks = [self.fetch_tile(z, x, y) for z, x, y in tiles]
-        
-        results = await tqdm_asyncio.gather(
-            *tasks, desc=f"Downloading {len(tiles)} tiles", unit="tile"
-        )
-        
-        # Filter out tiles that failed to download
-        downloaded_tiles = {
-            tile: data for tile, data in zip(tiles, results) if data is not None
-        }
-        
+        """Downloads tiles in batches to avoid excessive concurrency."""
+        if batch_size is None:
+            batch_size = settings.max_concurrent_downloads * 5
+
+        downloaded_tiles: dict[Tuple[int, int, int], bytes] = {}
+        progress = tqdm(total=len(tiles), desc="Downloading tiles", unit="tile")
+
+        for i in range(0, len(tiles), batch_size):
+            batch = tiles[i : i + batch_size]
+            results = await asyncio.gather(*(self.fetch_tile(z, x, y) for z, x, y in batch))
+            for tile, data in zip(batch, results):
+                if data is not None:
+                    downloaded_tiles[tile] = data
+            progress.update(len(batch))
+
+        progress.close()
+
         failed_count = len(tiles) - len(downloaded_tiles)
         if failed_count > 0:
             logger.warning("%d tiles failed to download.", failed_count)
-            
-        return downloaded_tiles 
+
+        return downloaded_tiles

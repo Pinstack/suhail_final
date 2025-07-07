@@ -5,7 +5,10 @@ from typing import Dict, List, Tuple
 import uuid
 import concurrent.futures
 import time
-import psutil
+try:
+    import psutil  # type: ignore
+except ImportError:  # pragma: no cover - psutil optional in some environments
+    psutil = None
 import os
 import json
 import math
@@ -172,7 +175,11 @@ class PipelineAutotuner:
         self.last_db_write_time = None
         self.last_enrich_time = None
         self.error_count = 0
-        self.memory_limit_mb = 0.8 * psutil.virtual_memory().total / 1024 / 1024  # 80% of system RAM
+        self.memory_limit_mb = (
+            0.8 * psutil.virtual_memory().total / 1024 / 1024
+            if psutil
+            else float("inf")
+        )  # 80% of system RAM if psutil is available
         self.log = []
 
     def record_download(self, n_tiles, elapsed, errors=0):
@@ -186,7 +193,7 @@ class PipelineAutotuner:
         elif errors > 0 or throughput < 1:
             self.max_concurrent_downloads = max(2, self.max_concurrent_downloads // 2)
         # Memory check
-        if psutil.virtual_memory().used / 1024 / 1024 > self.memory_limit_mb:
+        if psutil and psutil.virtual_memory().used / 1024 / 1024 > self.memory_limit_mb:
             self.max_concurrent_downloads = max(2, self.max_concurrent_downloads // 2)
         self.settings.max_concurrent_downloads = self.max_concurrent_downloads
 
@@ -199,7 +206,7 @@ class PipelineAutotuner:
             self.db_chunk_size += 1000
         elif errors > 0 or throughput < 100:
             self.db_chunk_size = max(1000, self.db_chunk_size // 2)
-        if psutil.virtual_memory().used / 1024 / 1024 > self.memory_limit_mb:
+        if psutil and psutil.virtual_memory().used / 1024 / 1024 > self.memory_limit_mb:
             self.db_chunk_size = max(1000, self.db_chunk_size // 2)
         self.settings.db_chunk_size = self.db_chunk_size
 
@@ -212,7 +219,7 @@ class PipelineAutotuner:
             self.enrichment_batch_size += 100
         elif errors > 0 or throughput < 0.5:
             self.enrichment_batch_size = max(50, self.enrichment_batch_size // 2)
-        if psutil.virtual_memory().used / 1024 / 1024 > self.memory_limit_mb:
+        if psutil and psutil.virtual_memory().used / 1024 / 1024 > self.memory_limit_mb:
             self.enrichment_batch_size = max(50, self.enrichment_batch_size // 2)
         self.settings.enrichment_batch_size = self.enrichment_batch_size
 
@@ -336,10 +343,17 @@ async def run_pipeline(
     stitcher = GeometryStitcher(target_crs=settings.default_crs, persister=persister)
     engine = persister.engine
     # Load province_id mapping into memory
-    with sa.create_engine(str(settings.database_url)).connect() as conn:
-        province_id_map = dict(conn.execute(
-            sa.text('SELECT source_province_id, canonical_province_id FROM province_id_mapping')
-        ).fetchall())
+    if engine is not None:
+        with engine.connect() as conn:
+            province_id_map = dict(
+                conn.execute(
+                    sa.text(
+                        'SELECT source_province_id, canonical_province_id FROM province_id_mapping'
+                    )
+                ).fetchall()
+            )
+    else:
+        province_id_map = {}
     if recreate_db:
         logger.info("Recreating database: %s", settings.database_url.path)
         persister.recreate_database()
