@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from typing import List
 import uuid
 
@@ -134,6 +135,20 @@ class PostGISPersister:
         'parcel_no', 'subdivision_no', 'block_no', 'cluster_id'
     }
 
+    # Regex used to validate identifiers before quoting
+    _IDENTIFIER_RE = re.compile(r"^[\w\-\s]+$")
+
+    def _validate_identifier(self, name: str) -> None:
+        """Validate a table or column name to prevent SQL injection."""
+        if not self._IDENTIFIER_RE.match(name):
+            raise ValueError(f"Invalid identifier: {name}")
+
+    def _quote(self, name: str) -> str:
+        """Quote an identifier using SQLAlchemy's dialect helper."""
+        self._validate_identifier(name)
+        preparer = self.engine.dialect.identifier_preparer
+        return preparer.quote(name)
+
     def __init__(self, database_url: str):
         self.database_url = database_url
         self.engine: Engine = create_engine(database_url, future=True)
@@ -243,27 +258,26 @@ class PostGISPersister:
         # --- Build CREATE TABLE statement from known_columns ---
         column_defs = []
         for col_name in known_columns:
+            q_col = self._quote(col_name)
             if col_name.lower() == "geometry":
                 geom_type = geometry_type.upper() if geometry_type else "GEOMETRY"
-                column_defs.append(f'"{col_name}" GEOMETRY({geom_type}, 4326)')
+                column_defs.append(f"{q_col} GEOMETRY({geom_type}, 4326)")
             elif col_name in self.INTEGER_ID_FIELDS:
-                # Use BIGINT for integer ID fields
-                column_defs.append(f'"{col_name}" BIGINT')
+                column_defs.append(f"{q_col} BIGINT")
             elif col_name in self.NUMERIC_FIELDS:
-                # Use DOUBLE PRECISION for numeric fields (price, area, etc.)
-                column_defs.append(f'"{col_name}" DOUBLE PRECISION')
+                column_defs.append(f"{q_col} DOUBLE PRECISION")
             elif col_name in self.STRING_ID_FIELDS:
-                # Use VARCHAR for string-based identifiers
-                column_defs.append(f'"{col_name}" VARCHAR(50)')
+                column_defs.append(f"{q_col} VARCHAR(50)")
             else:
-                # Default to TEXT for other fields (names, descriptions, etc.)
-                column_defs.append(f'"{col_name}" TEXT')
+                column_defs.append(f"{q_col} TEXT")
 
-        create_sql = f'CREATE TABLE {schema}."{table_name}" ({", ".join(column_defs)});'
+        q_schema = self._quote(schema)
+        q_table = self._quote(table_name)
+        create_sql = f"CREATE TABLE {q_schema}.{q_table} ({', '.join(column_defs)});"
         
         try:
             with self.engine.connect() as conn:
-                conn.execute(text(f'DROP TABLE IF EXISTS {schema}."{table_name}" CASCADE'))
+                conn.execute(text(f'DROP TABLE IF EXISTS {q_schema}.{q_table} CASCADE'))
                 conn.execute(text(create_sql))
                 conn.commit()
             logger.info("Successfully created table %s.%s from known columns", schema, table_name)
@@ -307,17 +321,20 @@ class PostGISPersister:
                 chunksize=chunksize,
             )
             # 2. Construct the ON CONFLICT query.
-            cols = [f'"{c}"' for c in gdf.columns]
+            cols = [self._quote(c) for c in gdf.columns]
             cols_str = ", ".join(cols)
-            update_cols = [f'"{c}" = EXCLUDED."{c}"' for c in gdf.columns if c != id_column]
+            update_cols = [f"{self._quote(c)} = EXCLUDED.{self._quote(c)}" for c in gdf.columns if c != id_column]
             update_str = ", ".join(update_cols)
-            id_col_quoted = f'"{id_column}"'
-            sql = f'''
-            INSERT INTO {schema}."{table_name}" ({cols_str})
-            SELECT {cols_str} FROM {schema}."{temp_table_name}"
+            id_col_quoted = self._quote(id_column)
+            q_schema = self._quote(schema)
+            q_table = self._quote(table_name)
+            q_temp = self._quote(temp_table_name)
+            sql = f"""
+            INSERT INTO {q_schema}.{q_table} ({cols_str})
+            SELECT {cols_str} FROM {q_schema}.{q_temp}
             ON CONFLICT ({id_col_quoted})
             DO UPDATE SET {update_str};
-            '''
+            """
             with self.engine.begin() as conn:
                 result = conn.execute(text(sql))
             logger.info("Upsert complete. Affected %d rows in %s.%s.", result.rowcount, schema, table_name)
@@ -401,8 +418,10 @@ class PostGISPersister:
 
     # Convenience -------------------------------------------------------
     def drop_table(self, table: str, schema: str = "public") -> None:
+        q_schema = self._quote(schema)
+        q_table = self._quote(table)
         with self.engine.begin() as conn:
-            conn.execute(text(f'DROP TABLE IF EXISTS {schema}."{table}" CASCADE'))
+            conn.execute(text(f'DROP TABLE IF EXISTS {q_schema}.{q_table} CASCADE'))
 
     def execute(self, sql: str) -> None:
         """Executes a raw SQL statement."""
