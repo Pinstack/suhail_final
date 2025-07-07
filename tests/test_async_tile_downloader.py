@@ -2,6 +2,7 @@ import asyncio
 
 import pytest
 
+from meshic_pipeline.config import settings
 from meshic_pipeline.downloader.async_tile_downloader import AsyncTileDownloader
 
 class FakeResponse:
@@ -35,6 +36,28 @@ class FakeSession:
     async def close(self):
         pass
 
+
+class ErrorResponse:
+    async def __aenter__(self):
+        import aiohttp
+        raise aiohttp.ClientError("boom")
+
+    async def __aexit__(self, exc_type, exc, tb):
+        pass
+
+
+class SequenceSession:
+    def __init__(self, responses):
+        self.responses = list(responses)
+        self.requested = []
+
+    def get(self, url):
+        self.requested.append(url)
+        return self.responses.pop(0)
+
+    async def close(self):
+        pass
+
 def test_fetch_tile_from_cache(tmp_path):
     cache_dir = tmp_path / "cache"
     downloader = AsyncTileDownloader(base_url="http://example.com", cache_dir=cache_dir, session=FakeSession(FakeResponse()))
@@ -62,4 +85,52 @@ def test_fetch_tile_downloads_and_caches(tmp_path):
             expected_url = "http://example.com/tiles/1/2/3.vector.pbf"
             assert session.requested == [expected_url]
             assert downloader.get_tile_cache_path(1,2,3).read_bytes() == b"fresh"
+    asyncio.run(run())
+
+
+def test_fetch_tile_respects_retry_config(monkeypatch, tmp_path):
+    monkeypatch.setattr(settings.retry_config, "max_attempts", 4)
+    responses = [ErrorResponse(), ErrorResponse(), ErrorResponse(), FakeResponse(data=b"ok")]
+    session = SequenceSession(responses)
+    cache_dir = tmp_path / "cache"
+    downloader = AsyncTileDownloader(base_url="http://example.com", cache_dir=cache_dir, session=session)
+
+    async def no_sleep(_):
+        pass
+
+    monkeypatch.setattr(
+        "meshic_pipeline.downloader.async_tile_downloader.asyncio.sleep",
+        no_sleep,
+    )
+
+    async def run():
+        async with downloader:
+            data = await downloader.fetch_tile(1, 2, 3)
+            assert data == b"ok"
+            assert len(session.requested) == 4
+
+    asyncio.run(run())
+
+
+def test_fetch_tile_stops_after_max_attempts(monkeypatch, tmp_path):
+    monkeypatch.setattr(settings.retry_config, "max_attempts", 2)
+    responses = [ErrorResponse(), ErrorResponse()]
+    session = SequenceSession(responses)
+    cache_dir = tmp_path / "cache"
+    downloader = AsyncTileDownloader(base_url="http://example.com", cache_dir=cache_dir, session=session)
+
+    async def no_sleep(_):
+        pass
+
+    monkeypatch.setattr(
+        "meshic_pipeline.downloader.async_tile_downloader.asyncio.sleep",
+        no_sleep,
+    )
+
+    async def run():
+        async with downloader:
+            data = await downloader.fetch_tile(1, 2, 3)
+            assert data is None
+            assert len(session.requested) == 2
+
     asyncio.run(run())

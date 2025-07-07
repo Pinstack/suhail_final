@@ -72,7 +72,7 @@ class AsyncTileDownloader:
             # Stagger requests slightly to be a good neighbor
             await asyncio.sleep(settings.request_delay_seconds)
             
-            for attempt in range(3):
+            for attempt in range(settings.retry_config.max_attempts):
                 try:
                     logger.debug("Downloading tile: %s", url)
                     async with self.session.get(url) as resp:
@@ -87,10 +87,20 @@ class AsyncTileDownloader:
                         logger.debug("Cached tile %s", cache_path)
                         return data
                 except aiohttp.ClientError as e:
-                    logger.warning("Download failed for %s (attempt %d/3): %s", url, attempt + 1, e)
+                    logger.warning(
+                        "Download failed for %s (attempt %d/%d): %s",
+                        url,
+                        attempt + 1,
+                        settings.retry_config.max_attempts,
+                        e,
+                    )
                     await asyncio.sleep(2**attempt) # Exponential backoff
             
-            logger.error("Failed to download tile %s after multiple retries.", url)
+            logger.error(
+                "Failed to download tile %s after %d attempts.",
+                url,
+                settings.retry_config.max_attempts,
+            )
             return None
 
     async def download_many(
