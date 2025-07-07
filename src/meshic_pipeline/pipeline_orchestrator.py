@@ -14,11 +14,7 @@ from .discovery.tile_endpoint_discovery import (
     get_tile_coordinates_for_bounds,
     get_tile_coordinates_for_grid,
 )
-from .discovery.enhanced_province_discovery import (
-    get_enhanced_tile_coordinates,
-    get_saudi_arabia_tiles,
-    EnhancedProvinceDiscovery,
-)
+from .utils.tile_list_generator import tiles_from_bbox_z
 from .downloader.async_tile_downloader import AsyncTileDownloader
 from .decoder.mvt_decoder import MVTDecoder
 from .geometry.validator import validate_geometries
@@ -189,23 +185,23 @@ async def run_pipeline(
     )
     logger.debug("Using settings: %s", settings.model_dump_json(indent=2))
 
-    # Enhanced tile discovery with multiple modes
+    # Tile discovery based on province metadata
     if saudi_arabia_mode:
-        # Process all Saudi Arabia provinces
-        tiles = get_saudi_arabia_tiles(strategy=strategy)
+        tiles = []
+        for prov_key in settings.list_provinces():
+            meta = settings.get_province_meta(prov_key)
+            tiles.extend(tiles_from_bbox_z(meta["bbox_z15"], zoom=15))
         logger.info(
-            "🇸🇦 Saudi Arabia mode: Discovered %d tiles across all provinces", len(tiles)
+            "🇸🇦 Saudi Arabia mode: Discovered %d tiles across all provinces",
+            len(tiles),
         )
     elif province:
-        # Enhanced province discovery
-        tiles = get_enhanced_tile_coordinates(
-            province=province, zoom=zoom, strategy=strategy
-        )
+        meta = settings.get_province_meta(province)
+        tiles = tiles_from_bbox_z(meta["bbox_z15"], zoom=15)
         logger.info(
-            "🏛️ Province mode (%s): Discovered %d tiles using %s strategy",
+            "🏛️ Province mode (%s): Discovered %d tiles",
             province,
             len(tiles),
-            strategy,
         )
     elif aoi_bbox:
         # Traditional bbox discovery
@@ -227,17 +223,16 @@ async def run_pipeline(
             settings.grid_h,
         )
 
-    # 2. Download tiles with province-specific server
-    # Determine the correct tile server based on mode
+    # 2. Determine tile server URL
     if province:
-        # Use province-specific server
-        tile_server = EnhancedProvinceDiscovery.get_province_server(province)
-        tile_base_url = f"https://tiles.suhail.ai/maps/{tile_server}"
-        logger.info("🌐 Using province-specific tile server: %s", tile_base_url)
+        tile_base_url = settings.get_province_meta(province)["tile_url_template"].split("/{z}")[0]
+    elif saudi_arabia_mode:
+        # Use first province URL; all provinces currently share same domain pattern
+        first_meta = settings.get_province_meta(settings.list_provinces()[0])
+        tile_base_url = first_meta["tile_url_template"].split("/{z}")[0]
     else:
-        # Use default server from settings
         tile_base_url = settings.tile_base_url
-        logger.info("🌐 Using default tile server: %s", tile_base_url)
+    logger.info("🌐 Using tile server: %s", tile_base_url)
 
     # Create downloader with correct base URL
     async with AsyncTileDownloader(base_url=tile_base_url) as dl:

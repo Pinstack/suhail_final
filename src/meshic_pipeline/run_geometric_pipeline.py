@@ -8,7 +8,6 @@ import typer
 
 from meshic_pipeline.pipeline_orchestrator import run_pipeline
 from meshic_pipeline.config import settings
-from meshic_pipeline.discovery.enhanced_province_discovery import get_province_summary
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -68,13 +67,6 @@ def main(
     - Province: Enhanced province discovery (--province al_qassim)
     - Saudi Arabia: All provinces (--saudi-arabia)
     """
-    # --- Province sync integration ---
-    try:
-        subprocess.run([sys.executable, "scripts/util/sync_provinces.py"], check=True)
-    except Exception as e:
-        logger.error(f"Province sync failed: {e}")
-        raise typer.Exit(code=1)
-
     # Apply memory configuration overrides
     if max_memory is not None:
         settings.memory_config.max_memory_usage_mb = max_memory
@@ -89,19 +81,10 @@ def main(
         logger.error("Cannot specify both --province and --saudi-arabia")
         raise typer.Exit(code=1)
     
-    # Show discovery summary if using enhanced features
-    if province or saudi_arabia:
-        summary = get_province_summary()
-        logger.info("📊 Enhanced Province Discovery Summary:")
-        logger.info(f"   Total Provinces: {summary['total_provinces']}")
-        logger.info(f"   Total Parcels: {summary['total_parcels']:,}")
-        logger.info(f"   Total Hotspots: {summary['total_hotspots']}")
-        logger.info(f"   Coverage: {summary['coverage']}")
-        
-        if province:
-            logger.info(f"🏛️ Processing province: {province} ({strategy} strategy)")
-        else:
-            logger.info(f"🇸🇦 Processing ALL Saudi provinces ({strategy} strategy)")
+    if province:
+        logger.info(f"🏛️ Processing province: {province}")
+    if saudi_arabia:
+        logger.info("🇸🇦 Processing ALL Saudi provinces")
 
     aoi_bbox = tuple(bbox) if bbox else None
 

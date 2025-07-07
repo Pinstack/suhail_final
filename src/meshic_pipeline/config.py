@@ -16,6 +16,13 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 PIPELINE_CONFIG_PATH = PROJECT_ROOT / 'pipeline_config.yaml'
 PIPELINE_CFG = yaml.safe_load(PIPELINE_CONFIG_PATH.read_text())
 
+# Load province metadata for province-wide processing
+PROVINCES_PATH = PROJECT_ROOT / 'provinces.yaml'
+if PROVINCES_PATH.exists():
+    PROVINCES_DATA = yaml.safe_load(PROVINCES_PATH.read_text())
+else:
+    PROVINCES_DATA = {}
+
 # Centralized mapping for all Arabic/text columns to canonical _ar names
 ARABIC_COLUMN_MAP = {
     "neighborhaname": "neighborhood_ar",
@@ -245,6 +252,9 @@ class Settings(BaseSettings):
         },
         description="Mapping from layer name to the desired PostGIS table name.",
     )
+
+    # --- Province Metadata ---
+    provinces: Dict[str, Any] = Field(default_factory=lambda: PROVINCES_DATA)
     
     layers_to_process: List[str] = Field(
         default_factory=lambda: [
@@ -268,6 +278,16 @@ class Settings(BaseSettings):
         """Constructs the cache path for a specific tile."""
         tile_dir = self.cache_dir / str(z) / str(x)
         return tile_dir / f"{y}.pbf"
+
+    def get_province_meta(self, province: str) -> Dict[str, Any]:
+        """Return metadata for a given province."""
+        if province not in self.provinces:
+            raise KeyError(f"Unknown province: {province}")
+        return self.provinces[province]
+
+    def list_provinces(self) -> List[str]:
+        """Return available province keys."""
+        return list(self.provinces.keys())
 
     def is_production(self) -> bool:
         """Check if the current environment is production."""

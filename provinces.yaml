@@ -1,0 +1,90 @@
+riyadh:
+  display_name: "Riyadh"
+  bbox_z15:
+    min_x: 20096
+    max_x: 20991
+    min_y: 13696
+    max_y: 14591
+  bbox_latlon:
+    southwest:
+      lat: 19.31114335506464
+      lon: 40.78125
+    northeast:
+      lat: 28.304380682962773
+      lon: 50.625
+  tile_url_template: "https://tiles.suhail.ai/maps/riyadh/{z}/{x}/{y}.vector.pbf"
+madinah:
+  display_name: "Madinah"
+  bbox_z15:
+    min_x: 19840
+    max_x: 20223
+    min_y: 13952
+    max_y: 14207
+  bbox_latlon:
+    southwest:
+      lat: 23.241346102386135
+      lon: 37.96875
+    northeast:
+      lat: 25.79989118208832
+      lon: 42.1875
+  tile_url_template: "https://tiles.suhail.ai/maps/al_madenieh/{z}/{x}/{y}.vector.pbf"
+eastern:
+  display_name: "Eastern"
+  bbox_z15:
+    min_x: 20736
+    max_x: 21119
+    min_y: 13696
+    max_y: 14079
+  bbox_latlon:
+    southwest:
+      lat: 24.5271348225978
+      lon: 47.8125
+    northeast:
+      lat: 28.304380682962773
+      lon: 52.03125
+  tile_url_template: "https://tiles.suhail.ai/maps/eastern_region/{z}/{x}/{y}.vector.pbf"
+makkah:
+  display_name: "Makkah"
+  bbox_z15:
+    min_x: 19840
+    max_x: 20223
+    min_y: 14080
+    max_y: 14463
+  bbox_latlon:
+    southwest:
+      lat: 20.632784250388017
+      lon: 37.96875
+    northeast:
+      lat: 24.5271348225978
+      lon: 42.1875
+  tile_url_template: "https://tiles.suhail.ai/maps/makkah_region/{z}/{x}/{y}.vector.pbf"
+al_qassim:
+  display_name: "Al Qassim"
+  bbox_z15:
+    min_x: 17964
+    max_x: 20479
+    min_y: 13824
+    max_y: 13951
+  bbox_latlon:
+    southwest:
+      lat: 25.79989118208832
+      lon: 17.3583984375
+    northeast:
+      lat: 27.059125784374054
+      lon: 45.0
+  tile_url_template: "https://tiles.suhail.ai/maps/al_qassim/{z}/{x}/{y}.vector.pbf"
+asir:
+  display_name: "Asir"
+  bbox_z15:
+    min_x: 20096
+    max_x: 20479
+    min_y: 14336
+    max_y: 14847
+  bbox_latlon:
+    southwest:
+      lat: 16.636191878397653
+      lon: 40.78125
+    northeast:
+      lat: 21.943045533438177
+      lon: 45.0
+  tile_url_template: "https://tiles.suhail.ai/maps/asir_region/{z}/{x}/{y}.vector.pbf"
