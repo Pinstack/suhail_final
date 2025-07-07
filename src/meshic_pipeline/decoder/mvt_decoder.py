@@ -59,8 +59,12 @@ class MVTDecoder:
                         if value.is_integer():
                             cast_properties[key] = int(value)
                         else:
-                            print(f"[WARN] Non-integer float for {key}: {value} in feature: {properties}")
-                            logging.warning(f"Non-integer float for {key}: {value} in feature: {properties}")
+                            logger.warning(
+                                "Non-integer float for %s: %s in feature: %s",
+                                key,
+                                value,
+                                properties,
+                            )
                             cast_properties[key] = None
                     elif isinstance(value, str):
                         try:
@@ -68,16 +72,29 @@ class MVTDecoder:
                             if fval.is_integer():
                                 cast_properties[key] = int(fval)
                             else:
-                                print(f"[WARN] Non-integer string for {key}: '{value}' in feature: {properties}")
-                                logging.warning(f"Non-integer string for {key}: '{value}' in feature: {properties}")
+                                logger.warning(
+                                    "Non-integer string for %s: '%s' in feature: %s",
+                                    key,
+                                    value,
+                                    properties,
+                                )
                                 cast_properties[key] = None
                         except Exception:
-                            print(f"[WARN] Unparseable string for {key}: '{value}' in feature: {properties}")
-                            logging.warning(f"Unparseable string for {key}: '{value}' in feature: {properties}")
+                            logger.warning(
+                                "Unparseable string for %s: '%s' in feature: %s",
+                                key,
+                                value,
+                                properties,
+                            )
                             cast_properties[key] = None
                     else:
-                        print(f"[WARN] Unexpected type for {key}: {type(value)} value: {value} in feature: {properties}")
-                        logging.warning(f"Unexpected type for {key}: {type(value)} value: {value} in feature: {properties}")
+                        logger.warning(
+                            "Unexpected type for %s: %s value: %s in feature: %s",
+                            key,
+                            type(value),
+                            value,
+                            properties,
+                        )
                         cast_properties[key] = None
                 elif key in self.STRING_ID_FIELDS:
                     # Ensure string ID fields are strings
@@ -86,8 +103,13 @@ class MVTDecoder:
                     # Keep other fields as-is
                     cast_properties[key] = value
             except Exception as e:
-                print(f"[ERROR] Exception casting {key}: {value} in feature: {properties} -- {e}")
-                logging.error(f"Exception casting {key}: {value} in feature: {properties} -- {e}")
+                logger.error(
+                    "Exception casting %s: %s in feature: %s -- %s",
+                    key,
+                    value,
+                    properties,
+                    e,
+                )
                 cast_properties[key] = None
         return cast_properties
 
@@ -174,8 +196,11 @@ class MVTDecoder:
             with open(quarantine_path, 'a', encoding='utf-8') as f:
                 for q in self.quarantined_features:
                     f.write(json.dumps(q, ensure_ascii=False) + '\n')
-            print(f"Quarantined {len(self.quarantined_features)} problematic features to {quarantine_path}")
-            logging.warning(f"Quarantined {len(self.quarantined_features)} problematic features to {quarantine_path}")
+            logger.warning(
+                "Quarantined %d problematic features to %s",
+                len(self.quarantined_features),
+                quarantine_path,
+            )
             self.quarantined_features.clear()
         
         return output_layers

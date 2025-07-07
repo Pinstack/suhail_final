@@ -29,7 +29,6 @@ from meshic_pipeline.persistence.models import (
 from meshic_pipeline.config import settings
 import logging
 from sqlalchemy import BigInteger, Column, DateTime, Float, Integer, String, JSON
-from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import ForeignKey
 from meshic_pipeline.exceptions import ValidationException
@@ -54,7 +53,6 @@ from rich import print as rprint
 
 logger = get_logger(__name__)
 app = typer.Typer()
-Base = declarative_base()
 
 
 def exit_with_error(summary: str, hint: str) -> None:
