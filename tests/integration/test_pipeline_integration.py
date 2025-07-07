@@ -3,6 +3,7 @@ import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Polygon
 import mapbox_vector_tile
+import sqlalchemy
 
 from meshic_pipeline.pipeline_orchestrator import run_pipeline
 from meshic_pipeline.config import settings
@@ -12,6 +13,15 @@ from meshic_pipeline.config import settings
 
 
 def test_run_pipeline_with_mocks(monkeypatch):
+    import sqlalchemy
+    # Patch inspect in orchestrator to always return a mock with has_table True
+    class DummyInspector:
+        def has_table(self, table_name, schema=None):
+            return True
+    monkeypatch.setattr("meshic_pipeline.pipeline_orchestrator.inspect", lambda engine: DummyInspector())
+    # Patch reset_temp_table to a no-op
+    monkeypatch.setattr("meshic_pipeline.pipeline_orchestrator.reset_temp_table", lambda *a, **kw: None)
+
     # sample tile with a single parcel feature
     tile_bytes = mapbox_vector_tile.encode(
         {
@@ -155,6 +165,14 @@ def test_run_pipeline_with_mocks(monkeypatch):
 
 def test_run_pipeline_with_save_as_temp(monkeypatch):
     """Pipeline writes parcels to a temp table and creates indexes."""
+    import sqlalchemy
+    # Patch inspect in orchestrator to always return a mock with has_table True
+    class DummyInspector:
+        def has_table(self, table_name, schema=None):
+            return True
+    monkeypatch.setattr("meshic_pipeline.pipeline_orchestrator.inspect", lambda engine: DummyInspector())
+    monkeypatch.setattr("meshic_pipeline.pipeline_orchestrator.reset_temp_table", lambda *a, **kw: None)
+
     tile_bytes = mapbox_vector_tile.encode(
         {
             "name": "parcels",
