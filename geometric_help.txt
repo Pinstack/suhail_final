@@ -1,0 +1,13 @@
+                                                                                                           
+ Usage: meshic-pipeline geometric [OPTIONS]                                                                
+                                                                                                           
+ Run the geometric pipeline (Stage 1).                                                                     
+                                                                                                           
+                                                                                                           
+╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --bbox          -b      FLOAT  Bounding box: min_lon min_lat max_lon max_lat [default: None]            │
+│ --recreate-db                  Drop and recreate the database schema.                                   │
+│ --save-as-temp          TEXT   Save parcels to a temporary table with this name. [default: None]        │
+│ --help                         Show this message and exit.                                              │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+

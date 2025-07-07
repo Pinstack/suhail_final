@@ -108,10 +108,7 @@ def main(tile_dir):
                     quarantined.append(issue_record)
                     print(f"[ISSUE] Tile {z},{x},{y} Layer {layer}: {feature_issues}\n  Feature: {json.dumps(feature_to_serializable(feat), ensure_ascii=False)}")
     if quarantined:
-        with open(quarantine_path, 'a', encoding='utf-8') as f:
-            for q in quarantined:
-                f.write(json.dumps(q, ensure_ascii=False) + '\n')
-        print(f"Quarantined {len(quarantined)} problematic features to {quarantine_path}")
+        print(f"Quarantined {len(quarantined)} problematic features (not written to file)")
     print(f"Validation complete. Issues found: {issues_found}")
 
 if __name__ == "__main__":

@@ -1,0 +1,101 @@
+2025-07-07 08:22:36,624 - meshic_pipeline.pipeline_orchestrator - INFO - Starting pipeline run for AOI: grid at zoom 15
+2025-07-07 08:22:36,625 - meshic_pipeline.pipeline_orchestrator - INFO - 🔢 Grid mode: Discovered 9 tiles for 3x3 grid
+2025-07-07 08:22:36,625 - meshic_pipeline.pipeline_orchestrator - INFO - 🌐 Using tile server: https://tiles.suhail.ai/maps/riyadh
+2025-07-07 08:22:36,738 - meshic_pipeline.pipeline_orchestrator - INFO - --- Starting processing for layer: neighborhoods ---
+2025-07-07 08:22:37,650 - meshic_pipeline.pipeline_orchestrator - WARNING - Dropped 16 duplicate rows for primary key 'neighborhood_id' in layer 'neighborhoods' before DB write.
+2025-07-07 08:22:37,665 - meshic_pipeline.persistence.postgis_persister - INFO - Successfully created table public.temp_neighborhoods from known columns
+2025-07-07 08:22:37,755 - meshic_pipeline.persistence.postgis_persister - INFO - Persisted 7 features to public.temp_neighborhoods using mode 'replace'
+2025-07-07 08:22:37,846 - pyogrio._io - INFO - Created 7 records
+2025-07-07 08:22:37,848 - meshic_pipeline.pipeline_orchestrator - INFO - Persisting 7 features for layer 'neighborhoods' to table 'neighborhoods'
+2025-07-07 08:22:37,851 - meshic_pipeline.persistence.postgis_persister - INFO - Performing upsert on public.neighborhoods using ID column 'neighborhood_id'
+2025-07-07 08:22:37,857 - meshic_pipeline.persistence.postgis_persister - INFO - Upsert complete. Affected 7 rows in public.neighborhoods.
+2025-07-07 08:22:37,858 - meshic_pipeline.pipeline_orchestrator - INFO - --- Finished processing for layer: neighborhoods ---
+2025-07-07 08:22:37,858 - meshic_pipeline.pipeline_orchestrator - INFO - Memory delta for layer 'neighborhoods': 0.00MB
+2025-07-07 08:22:37,858 - meshic_pipeline.pipeline_orchestrator - INFO - --- Starting processing for layer: subdivisions ---
+2025-07-07 08:22:38,625 - meshic_pipeline.pipeline_orchestrator - WARNING - Dropped 32 duplicate rows for primary key 'subdivision_id' in layer 'subdivisions' before DB write.
+2025-07-07 08:22:38,631 - meshic_pipeline.persistence.postgis_persister - INFO - Successfully created table public.temp_subdivisions from known columns
+2025-07-07 08:22:38,652 - meshic_pipeline.persistence.postgis_persister - INFO - Persisted 34 features to public.temp_subdivisions using mode 'replace'
+2025-07-07 08:22:38,658 - pyogrio._io - INFO - Created 34 records
+2025-07-07 08:22:38,661 - meshic_pipeline.pipeline_orchestrator - INFO - Persisting 34 features for layer 'subdivisions' to table 'subdivisions'
+2025-07-07 08:22:38,664 - meshic_pipeline.persistence.postgis_persister - INFO - Performing upsert on public.subdivisions using ID column 'subdivision_id'
+2025-07-07 08:22:38,672 - meshic_pipeline.persistence.postgis_persister - INFO - Upsert complete. Affected 34 rows in public.subdivisions.
+2025-07-07 08:22:38,673 - meshic_pipeline.pipeline_orchestrator - INFO - --- Finished processing for layer: subdivisions ---
+2025-07-07 08:22:38,673 - meshic_pipeline.pipeline_orchestrator - INFO - Memory delta for layer 'subdivisions': 0.00MB
+2025-07-07 08:22:38,673 - meshic_pipeline.pipeline_orchestrator - INFO - --- Starting processing for layer: parcels ---
+2025-07-07 08:22:40,585 - meshic_pipeline.pipeline_orchestrator - WARNING - Dropped 774 duplicate rows for primary key 'parcel_objectid' in layer 'parcels' before DB write.
+[INFO] All ruleid values present in zoning_rules.
+2025-07-07 08:22:40,634 - meshic_pipeline.persistence.postgis_persister - INFO - Successfully created table public.temp_parcels from known columns
+2025-07-07 08:22:40,851 - meshic_pipeline.persistence.postgis_persister - INFO - Persisted 9007 features to public.temp_parcels using mode 'replace'
+2025-07-07 08:22:40,851 - meshic_pipeline.pipeline_orchestrator - INFO - Enriching parcels with region_id via spatial join...
+2025-07-07 08:22:40,944 - meshic_pipeline.persistence.postgis_persister - INFO - Successfully created table public.parcels_enriched from known columns
+2025-07-07 08:22:41,282 - meshic_pipeline.persistence.postgis_persister - INFO - Persisted 9007 features to public.parcels_enriched using mode 'replace'
+2025-07-07 08:22:41,284 - meshic_pipeline.pipeline_orchestrator - INFO - Enrichment complete: region_id assigned where possible.
+2025-07-07 08:22:41,608 - pyogrio._io - INFO - Created 9,007 records
+2025-07-07 08:22:41,757 - meshic_pipeline.pipeline_orchestrator - INFO - Persisting 9007 features for layer 'parcels' to table 'parcels'
+2025-07-07 08:22:41,882 - meshic_pipeline.persistence.postgis_persister - INFO - Performing upsert on public.parcels using ID column 'parcel_objectid'
+2025-07-07 08:22:42,231 - meshic_pipeline.persistence.postgis_persister - INFO - Upsert complete. Affected 9007 rows in public.parcels.
+2025-07-07 08:22:42,242 - meshic_pipeline.pipeline_orchestrator - INFO - --- Finished processing for layer: parcels ---
+2025-07-07 08:22:42,243 - meshic_pipeline.pipeline_orchestrator - INFO - Memory delta for layer 'parcels': 0.00MB
+2025-07-07 08:22:42,243 - meshic_pipeline.pipeline_orchestrator - INFO - --- Starting processing for layer: parcels-centroids ---
+2025-07-07 08:22:42,245 - meshic_pipeline.pipeline_orchestrator - WARNING - Skipping layer 'parcels-centroids': production table 'parcels-centroids' does not exist.
+2025-07-07 08:22:42,245 - meshic_pipeline.pipeline_orchestrator - INFO - --- Starting processing for layer: neighborhoods-centroids ---
+2025-07-07 08:22:42,245 - meshic_pipeline.pipeline_orchestrator - WARNING - Skipping layer 'neighborhoods-centroids': production table 'neighborhoods-centroids' does not exist.
+2025-07-07 08:22:42,245 - meshic_pipeline.pipeline_orchestrator - INFO - --- Starting processing for layer: metro_lines ---
+2025-07-07 08:22:43,136 - meshic_pipeline.persistence.postgis_persister - INFO - Successfully created table public.temp_metro_lines from known columns
+2025-07-07 08:22:43,160 - meshic_pipeline.persistence.postgis_persister - INFO - Persisted 6 features to public.temp_metro_lines using mode 'replace'
+2025-07-07 08:22:43,163 - pyogrio._io - INFO - Created 6 records
+2025-07-07 08:22:43,164 - meshic_pipeline.pipeline_orchestrator - INFO - Persisting 6 features for layer 'metro_lines' to table 'metro_lines'
+2025-07-07 08:22:43,169 - meshic_pipeline.persistence.postgis_persister - INFO - Successfully created table public.metro_lines from known columns
+2025-07-07 08:22:43,187 - meshic_pipeline.persistence.postgis_persister - INFO - Persisted 6 features to public.metro_lines using mode 'replace'
+2025-07-07 08:22:43,187 - meshic_pipeline.pipeline_orchestrator - INFO - --- Finished processing for layer: metro_lines ---
+2025-07-07 08:22:43,187 - meshic_pipeline.pipeline_orchestrator - INFO - Memory delta for layer 'metro_lines': 0.00MB
+2025-07-07 08:22:43,187 - meshic_pipeline.pipeline_orchestrator - INFO - --- Starting processing for layer: bus_lines ---
+2025-07-07 08:22:43,961 - meshic_pipeline.persistence.postgis_persister - INFO - Successfully created table public.temp_bus_lines from known columns
+2025-07-07 08:22:43,982 - meshic_pipeline.persistence.postgis_persister - INFO - Persisted 52 features to public.temp_bus_lines using mode 'replace'
+2025-07-07 08:22:43,987 - pyogrio._io - INFO - Created 52 records
+2025-07-07 08:22:43,990 - meshic_pipeline.pipeline_orchestrator - INFO - Persisting 52 features for layer 'bus_lines' to table 'bus_lines'
+2025-07-07 08:22:43,998 - meshic_pipeline.persistence.postgis_persister - INFO - Successfully created table public.bus_lines from known columns
+2025-07-07 08:22:44,015 - meshic_pipeline.persistence.postgis_persister - INFO - Persisted 52 features to public.bus_lines using mode 'replace'
+2025-07-07 08:22:44,015 - meshic_pipeline.pipeline_orchestrator - INFO - --- Finished processing for layer: bus_lines ---
+2025-07-07 08:22:44,015 - meshic_pipeline.pipeline_orchestrator - INFO - Memory delta for layer 'bus_lines': 0.00MB
+2025-07-07 08:22:44,015 - meshic_pipeline.pipeline_orchestrator - INFO - --- Starting processing for layer: metro_stations ---
+2025-07-07 08:22:44,771 - meshic_pipeline.persistence.postgis_persister - INFO - Successfully created table public.temp_metro_stations from known columns
+2025-07-07 08:22:44,787 - meshic_pipeline.persistence.postgis_persister - INFO - Persisted 5 features to public.temp_metro_stations using mode 'replace'
+2025-07-07 08:22:44,791 - pyogrio._io - INFO - Created 5 records
+2025-07-07 08:22:44,792 - meshic_pipeline.pipeline_orchestrator - INFO - Persisting 5 features for layer 'metro_stations' to table 'metro_stations'
+2025-07-07 08:22:44,794 - meshic_pipeline.persistence.postgis_persister - INFO - Performing upsert on public.metro_stations using ID column 'station_code'
+2025-07-07 08:22:44,800 - meshic_pipeline.persistence.postgis_persister - INFO - Upsert complete. Affected 5 rows in public.metro_stations.
+2025-07-07 08:22:44,801 - meshic_pipeline.pipeline_orchestrator - INFO - --- Finished processing for layer: metro_stations ---
+2025-07-07 08:22:44,801 - meshic_pipeline.pipeline_orchestrator - INFO - Memory delta for layer 'metro_stations': 0.00MB
+2025-07-07 08:22:44,801 - meshic_pipeline.pipeline_orchestrator - INFO - --- Starting processing for layer: riyadh_bus_stations ---
+2025-07-07 08:22:45,564 - meshic_pipeline.pipeline_orchestrator - WARNING - Dropped 6 duplicate rows for primary key 'station_code' in layer 'riyadh_bus_stations' before DB write.
+2025-07-07 08:22:45,571 - meshic_pipeline.persistence.postgis_persister - INFO - Successfully created table public.temp_riyadh_bus_stations from known columns
+2025-07-07 08:22:45,590 - meshic_pipeline.persistence.postgis_persister - INFO - Persisted 31 features to public.temp_riyadh_bus_stations using mode 'replace'
+2025-07-07 08:22:45,593 - pyogrio._io - INFO - Created 31 records
+2025-07-07 08:22:45,595 - meshic_pipeline.pipeline_orchestrator - INFO - Persisting 31 features for layer 'riyadh_bus_stations' to table 'riyadh_bus_stations'
+2025-07-07 08:22:45,597 - meshic_pipeline.persistence.postgis_persister - INFO - Performing upsert on public.riyadh_bus_stations using ID column 'station_code'
+2025-07-07 08:22:45,603 - meshic_pipeline.persistence.postgis_persister - INFO - Upsert complete. Affected 31 rows in public.riyadh_bus_stations.
+2025-07-07 08:22:45,604 - meshic_pipeline.pipeline_orchestrator - INFO - --- Finished processing for layer: riyadh_bus_stations ---
+2025-07-07 08:22:45,604 - meshic_pipeline.pipeline_orchestrator - INFO - Memory delta for layer 'riyadh_bus_stations': 0.00MB
+2025-07-07 08:22:45,604 - meshic_pipeline.pipeline_orchestrator - INFO - --- Starting processing for layer: qi_population_metrics ---
+2025-07-07 08:22:46,410 - meshic_pipeline.pipeline_orchestrator - WARNING - Dropped 64 duplicate rows for primary key 'grid_id' in layer 'qi_population_metrics' before DB write.
+2025-07-07 08:22:46,416 - meshic_pipeline.persistence.postgis_persister - INFO - Successfully created table public.temp_qi_population_metrics from known columns
+2025-07-07 08:22:46,456 - meshic_pipeline.persistence.postgis_persister - INFO - Persisted 136 features to public.temp_qi_population_metrics using mode 'replace'
+2025-07-07 08:22:46,463 - pyogrio._io - INFO - Created 136 records
+2025-07-07 08:22:46,466 - meshic_pipeline.pipeline_orchestrator - INFO - Persisting 136 features for layer 'qi_population_metrics' to table 'qi_population_metrics'
+2025-07-07 08:22:46,471 - meshic_pipeline.persistence.postgis_persister - INFO - Performing upsert on public.qi_population_metrics using ID column 'grid_id'
+2025-07-07 08:22:46,481 - meshic_pipeline.persistence.postgis_persister - INFO - Upsert complete. Affected 136 rows in public.qi_population_metrics.
+2025-07-07 08:22:46,483 - meshic_pipeline.pipeline_orchestrator - INFO - --- Finished processing for layer: qi_population_metrics ---
+2025-07-07 08:22:46,483 - meshic_pipeline.pipeline_orchestrator - INFO - Memory delta for layer 'qi_population_metrics': 0.00MB
+2025-07-07 08:22:46,483 - meshic_pipeline.pipeline_orchestrator - INFO - --- Starting processing for layer: qi_stripes ---
+2025-07-07 08:22:47,376 - meshic_pipeline.pipeline_orchestrator - WARNING - Dropped 105 duplicate rows for primary key 'strip_id' in layer 'qi_stripes' before DB write.
+2025-07-07 08:22:47,382 - meshic_pipeline.persistence.postgis_persister - INFO - Successfully created table public.temp_qi_stripes from known columns
+2025-07-07 08:22:47,403 - meshic_pipeline.persistence.postgis_persister - INFO - Persisted 259 features to public.temp_qi_stripes using mode 'replace'
+2025-07-07 08:22:47,415 - pyogrio._io - INFO - Created 259 records
+2025-07-07 08:22:47,419 - meshic_pipeline.pipeline_orchestrator - INFO - Persisting 259 features for layer 'qi_stripes' to table 'qi_stripes'
+2025-07-07 08:22:47,424 - meshic_pipeline.persistence.postgis_persister - INFO - Performing upsert on public.qi_stripes using ID column 'strip_id'
+2025-07-07 08:22:47,437 - meshic_pipeline.persistence.postgis_persister - INFO - Upsert complete. Affected 259 rows in public.qi_stripes.
+2025-07-07 08:22:47,439 - meshic_pipeline.pipeline_orchestrator - INFO - --- Finished processing for layer: qi_stripes ---
+2025-07-07 08:22:47,440 - meshic_pipeline.pipeline_orchestrator - INFO - Memory delta for layer 'qi_stripes': 0.00MB
+2025-07-07 08:22:47,440 - meshic_pipeline.pipeline_orchestrator - INFO - 🎉 Pipeline finished successfully. 🎉
+2025-07-07 08:22:47,440 - meshic_pipeline.pipeline_orchestrator - INFO - Total memory change during run: 0.00MB

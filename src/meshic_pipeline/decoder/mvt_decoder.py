@@ -190,19 +190,6 @@ class MVTDecoder:
             if features_out:
                 output_layers[layer_name] = features_out
         
-        # At the end, if any quarantined features, write to file
-        if self.quarantined_features:
-            quarantine_path = os.path.join(os.getcwd(), 'quarantined_features.jsonl')
-            with open(quarantine_path, 'a', encoding='utf-8') as f:
-                for q in self.quarantined_features:
-                    f.write(json.dumps(q, ensure_ascii=False) + '\n')
-            logger.warning(
-                "Quarantined %d problematic features to %s",
-                len(self.quarantined_features),
-                quarantine_path,
-            )
-            self.quarantined_features.clear()
-        
         return output_layers
 
     def decode_to_gdf(

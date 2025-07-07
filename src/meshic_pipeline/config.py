@@ -26,9 +26,13 @@ else:
 # Centralized mapping for all Arabic/text columns to canonical _ar names
 ARABIC_COLUMN_MAP = {
     "neighborhaname": "neighborhood_ar",
+    "neighborh_aname": "neighborhood_ar",  # Source distinguishes Arabic name with this field
     "provinceaname": "province_ar",
+    "province_aname": "province_ar",
     "regionaname": "region_ar",
+    "region_aname": "region_ar",
     "cityaname": "city_ar",
+    "city_aname": "city_ar",
     "building_rule_aname": "building_rule_ar",
     "description_aname": "description_ar",
     "name_aname": "name_ar",

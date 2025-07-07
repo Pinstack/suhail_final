@@ -1,0 +1,37 @@
+                                                                                                           
+ Usage: python -m src.meshic_pipeline.run_geometric_pipeline                                               
+            [OPTIONS]                                                                                      
+                                                                                                           
+ 🚀 Enhanced geometric processing pipeline with province discovery.                                        
+                                                                                                           
+ Modes: - Default: Uses grid from pipeline_config.yaml   - Bbox: Traditional bounding box discovery -      
+ Province: Enhanced province discovery (--province al_qassim) - Saudi Arabia: All provinces                
+ (--saudi-arabia)                                                                                          
+                                                                                                           
+╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --bbox                -b                          FLOAT    Bounding box in 'min_lon min_lat max_lon     │
+│                                                            max_lat' format. Overrides the config grid.  │
+│                                                            [default: None]                              │
+│ --province            -p                          TEXT     Saudi province name: al_qassim, riyadh,      │
+│                                                            madinah, asir, eastern, makkah               │
+│                                                            [default: None]                              │
+│ --strategy            -s                          TEXT     Discovery strategy: optimal, efficient,      │
+│                                                            comprehensive                                │
+│                                                            [default: optimal]                           │
+│ --saudi-arabia                                             Process ALL Saudi provinces (comprehensive   │
+│                                                            coverage)                                    │
+│ --recreate-db                                              Drop and recreate the database schema.       │
+│ --save-as-temp                                    TEXT     Save the downloaded parcels to a temporary   │
+│                                                            table with this name.                        │
+│                                                            [default: None]                              │
+│ --max-memory                                      INTEGER  Override memory limit in MB (default from    │
+│                                                            config)                                      │
+│                                                            [default: None]                              │
+│ --enable-monitoring       --disable-monitoring             Enable memory monitoring and automatic GC    │
+│                                                            [default: enable-monitoring]                 │
+│ --install-completion                                       Install completion for the current shell.    │
+│ --show-completion                                          Show completion for the current shell, to    │
+│                                                            copy it or customize the installation.       │
+│ --help                                                     Show this message and exit.                  │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+

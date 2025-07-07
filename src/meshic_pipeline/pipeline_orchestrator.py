@@ -8,6 +8,8 @@ import concurrent.futures
 import geopandas as gpd
 import sys
 from tqdm import tqdm
+import pandas as pd
+from sqlalchemy import create_engine, inspect
 
 from .config import settings
 from .discovery.tile_endpoint_discovery import (
@@ -20,7 +22,9 @@ from .decoder.mvt_decoder import MVTDecoder
 from .geometry.validator import validate_geometries
 from .geometry.stitcher import GeometryStitcher
 from .memory_utils import memory_optimized, get_memory_monitor
-from .persistence.postgis_persister import PostGISPersister
+from .persistence.postgis_persister import PostGISPersister, SCHEMA_MAP
+from sqlalchemy import text
+from meshic_pipeline.persistence.table_management import reset_temp_table
 
 
 def setup_logging():
@@ -253,131 +257,76 @@ async def run_pipeline(
         logger.info("Recreating database: %s", settings.database_url.path)
         persister.recreate_database()
 
-    # 4. Process each layer sequentially to manage memory
-    tiles_processed_per_layer: Dict[str, List[Tuple[int, int, int]]] = {
-        layer: [] for layer in layers_to_process
-    }
-
     for layer in tqdm(layers_to_process, desc="Processing Layers"):
         logger.info("--- Starting processing for layer: %s ---", layer)
-        layer_start_stats = get_memory_monitor().get_memory_stats()
-        logger.debug(
-            "Memory at layer start %.2fMB",
-            layer_start_stats.process_mb,
-        )
+        temp_table = f"temp_{layer}"
+        prod_table = layer  # Assumes production table name matches layer name
+        # Check if production table exists; skip if not
+        inspector = inspect(persister.engine)
+        if not inspector.has_table(prod_table, schema="public"):
+            logger.warning(f"Skipping layer '{layer}': production table '{prod_table}' does not exist.")
+            continue
+        reset_temp_table(persister.engine, prod_table, temp_table)
 
-        temp_table = f"temp_decoded_{layer}_{uuid.uuid4().hex[:8]}"
-        # --- Pass 1: Discover full schema from all tiles ---
-        all_columns = set()
-
-        keys = list(non_empty_tiles.keys())
-        with concurrent.futures.ProcessPoolExecutor() as executor:
-            tasks = [
-                (coords, data, [layer], settings.default_crs)
-                for coords, data in non_empty_tiles.items()
-            ]
-            results_iterator = executor.map(decode_and_validate_tile, *zip(*tasks))
-            pbar = tqdm(
-                results_iterator,
-                total=len(tasks),
-                desc=f"Pass 1/2: Discovering schema for {layer}",
-                unit="tile",
-            )
-
-            for coords, result_list in zip(keys, pbar):
-                tiles_processed_per_layer[layer].append(coords)
-                for _layer_name, gdf in result_list:
-                    gdf = MVTDecoder.apply_arabic_column_mapping(gdf)
-                    if all_columns:
-                        gdf_standardized = gdf.reindex(columns=list(all_columns))
+        # Collect all decoded features for each layer
+        layer_gdfs = {}
+        for (z, x, y), data in non_empty_tiles.items():
+            decoded_layers = decode_and_validate_tile((z, x, y), data, [layer], settings.default_crs)
+            for _layer_name, gdf in decoded_layers:
+                gdf = MVTDecoder.apply_arabic_column_mapping(gdf)
+                # Filter columns to only those in the canonical schema for this layer
+                allowed_cols = set(SCHEMA_MAP.get(_layer_name, {}).keys())
+                # Always keep geometry column
+                if 'geometry' in gdf.columns:
+                    allowed_cols.add('geometry')
+                gdf = gdf[[col for col in gdf.columns if col in allowed_cols]]
+                if not gdf.empty:
+                    if _layer_name not in layer_gdfs:
+                        layer_gdfs[_layer_name] = [gdf]
                     else:
-                        # During the first iteration no columns have been
-                        # discovered yet. Avoid reindexing to an empty schema
-                        # so the GeoDataFrame retains its geometry column.
-                        gdf_standardized = gdf
+                        layer_gdfs[_layer_name].append(gdf)
 
-                    persister.write(
-                        gdf_standardized,
-                        layer,
-                        temp_table,
-                        if_exists="append",
-                        geometry_type="GEOMETRY",
-                    )
-                    all_columns.update(gdf.columns)
-
-        if not all_columns:
-            logger.warning(
-                "Layer '%s': No geometries or columns found after decoding, skipping.",
+        for layer, gdf_list in layer_gdfs.items():
+            gdf = gpd.GeoDataFrame(pd.concat(gdf_list, ignore_index=True))
+            # Deduplicate by primary key if applicable (DRY for all layers)
+            pk_col = settings.id_column_per_layer.get(layer)
+            if pk_col and pk_col in gdf.columns:
+                before = len(gdf)
+                gdf = gdf.drop_duplicates(subset=[pk_col])
+                after = len(gdf)
+                if after < before:
+                    logger.warning(f"Dropped {before - after} duplicate rows for primary key '{pk_col}' in layer '{layer}' before DB write.")
+            # --- Audit for unseen ruleid values before DB write (parcels only) ---
+            if layer == 'parcels' and 'ruleid' in gdf.columns:
+                engine = persister.engine
+                zoning_rules = pd.read_sql('SELECT ruleid FROM zoning_rules', engine)
+                incoming_ruleids = set(gdf['ruleid'].dropna().unique())
+                existing_ruleids = set(zoning_rules['ruleid'])
+                missing_ruleids = incoming_ruleids - existing_ruleids
+                if missing_ruleids:
+                    print(f"[WARNING] Missing ruleid values in zoning_rules: {missing_ruleids}")
+                    # --- Enhanced auto-insert: include zoning_id, zoning_color, zoning_group if present ---
+                    insert_cols = ['ruleid']
+                    for col in ['zoning_id', 'zoning_color', 'zoning_group']:
+                        if col in gdf.columns:
+                            insert_cols.append(col)
+                    to_insert = gdf[gdf['ruleid'].isin(missing_ruleids)][insert_cols].drop_duplicates('ruleid')
+                    # Fill missing columns with None if not present
+                    for col in ['zoning_id', 'zoning_color', 'zoning_group']:
+                        if col not in to_insert.columns:
+                            to_insert[col] = None
+                    to_insert.to_sql('zoning_rules', engine, if_exists='append', index=False, method='multi')
+                    print(f"[INFO] Inserted {len(to_insert)} new ruleid(s) into zoning_rules with available zoning metadata.")
+                else:
+                    print("[INFO] All ruleid values present in zoning_rules.")
+            # Write to DB in a single operation
+            persister.write(
+                gdf,
                 layer,
+                temp_table,
+                if_exists="replace",
+                id_column=None,
             )
-            persister.drop_table(temp_table)
-            logger.info("--- Finished processing for layer: %s ---", layer)
-            continue
-
-        logger.info(
-            "Discovered full schema for layer '%s' with %d columns.",
-            layer,
-            len(all_columns),
-        )
-
-        # --- Pass 2: Stitch and Persist using the full schema ---
-        id_col = settings.id_column_per_layer.get(layer)
-        agg_rules = settings.aggregation_rules_per_layer.get(layer, {})
-
-        logger.info(
-            "Stitching layer '%s' using ID column '%s' and %d aggregation rules.",
-            layer,
-            id_col,
-            len(agg_rules),
-        )
-
-        # Defensive: If id_col is None or not present in columns, skip dissolve/grouping
-        if not id_col or id_col not in all_columns:
-            logger.warning(
-                "Layer '%s': No valid ID column for dissolve/grouping. Writing features as-is.",
-                layer,
-            )
-            df = gpd.read_postgis(
-                f'SELECT * FROM "{temp_table}"', persister.engine, geom_col="geometry"
-            )
-            if not df.empty:
-                out_path = settings.stitched_dir / f"{layer}_stitched.geojson"
-                df.to_file(out_path, driver="GeoJSON")
-                table_name = settings.table_name_mapping.get(layer, layer)
-                logger.info(
-                    "Persisting %d features for layer '%s' to table '%s' (no grouping)",
-                    len(df),
-                    layer,
-                    table_name,
-                )
-                persister.write(
-                    df,
-                    layer,
-                    table_name,
-                    if_exists="replace",
-                    id_column=None,
-                    chunksize=settings.db_chunk_size,
-                )
-            persister.drop_table(temp_table)
-            logger.info("--- Finished processing for layer: %s ---", layer)
-            continue
-
-        stitched_gdf = stitcher.stitch_from_table(
-            temp_table,
-            layer_name=layer,
-            id_column=id_col,
-            agg_rules=agg_rules,
-            known_columns=list(all_columns),
-        )
-        persister.drop_table(temp_table)
-
-        if stitched_gdf.empty:
-            logger.warning(
-                "Stitching layer '%s' resulted in an empty GeoDataFrame. Skipping.",
-                layer,
-            )
-            logger.info("--- Finished processing for layer: %s ---", layer)
-            continue
 
         # --- Enrichment Step: Assign region_id to parcels ---
         if layer == "parcels":
@@ -390,17 +339,28 @@ async def run_pipeline(
             )
             # Spatial join for region_id
             parcels_enriched = gpd.sjoin(
-                stitched_gdf,
+                gpd.read_postgis(
+                    f'SELECT * FROM "{temp_table}"', persister.engine, geom_col="geometry"
+                ),
                 neighborhoods[["region_id", "geometry"]],
                 how="left",
                 predicate="intersects",
             )
-            stitched_gdf["region_id"] = parcels_enriched["region_id"]
+            persister.write(
+                parcels_enriched,
+                "parcels_enriched",
+                "parcels_enriched",
+                if_exists="replace",
+                id_column=None,
+                chunksize=settings.db_chunk_size,
+            )
             logger.info("Enrichment complete: region_id assigned where possible.")
 
         # Save stitched file locally
         out_path = settings.stitched_dir / f"{layer}_stitched.geojson"
-        stitched_gdf.to_file(out_path, driver="GeoJSON")
+        gpd.read_postgis(
+            f'SELECT * FROM "{temp_table}"', persister.engine, geom_col="geometry"
+        ).to_file(out_path, driver="GeoJSON")
 
         # Persist to PostGIS
         if layer == "parcels" and save_as_temp:
@@ -408,7 +368,9 @@ async def run_pipeline(
                 "Writing parcels to temp table %s for delta comparison", save_as_temp
             )
             persister.write(
-                stitched_gdf,
+                gpd.read_postgis(
+                    f'SELECT * FROM "{temp_table}"', persister.engine, geom_col="geometry"
+                ),
                 layer,
                 save_as_temp,
                 if_exists="replace",
@@ -425,15 +387,20 @@ async def run_pipeline(
             table_name = settings.table_name_mapping.get(layer, layer)
             logger.info(
                 "Persisting %d features for layer '%s' to table '%s'",
-                len(stitched_gdf),
+                len(gpd.read_postgis(
+                    f'SELECT * FROM "{temp_table}"', persister.engine, geom_col="geometry"
+                )),
                 layer,
                 table_name,
             )
 
             # Determine write mode: upsert if id_col is set, else replace (see WHAT_TO_DO_NEXT_PIPELINE_TABLES.md)
+            id_col = settings.id_column_per_layer.get(layer)
             if id_col:
                 persister.write(
-                    stitched_gdf,
+                    gpd.read_postgis(
+                        f'SELECT * FROM "{temp_table}"', persister.engine, geom_col="geometry"
+                    ),
                     layer,
                     table_name,
                     id_column=id_col,
@@ -441,18 +408,15 @@ async def run_pipeline(
                 )
             else:
                 persister.write(
-                    stitched_gdf,
+                    gpd.read_postgis(
+                        f'SELECT * FROM "{temp_table}"', persister.engine, geom_col="geometry"
+                    ),
                     layer,
                     table_name,
                     if_exists="replace",
                     id_column=None,
                     chunksize=settings.db_chunk_size,
                 )
-        layer_end_stats = get_memory_monitor().get_memory_stats()
-        logger.debug(
-            "Memory at layer end %.2fMB",
-            layer_end_stats.process_mb,
-        )
         logger.info("--- Finished processing for layer: %s ---", layer)
         layer_mem = monitor.get_memory_stats().process_mb
         logger.info(
