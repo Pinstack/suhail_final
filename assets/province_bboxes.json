@@ -1,0 +1,116 @@
+{
+  "Riyadh": {
+    "combined_bbox_z15": {
+      "min_x": 20096,
+      "max_x": 20991,
+      "min_y": 13696,
+      "max_y": 14591
+    },
+    "combined_bbox_latlon": {
+      "southwest": {
+        "lat": 19.31114335506464,
+        "lon": 40.78125
+      },
+      "northeast": {
+        "lat": 28.304380682962773,
+        "lon": 50.625
+      }
+    },
+    "tile_url_template": "https://tiles.suhail.ai/maps/riyadh/{z}/{x}/{y}.vector.pbf"
+  },
+  "Madinah": {
+    "combined_bbox_z15": {
+      "min_x": 19840,
+      "max_x": 20223,
+      "min_y": 13952,
+      "max_y": 14207
+    },
+    "combined_bbox_latlon": {
+      "southwest": {
+        "lat": 23.241346102386135,
+        "lon": 37.96875
+      },
+      "northeast": {
+        "lat": 25.79989118208832,
+        "lon": 42.1875
+      }
+    },
+    "tile_url_template": "https://tiles.suhail.ai/maps/al_madenieh/{z}/{x}/{y}.vector.pbf"
+  },
+  "Eastern": {
+    "combined_bbox_z15": {
+      "min_x": 20736,
+      "max_x": 21119,
+      "min_y": 13696,
+      "max_y": 14079
+    },
+    "combined_bbox_latlon": {
+      "southwest": {
+        "lat": 24.5271348225978,
+        "lon": 47.8125
+      },
+      "northeast": {
+        "lat": 28.304380682962773,
+        "lon": 52.03125
+      }
+    },
+    "tile_url_template": "https://tiles.suhail.ai/maps/eastern_region/{z}/{x}/{y}.vector.pbf"
+  },
+  "Makkah": {
+    "combined_bbox_z15": {
+      "min_x": 19840,
+      "max_x": 20223,
+      "min_y": 14080,
+      "max_y": 14463
+    },
+    "combined_bbox_latlon": {
+      "southwest": {
+        "lat": 20.632784250388017,
+        "lon": 37.96875
+      },
+      "northeast": {
+        "lat": 24.5271348225978,
+        "lon": 42.1875
+      }
+    },
+    "tile_url_template": "https://tiles.suhail.ai/maps/makkah_region/{z}/{x}/{y}.vector.pbf"
+  },
+  "Al_Qassim": {
+    "combined_bbox_z15": {
+      "min_x": 17964,
+      "max_x": 20479,
+      "min_y": 13824,
+      "max_y": 13951
+    },
+    "combined_bbox_latlon": {
+      "southwest": {
+        "lat": 25.79989118208832,
+        "lon": 17.3583984375
+      },
+      "northeast": {
+        "lat": 27.059125784374054,
+        "lon": 45.0
+      }
+    },
+    "tile_url_template": "https://tiles.suhail.ai/maps/al_qassim/{z}/{x}/{y}.vector.pbf"
+  },
+  "Asir": {
+    "combined_bbox_z15": {
+      "min_x": 20096,
+      "max_x": 20479,
+      "min_y": 14336,
+      "max_y": 14847
+    },
+    "combined_bbox_latlon": {
+      "southwest": {
+        "lat": 16.636191878397653,
+        "lon": 40.78125
+      },
+      "northeast": {
+        "lat": 21.943045533438177,
+        "lon": 45.0
+      }
+    },
+    "tile_url_template": "https://tiles.suhail.ai/maps/asir_region/{z}/{x}/{y}.vector.pbf"
+  }
+}

@@ -1,90 +1,90 @@
-al_qassim:
-  display_name: Al Qassim
-  bbox_z15:
-    min_x: 20384
-    max_x: 20386
-    min_y: 13894
-    max_y: 13894
-  bbox_latlon:
-    southwest:
-      lat: 26.362342068998764
-      lon: 43.9453125
-    northeast:
-      lat: 26.362342068998764
-      lon: 43.9892578125
-  tile_url_template: https://tiles.suhail.ai/maps/al_qassim/{z}/{x}/{y}.vector.pbf
 riyadh:
-  display_name: Riyadh
+  display_name: "Riyadh"
   bbox_z15:
-    min_x: 20632
-    max_x: 20634
-    min_y: 14064
-    max_y: 14064
+    min_x: 20096
+    max_x: 20991
+    min_y: 13696
+    max_y: 14591
   bbox_latlon:
     southwest:
-      lat: 24.676969798202666
-      lon: 46.669921875
+      lat: 19.31114335506464
+      lon: 40.78125
     northeast:
-      lat: 24.676969798202666
-      lon: 46.7138671875
-  tile_url_template: https://tiles.suhail.ai/maps/riyadh/{z}/{x}/{y}.vector.pbf
+      lat: 28.304380682962773
+      lon: 50.625
+  tile_url_template: "https://tiles.suhail.ai/maps/riyadh/{z}/{x}/{y}.vector.pbf"
 madinah:
-  display_name: Madinah
+  display_name: "Madinah"
   bbox_z15:
-    min_x: 19988
-    max_x: 19990
-    min_y: 14084
-    max_y: 14084
+    min_x: 19840
+    max_x: 20223
+    min_y: 13952
+    max_y: 14207
   bbox_latlon:
     southwest:
-      lat: 24.477150011148673
-      lon: 39.5947265625
+      lat: 23.241346102386135
+      lon: 37.96875
     northeast:
-      lat: 24.477150011148673
-      lon: 39.638671875
-  tile_url_template: https://tiles.suhail.ai/maps/al_madenieh/{z}/{x}/{y}.vector.pbf
-asir:
-  display_name: Asir
-  bbox_z15:
-    min_x: 20272
-    max_x: 20274
-    min_y: 14687
-    max_y: 14687
-  bbox_latlon:
-    southwest:
-      lat: 18.312810846425442
-      lon: 42.71484375
-    northeast:
-      lat: 18.312810846425442
-      lon: 42.7587890625
-  tile_url_template: https://tiles.suhail.ai/maps/asir_region/{z}/{x}/{y}.vector.pbf
+      lat: 25.79989118208832
+      lon: 42.1875
+  tile_url_template: "https://tiles.suhail.ai/maps/al_madenieh/{z}/{x}/{y}.vector.pbf"
 eastern:
-  display_name: Eastern
+  display_name: "Eastern"
   bbox_z15:
-    min_x: 20941
-    max_x: 20943
-    min_y: 13892
-    max_y: 13892
+    min_x: 20736
+    max_x: 21119
+    min_y: 13696
+    max_y: 14079
   bbox_latlon:
     southwest:
-      lat: 26.382027976025352
-      lon: 50.064697265625
+      lat: 24.5271348225978
+      lon: 47.8125
     northeast:
-      lat: 26.382027976025352
-      lon: 50.108642578125
-  tile_url_template: https://tiles.suhail.ai/maps/eastern_region/{z}/{x}/{y}.vector.pbf
+      lat: 28.304380682962773
+      lon: 52.03125
+  tile_url_template: "https://tiles.suhail.ai/maps/eastern_region/{z}/{x}/{y}.vector.pbf"
 makkah:
-  display_name: Makkah
+  display_name: "Makkah"
   bbox_z15:
-    min_x: 20010
-    max_x: 20012
-    min_y: 14387
-    max_y: 14387
+    min_x: 19840
+    max_x: 20223
+    min_y: 14080
+    max_y: 14463
   bbox_latlon:
     southwest:
-      lat: 21.412162229725404
-      lon: 39.83642578125
+      lat: 20.632784250388017
+      lon: 37.96875
     northeast:
-      lat: 21.412162229725404
-      lon: 39.88037109375
-  tile_url_template: https://tiles.suhail.ai/maps/makkah_region/{z}/{x}/{y}.vector.pbf
+      lat: 24.5271348225978
+      lon: 42.1875
+  tile_url_template: "https://tiles.suhail.ai/maps/makkah_region/{z}/{x}/{y}.vector.pbf"
+al_qassim:
+  display_name: "Al Qassim"
+  bbox_z15:
+    min_x: 17964
+    max_x: 20479
+    min_y: 13824
+    max_y: 13951
+  bbox_latlon:
+    southwest:
+      lat: 25.79989118208832
+      lon: 17.3583984375
+    northeast:
+      lat: 27.059125784374054
+      lon: 45.0
+  tile_url_template: "https://tiles.suhail.ai/maps/al_qassim/{z}/{x}/{y}.vector.pbf"
+asir:
+  display_name: "Asir"
+  bbox_z15:
+    min_x: 20096
+    max_x: 20479
+    min_y: 14336
+    max_y: 14847
+  bbox_latlon:
+    southwest:
+      lat: 16.636191878397653
+      lon: 40.78125
+    northeast:
+      lat: 21.943045533438177
+      lon: 45.0
+  tile_url_template: "https://tiles.suhail.ai/maps/asir_region/{z}/{x}/{y}.vector.pbf"
