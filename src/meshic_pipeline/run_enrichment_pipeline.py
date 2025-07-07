@@ -328,7 +328,9 @@ def smart_pipeline_enrich(
     
     if geometric_first:
         print("\n🗺️  STAGE 1: Running geometric pipeline...")
-        from run_pipeline import main as run_geometric_pipeline
+        from meshic_pipeline.run_geometric_pipeline import (
+            main as run_geometric_pipeline,
+        )
         import sys
         
         # Prepare args for geometric pipeline
