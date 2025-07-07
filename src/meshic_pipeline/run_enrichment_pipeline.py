@@ -324,10 +324,10 @@ def smart_pipeline_enrich(
     
     Perfect for: Complete pipeline runs, maximum efficiency and coverage
     """
-    print("🧠 Starting SMART PIPELINE with geometric + fast enrichment...")
-    
+    logger.info("🧠 Starting SMART PIPELINE with geometric + fast enrichment...")
+
     if geometric_first:
-        print("\n🗺️  STAGE 1: Running geometric pipeline...")
+        logger.info("\n🗺️  STAGE 1: Running geometric pipeline...")
         from run_pipeline import main as run_geometric_pipeline
         import sys
         
@@ -342,12 +342,12 @@ def smart_pipeline_enrich(
         
         try:
             run_geometric_pipeline()
-            print("✅ Geometric pipeline completed!")
+            logger.info("✅ Geometric pipeline completed!")
         finally:
             sys.argv = original_argv
     
     if trigger_after:
-        print("\n🎯 STAGE 2: Running fast enrichment...")
+        logger.info("\n🎯 STAGE 2: Running fast enrichment...")
         fast_enrich.callback(
             batch_size=batch_size,
             limit=None,
