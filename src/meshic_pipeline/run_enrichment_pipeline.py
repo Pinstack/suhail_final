@@ -13,7 +13,10 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, Asyn
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from datetime import datetime, timedelta
 import time
-import psutil
+try:
+    import psutil  # type: ignore
+except ImportError:  # pragma: no cover - optional dependency
+    psutil = None
 
 import sys
 from pathlib import Path

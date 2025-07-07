@@ -9,7 +9,7 @@
 
 ## 2. **Semaphore and Concurrency Control**
 - The downloader uses an `asyncio.Semaphore` to limit concurrent downloads, with the limit set by `settings.max_concurrent_downloads` (default: 20, autotuned).
-- The semaphore is correctly acquired and released, with a 30s timeout to prevent deadlocks.
+- Earlier versions imposed a 30s timeout when acquiring the semaphore. With hundreds of thousands of queued tasks, this led to mass "Timeout acquiring semaphore" errors. The timeout has been removed and `download_many` processes tiles in batches to prevent starvation.
 
 ## 3. **Autotuning Feedback Loop**
 - The `PipelineAutotuner` adjusts concurrency and batch sizes based on throughput and error counts.
