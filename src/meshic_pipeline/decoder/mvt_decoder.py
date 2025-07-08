@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Sequence
 import re
 import json
 import os
+from google.protobuf.message import DecodeError
 
 import mapbox_vector_tile
 import mercantile
@@ -143,54 +144,28 @@ class MVTDecoder:
         """
         if not tile_data:
             return {}
-            
-        decoded_tile = mapbox_vector_tile.decode(tile_data)
-        output_layers: Dict[str, List[Dict[str, Any]]] = {}
-
-        # Get the extent from the first available layer (it's typically consistent)
-        first_layer = next(iter(decoded_tile.values()), None)
-        if not first_layer:
+        # Quick content check for HTML or empty
+        if tile_data[:1] == b"<" or tile_data[:15].lower().startswith(b"<!doctype html"):
+            logger.error(f"Tile {z}/{x}/{y} appears to be HTML or empty, skipping decode.")
             return {}
-        
-        extent = first_layer.get("extent", 4096)
-        coord_transformer = self._create_transform_function(z, x, y, extent)
-
-        for layer_name, layer_content in decoded_tile.items():
-            if layers and layer_name not in layers:
-                continue
-            
-            features_out = []
-            for feature in layer_content.get("features", []):
-                try:
-                    # Create the initial Shapely geometry from raw tile coords
-                    geom: BaseGeometry = shape(feature["geometry"])
-                    
-                    if geom.is_empty:
-                        continue
-
-                    # Apply the combined scale + project transformation in one step.
-                    # This is significantly faster than multiple transforms.
-                    projected_geom = transform(coord_transformer, geom)
-
-                    if not projected_geom.is_empty:
-                        # Cast properties to expected types for consistency
-                        properties = self._cast_property_types(feature["properties"])
-                        # Convert camelCase property keys to snake_case to match DB schema
-                        properties = {
-                            re.sub(r'(?<!^)(?=[A-Z])', '_', key).lower(): value
-                            for key, value in properties.items()
-                        }
-                        features_out.append({"geometry": projected_geom, **properties})
-
-                except Exception as e:
-                    # Skip features with invalid geometries or properties
-                    logger.warning(f"Skipping feature in layer {layer_name}: {e}")
-                    continue
-            
-            if features_out:
-                output_layers[layer_name] = features_out
-        
-        return output_layers
+        try:
+            decoded = mapbox_vector_tile.decode(tile_data)
+            print(f"Decoded tile {z}/{x}/{y}: {decoded}")
+            # --- PATCH: Normalize province_id 101004 to 101000 (Riyadh) ---
+            for layer, features in decoded.items():
+                for feat in features:
+                    props = feat.get('properties', {})
+                    if 'province_id' in props and props['province_id'] == 101004:
+                        props['province_id'] = 101000
+            return decoded
+        except DecodeError as e:
+            logger.error(f"DecodeError for tile {z}/{x}/{y}: {e}")
+            self._quarantine_tile(tile_data, z, x, y, error=str(e))
+            return {}
+        except Exception as e:
+            logger.error(f"Unexpected decode error for tile {z}/{x}/{y}: {e}")
+            self._quarantine_tile(tile_data, z, x, y, error=str(e))
+            return {}
 
     def decode_to_gdf(
         self, tile_data: bytes, z: int, x: int, y: int, layers: List[str] | None = None
@@ -212,5 +187,19 @@ class MVTDecoder:
             if src in gdf.columns:
                 gdf = gdf.rename(columns={src: dst})
         return gdf
+
+    def _quarantine_tile(self, tile_data: bytes, z: int, x: int, y: int, error: str = ""):
+        """
+        Save the raw tile data and error message to tile_decode_failures for inspection.
+        """
+        quarantine_dir = "tile_decode_failures"
+        os.makedirs(quarantine_dir, exist_ok=True)
+        tile_path = os.path.join(quarantine_dir, f"tile_{z}_{x}_{y}.bin")
+        with open(tile_path, "wb") as f:
+            f.write(tile_data)
+        if error:
+            error_path = os.path.join(quarantine_dir, f"tile_{z}_{x}_{y}.error.txt")
+            with open(error_path, "w") as ef:
+                ef.write(error)
 
  
