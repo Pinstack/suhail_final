@@ -511,3 +511,13 @@ Provide minimal pytest examples for each module to guide future implementations.
 
 **Update Summary:**
 - Enrichment pipeline has been validated and is operational. All enrichment-related tasks and success criteria are now complete. Next steps focus on multi-province validation and scaling.
+
+## CI Integration & CLI Test Maintenance Checklist
+
+- [ ] Push `.github/workflows/ci.yml` to remote repository
+- [ ] Update CI badge URL in README to match actual GitHub repo
+- [ ] Verify CI pipeline runs and passes on push and pull requests
+- [ ] Monitor CI for failures/regressions
+- [ ] Encourage contributors to run tests locally before pushing
+- [ ] Update CLI tests and documentation as new commands/features are added
+- [ ] Periodically review/refactor CLI tests for clarity, coverage, and speed

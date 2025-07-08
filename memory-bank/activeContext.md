@@ -24,7 +24,7 @@
 - [x] **Run Geometric Pipeline**: Execute `meshic-pipeline geometric` for 9-tile processing
 - [x] **Verify Database Population**: Confirm parcels and reference tables populated
 - [x] **Validate Schema**: Check data types and foreign key relationships
-- [ ] **Test Enrichment**: Run `meshic-pipeline fast-enrich --limit 100`
+- [x] **Test Enrichment**: Run `meshic-pipeline fast-enrich --limit 100` (**Success: 100 parcels processed, 10 transactions, 0 building rules, 200 price metrics added**)
 
 **Results**:
 - 3x3 grid in central Riyadh processed successfully
@@ -33,6 +33,7 @@
 - Robust handling of mixed geometry types in temp tables (Polygon/MultiPolygon)
 - No pipeline errors or data corruption
 - All recent fixes and improvements merged and validated
+- **Enrichment pipeline for baseline phase was successful.**
 
 ### **Current Environment Status**
 - **Database**: Fresh PostGIS schema with robust spatial design
@@ -194,3 +195,32 @@ This active context reflects the actual current state: fresh database, commercia
 - The `parcels` table now requires a nullable `region_id` column (BIGINT).
 - All schema changes are managed via Alembic migrations.
 - For reproducibility, add DB reset + sync + pipeline run to CI/CD.
+
+## 🛠️ CLI Command Reference (Project Source of Truth)
+
+> For a complete, up-to-date audit, see [`docs/CLI_COMMAND_AUDIT.md`](../docs/CLI_COMMAND_AUDIT.md) and the README.
+
+### Core Commands
+- `meshic-pipeline geometric [--bbox ...] [--recreate-db] [--save-as-temp ...]`
+- `meshic-pipeline fast-enrich [--batch-size ...] [--limit ...]`
+- `meshic-pipeline incremental-enrich [--batch-size ...] [--days-old ...] [--limit ...]`
+- `meshic-pipeline full-refresh [--batch-size ...] [--limit ...]`
+- `meshic-pipeline delta-enrich [--batch-size ...] [--limit ...] [--fresh-table ...] [--auto-geometric] [--show-details/--no-details]`
+
+### Advanced/Composite Commands
+- `meshic-pipeline smart-pipeline [--geometric-first] [--batch-size ...] [--bbox ...]`
+- `meshic-pipeline monitor <status|recommend|schedule-info>`
+- `meshic-pipeline province-geometric <province> [--strategy ...] [--recreate-db] [--save-as-temp ...]`
+- `meshic-pipeline saudi-arabia-geometric [--strategy ...] [--recreate-db] [--save-as-temp ...]`
+- `meshic-pipeline discovery-summary`
+- `meshic-pipeline province-pipeline <province> [--strategy ...] [--batch-size ...] [--geometric-first]`
+- `meshic-pipeline saudi-pipeline [--strategy ...] [--batch-size ...] [--geometric-first]`
+
+### Workflow Recommendations
+- **Baseline/Small Grid:** Use `geometric` and `fast-enrich` for initial validation.
+- **Province-Scale:** Use `province-geometric` and `province-pipeline` for full province runs.
+- **All-Provinces:** Use `saudi-arabia-geometric` and `saudi-pipeline` for country-wide processing.
+- **Enrichment Strategies:** Use `fast-enrich`, `incremental-enrich`, `full-refresh`, and `delta-enrich` as appropriate for data freshness and efficiency.
+- **Monitoring:** Use `monitor status`, `monitor recommend`, and `monitor schedule-info` for operational oversight.
+
+> Always consult the README and CLI audit for the latest command options and usage patterns.

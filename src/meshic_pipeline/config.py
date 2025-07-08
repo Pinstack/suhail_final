@@ -8,6 +8,7 @@ import yaml
 
 from pydantic import Field, PostgresDsn, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from meshic_pipeline.persistence.db import load_provinces_from_db
 
 # Define project root independently
 # Resolves to the parent directory of 'src', which is the project's root.
@@ -15,13 +16,6 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 # Load pipeline configuration
 PIPELINE_CONFIG_PATH = PROJECT_ROOT / 'pipeline_config.yaml'
 PIPELINE_CFG = yaml.safe_load(PIPELINE_CONFIG_PATH.read_text())
-
-# Load province metadata for province-wide processing
-PROVINCES_PATH = PROJECT_ROOT / 'provinces.yaml'
-if PROVINCES_PATH.exists():
-    PROVINCES_DATA = yaml.safe_load(PROVINCES_PATH.read_text())
-else:
-    PROVINCES_DATA = {}
 
 # Centralized mapping for all Arabic/text columns to canonical _ar names
 ARABIC_COLUMN_MAP = {
@@ -258,7 +252,7 @@ class Settings(BaseSettings):
     )
 
     # --- Province Metadata ---
-    provinces: Dict[str, Any] = Field(default_factory=lambda: PROVINCES_DATA)
+    provinces: Dict[str, Any] = Field(default_factory=dict)
     
     layers_to_process: List[str] = Field(
         default_factory=lambda: [
@@ -278,6 +272,15 @@ class Settings(BaseSettings):
     )
 
     # --- Methods ---
+    def __init__(self, **values):
+        super().__init__(**values)
+        try:
+            self.provinces = load_provinces_from_db(self.database_url)
+        except Exception as e:
+            import warnings
+            warnings.warn(f"Could not load provinces from DB: {e}. Province metadata will be empty.")
+            self.provinces = {}
+
     def get_tile_cache_path(self, z: int, x: int, y: int) -> Path:
         """Constructs the cache path for a specific tile."""
         tile_dir = self.cache_dir / str(z) / str(x)

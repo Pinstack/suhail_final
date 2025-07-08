@@ -220,6 +220,7 @@ def delta_enrich(
                     )
 
             if not await _table_exists(engine, fresh_mvt_table):
+                typer.echo(f"ERROR: The specified fresh data table '{fresh_mvt_table}' does not exist.")
                 exit_with_error(
                     f'The specified fresh data table "{fresh_mvt_table}" does not exist.',
                     "Verify the table name or use the '--auto-geometric' flag to create it automatically."

@@ -3,15 +3,30 @@ import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Polygon
 import mapbox_vector_tile
+from sqlalchemy import create_engine
+from sqlalchemy.engine.reflection import Inspector
 
 from meshic_pipeline.pipeline_orchestrator import run_pipeline
 from meshic_pipeline.config import settings
+import meshic_pipeline.persistence.table_management as table_management
+import meshic_pipeline.pipeline_orchestrator as orchestrator
 
 # Integration test that exercises the pipeline orchestration with mocked
 # downloader and database persistence.
 
 
+def always_true_has_table(self, table_name, schema=None):
+    return True
+
+
+def noop_reset_temp_table(engine, prod_table, temp_table):
+    pass
+
+
 def test_run_pipeline_with_mocks(monkeypatch):
+    monkeypatch.setattr(Inspector, "has_table", always_true_has_table)
+    monkeypatch.setattr(table_management, "reset_temp_table", noop_reset_temp_table)
+    monkeypatch.setattr(orchestrator, "reset_temp_table", noop_reset_temp_table)
     # sample tile with a single parcel feature
     tile_bytes = mapbox_vector_tile.encode(
         {
@@ -58,7 +73,8 @@ def test_run_pipeline_with_mocks(monkeypatch):
 
     class DummyPersister:
         def __init__(self, *args, **kwargs):
-            self.engine = None
+            # Provide a real in-memory engine for inspection
+            self.engine = create_engine("sqlite:///:memory:")
 
         def write(
             self,
@@ -155,6 +171,9 @@ def test_run_pipeline_with_mocks(monkeypatch):
 
 def test_run_pipeline_with_save_as_temp(monkeypatch):
     """Pipeline writes parcels to a temp table and creates indexes."""
+    monkeypatch.setattr(Inspector, "has_table", always_true_has_table)
+    monkeypatch.setattr(table_management, "reset_temp_table", noop_reset_temp_table)
+    monkeypatch.setattr(orchestrator, "reset_temp_table", noop_reset_temp_table)
     tile_bytes = mapbox_vector_tile.encode(
         {
             "name": "parcels",
@@ -197,7 +216,8 @@ def test_run_pipeline_with_save_as_temp(monkeypatch):
 
     class DummyPersister:
         def __init__(self, *args, **kwargs):
-            self.engine = None
+            # Provide a real in-memory engine for inspection
+            self.engine = create_engine("sqlite:///:memory:")
 
         def write(
             self,
