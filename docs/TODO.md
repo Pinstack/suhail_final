@@ -1,6 +1,6 @@
 # Meshic Geospatial Pipeline Implementation Plan
 
-## 🚦 **Next Actions Summary (as of Baseline Validation Phase)**
+## 🚦 **Next Actions Summary (as of DB-Driven Pipeline Phase)**
 
 | Step | Action | Status |
 |------|--------|--------|
@@ -17,7 +17,7 @@
 
 # Meshic Geospatial Pipeline Implementation Plan
 
-This document outlines the implementation plan for the Meshic Geospatial Data Pipeline following database reset and memory bank cleanup. All tasks are organized around our git workflow and systematic validation approach.
+This document outlines the implementation plan for the Meshic Geospatial Data Pipeline following the transition to a fully DB-driven pipeline. All tile discovery and orchestration is now managed via the `tile_urls` table in the database, supporting province-wide and all-Saudi scrapes with resumable processing.
 
 ## 🎯 **Current Project Status**
 

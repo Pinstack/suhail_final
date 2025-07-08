@@ -12,10 +12,6 @@ import pandas as pd
 from sqlalchemy import create_engine, inspect
 
 from .config import settings
-from .discovery.tile_endpoint_discovery import (
-    get_tile_coordinates_for_bounds,
-    get_tile_coordinates_for_grid,
-)
 from .utils.tile_list_generator import tiles_from_bbox_z
 from .downloader.async_tile_downloader import AsyncTileDownloader
 from .decoder.mvt_decoder import MVTDecoder
@@ -25,6 +21,7 @@ from .memory_utils import memory_optimized, get_memory_monitor
 from .persistence.postgis_persister import PostGISPersister, SCHEMA_MAP
 from sqlalchemy import text
 from meshic_pipeline.persistence.table_management import reset_temp_table
+import mercantile
 
 
 def setup_logging():
@@ -208,20 +205,20 @@ async def run_pipeline(
             len(tiles),
         )
     elif aoi_bbox:
-        # Traditional bbox discovery
-        tiles = get_tile_coordinates_for_bounds(aoi_bbox, zoom)
-        logger.info("📦 Bbox mode: Discovered %d tiles for AOI", len(tiles))
+        # Traditional bbox discovery using mercantile
+        west, south, east, north = aoi_bbox
+        tiles = [(t.z, t.x, t.y) for t in mercantile.tiles(west, south, east, north, [zoom])]
+        logger.info("\U0001F4E6 Bbox mode: Discovered %d tiles for AOI", len(tiles))
     else:
-        # Default grid discovery
-        tiles = get_tile_coordinates_for_grid(
-            settings.center_x,
-            settings.center_y,
-            settings.grid_w,
-            settings.grid_h,
-            zoom,
-        )
+        # Default grid discovery using settings
+        start_x = settings.center_x - settings.grid_w // 2
+        start_y = settings.center_y - settings.grid_h // 2
+        tiles = []
+        for i in range(settings.grid_w):
+            for j in range(settings.grid_h):
+                tiles.append((zoom, start_x + i, start_y + j))
         logger.info(
-            "🔢 Grid mode: Discovered %d tiles for %dx%d grid",
+            "\U0001F522 Grid mode: Discovered %d tiles for %dx%d grid",
             len(tiles),
             settings.grid_w,
             settings.grid_h,

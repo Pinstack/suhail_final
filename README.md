@@ -2,24 +2,27 @@
 
 # Meshic Geospatial Data Pipeline
 
-A sophisticated **two-stage geospatial data processing pipeline** for the Riyadh real estate market. This system processes over 1 million land parcels and 50,000+ transactions, combining high-performance MVT tile processing with comprehensive business intelligence enrichment.
+A sophisticated **two-stage geospatial data processing pipeline** for the Saudi real estate market. The pipeline is now fully database-driven: all tiles to be processed are stored in the `tile_urls` table, supporting province-wide and all-Saudi scrapes with resumable, robust processing.
 
 ## 🏗️ Architecture Overview
 
-### **Stage 1: Geometric Pipeline**
-Downloads and processes geospatial shapes from Mapbox Vector Tiles (MVT):
-- **Source**: `https://tiles.suhail.ai/maps/riyadh/{z}/{x}/{y}.vector.pbf`
-- **Coverage**: Riyadh metropolitan area (15 layers, 1M+ parcels)
-- **Output**: PostGIS database with geometric features
+### **Stage 1: Geometric Pipeline (DB-Driven)**
+- Downloads and processes geospatial shapes from Mapbox Vector Tiles (MVT)
+- **Tile discovery and orchestration is now fully managed via the `tile_urls` table in the database**
+- Supports province-wide and all-Saudi scrapes
+- Pipeline can be stopped and resumed, processing only pending/failed tiles
 
 ### **Stage 2: Enrichment Pipeline**
-Fetches business intelligence data from external APIs:
-- **Transactions**: Historical real estate transaction data
-- **Building Rules**: Zoning and construction regulations  
-- **Price Metrics**: Market analysis and pricing trends
-- **Smart Processing**: Multiple enrichment strategies for comprehensive data capture
+- Fetches business intelligence data from external APIs
+- Status tracking and enrichment are managed via the database
 
 ## 🚀 Key Features
+
+### **DB-Driven Tile Discovery and Orchestration**
+- All tiles to be processed are stored in the `tile_urls` table
+- Pipeline entry point queries the database for pending/failed tiles
+- Status updates and resumability are managed via the database
+- Province-wide and all-Saudi scrapes are now possible and robust
 
 ### **Geometric Processing**
 - **Asynchronous Downloads**: High-performance MVT tile processing with `aiohttp`

@@ -11,8 +11,13 @@ import asyncio
 import aiohttp
 from mapbox_vector_tile import decode
 import os
+import re
+from sqlalchemy.orm import Session
+from sqlalchemy.dialects.postgresql import insert as pg_insert
+from meshic_pipeline.persistence.db import get_db_engine
+from meshic_pipeline.persistence.models import TileURL, Province
+from shapely import wkb
 
-REGIONS_PATH = 'data_raw/api/regions.json'
 Z15_OUTPUT_PATH = 'data_raw/validation_reports/Z15_tiles.json'
 ZOOM10 = 10
 ZOOM12 = 12
@@ -54,21 +59,36 @@ async def fetch_and_check_tile(url, session, sem):
     return None
 
 async def discover_z12_tiles():
-    with open(REGIONS_PATH, encoding='utf-8') as f:
-        regions_json = json.load(f)
-    regions = regions_json['data']
+    engine = get_db_engine()
+    session = Session(engine)
+    provinces = session.query(Province).all()
     z12_tiles_with_parcels = set()
     sem = asyncio.Semaphore(CONCURRENCY)
-    async with aiohttp.ClientSession() as session:
-        for region in regions:
-            region_name = region['mapStyleUrl'].split('https://tiles.suhail.ai/')[1].strip('/') if 'mapStyleUrl' in region else region['key']
-            centroid = region['centroid']
-            cx, cy = lonlat_to_tile(centroid['x'], centroid['y'], ZOOM10)
+    async with aiohttp.ClientSession() as aio_session:
+        for province in provinces:
+            # Extract region key from tile_server_url
+            region_url = getattr(province, 'tile_server_url', None)
+            region_name = None
+            if region_url:
+                region_name = region_url.replace('https://tiles.suhail.ai/', '').strip('/').lower()
+            if not region_name:
+                region_name = province.province_name.lower().replace(' ', '_')
+            centroid_x = getattr(province, 'centroid_x', None) or getattr(province, 'centroid_lon', None)
+            centroid_y = getattr(province, 'centroid_y', None) or getattr(province, 'centroid_lat', None)
+            # Debug output
+            print(f"Province: {province.province_name} | Region key: {region_name} | Tile server: {region_url}")
+            print(f"Centroid: x={centroid_x}, y={centroid_y}")
+            if centroid_x is None or centroid_y is None:
+                print("  -> Skipping: No centroid info.")
+                continue
+            cx, cy = lonlat_to_tile(centroid_x, centroid_y, ZOOM10)
             z10_tile_coords = [(cx + dx, cy + dy) for dx in range(-MAX_RADIUS, MAX_RADIUS + 1) for dy in range(-MAX_RADIUS, MAX_RADIUS + 1)]
             z10_urls = [TILE_SERVER.format(region=region_name, z=ZOOM10, x=x, y=y) for (x, y) in z10_tile_coords]
-            z10_tasks = [fetch_and_check_tile(url, session, sem) for url in z10_urls]
+            print(f"Sample z10 tile URLs for {region_name} (first 3): {z10_urls[:3]}")
+            z10_tasks = [fetch_and_check_tile(url, aio_session, sem) for url in z10_urls]
             z10_results = await asyncio.gather(*z10_tasks)
             z10_positive_coords = [z10_tile_coords[i] for i, url in enumerate(z10_results) if url]
+            print(f"  -> Found {len(z10_positive_coords)} z10 tiles with parcels.")
             # For each positive z10 tile, prepare all 16 z12 children URLs
             for (x10, y10) in z10_positive_coords:
                 for dx in range(4):
@@ -84,7 +104,9 @@ async def discover_z12_tiles():
 def expand_z12_to_z15_and_write(z12_urls):
     TILE_FACTOR = 8
     z15_urls = []
-    import re
+    engine = get_db_engine()
+    session = Session(engine)
+    tileurl_rows = []
     for url in z12_urls:
         m = re.search(r'/maps/([^/]+)/([0-9]+)/([0-9]+)/([0-9]+)\.vector\.pbf', url.strip())
         if not m:
@@ -96,7 +118,22 @@ def expand_z12_to_z15_and_write(z12_urls):
             for dy in range(TILE_FACTOR):
                 x15 = x * TILE_FACTOR + dx
                 y15 = y * TILE_FACTOR + dy
-                z15_urls.append(f"https://tiles.suhail.ai/maps/{region}/15/{x15}/{y15}.vector.pbf")
+                z15_url = f"https://tiles.suhail.ai/maps/{region}/15/{x15}/{y15}.vector.pbf"
+                z15_urls.append(z15_url)
+                tileurl_rows.append({
+                    'url': z15_url,
+                    'zoom_level': 15,
+                    'x': x15,
+                    'y': y15,
+                    'status': 'pending',
+                })
+    # Write to DB with deduplication
+    if tileurl_rows:
+        stmt = pg_insert(TileURL).values(tileurl_rows)
+        stmt = stmt.on_conflict_do_nothing(index_elements=['url'])
+        session.execute(stmt)
+        session.commit()
+        print(f"Inserted {len(tileurl_rows)} z15 tile URLs into tile_urls table (deduplicated)")
     os.makedirs(os.path.dirname(Z15_OUTPUT_PATH), exist_ok=True)
     with open(Z15_OUTPUT_PATH, 'w', encoding='utf-8') as f:
         json.dump(z15_urls, f, ensure_ascii=False, indent=2)

@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.ext.asyncio import create_async_engine
 from .models import Base
 
@@ -53,12 +53,12 @@ def load_provinces_from_db(database_url=None):
     engine = get_db_engine(database_url)
     with engine.connect() as conn:
         result = conn.execute(
-            """
+            text("""
             SELECT province_id, province_name, province_name_ar, centroid_lon, centroid_lat, tile_server_url,
                    bbox_sw_lon, bbox_sw_lat, bbox_ne_lon, bbox_ne_lat
             FROM provinces
-            """
-        )
+            """)
+        ).mappings()
         provinces = {}
         for row in result:
             provinces[row['province_name'].lower()] = {

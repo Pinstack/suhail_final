@@ -6,8 +6,9 @@
 - No pipeline errors or data corruption observed in geometric processing.
 - **Enrichment pipeline for 3x3 Riyadh grid was run successfully: 100 parcels processed, 10 transactions, 0 building rules, and 200 price metrics added.**
 - **Enrichment phase for baseline is marked as successful.**
-- Next step: multi-province testing.
-- Memory bank and documentation are being updated to reflect the new stable baseline.
+- **DB-driven tile discovery and orchestration is now implemented: all tiles to be processed are stored in the `tile_urls` table, supporting province-wide and all-Saudi scrapes with resumable processing.**
+- Next step: multi-province and all-Saudi testing.
+- Memory bank and documentation are being updated to reflect the new DB-driven pipeline.
 
 ## 🎯 **Current Phase: Baseline Validation Complete**
 

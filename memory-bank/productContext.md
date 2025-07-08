@@ -1,25 +1,25 @@
 # Product Context: Suhail Geospatial Pipeline
 
 ## Vision
-Scalable geospatial data processing pipeline for Riyadh real estate parcels, currently operating at development scale with plans for metropolitan area expansion.
+Scalable geospatial data processing pipeline for all Saudi provinces, now operating with a database-driven tile discovery and orchestration system.
 
 ## Problem Statement
-- **Current State**: Manual, disconnected processing of geospatial parcel data
-- **Challenge**: Need efficient automated pipeline for MVT tiles and API enrichment
-- **Scale**: Starting with central Riyadh test region (9K parcels), preparing for city-wide expansion
+- **Previous State**: Manual, disconnected processing of geospatial parcel data
+- **Current State**: Automated, DB-driven pipeline for MVT tiles and API enrichment
+- **Scale**: Ready for province-wide and all-Saudi scrapes
 
 ## Solution Overview
 
 ### **Current Implementation**
-- **Development Scale**: 3x3 tile grid covering central Riyadh test area
-- **Data Processing**: 9,007 parcels with complete spatial and attribute data
+- **DB-Driven Tile Discovery**: All tiles to be processed are stored in the `tile_urls` table, supporting resumable, province-wide, and all-Saudi scrapes.
+- **Data Processing**: 9,007 parcels with complete spatial and attribute data (baseline); ready for full-scale runs
 - **Integration**: API enrichment for transactions, zoning, and price metrics
-- **Architecture**: Two-stage pipeline (geometric + enrichment)
+- **Architecture**: Two-stage pipeline (geometric + enrichment), now orchestrated from the database
 
 ### **Target State**
-- **Production Scale**: Expanded coverage across Riyadh metropolitan area
-- **Enhanced Processing**: Larger tile grids with optimized performance
-- **Comprehensive Data**: Full city coverage with all enrichment sources
+- **Production Scale**: Expanded coverage across all Saudi provinces
+- **Enhanced Processing**: Large tile grids with optimized, resumable performance
+- **Comprehensive Data**: Full country coverage with all enrichment sources
 
 ## How It Should Work
 
@@ -28,26 +28,28 @@ Scalable geospatial data processing pipeline for Riyadh real estate parcels, cur
 2. **Real-time Monitoring**: Status tracking and automated recommendations
 3. **Flexible Strategies**: Multiple enrichment approaches for different needs
 4. **Reliable Processing**: Robust error handling and recovery mechanisms
+5. **Resumability**: Pipeline can be stopped and resumed, processing only pending/failed tiles
 
 ### **Technical Experience Goals**
 1. **Performance**: Sub-second spatial queries regardless of scale
-2. **Scalability**: Linear scaling from 9K to city-wide parcel coverage
+2. **Scalability**: Linear scaling from 9K to all-province parcel coverage
 3. **Maintainability**: Clear modular architecture with proper abstractions
 4. **Observability**: Comprehensive logging and monitoring integration
+5. **DB-Driven Orchestration**: All tile discovery and processing is managed via the database
 
 ## Success Metrics
 
 ### **Development Phase (Current)**
-- ✅ **Data Coverage**: 9,007 parcels successfully processed
-- ✅ **Quality**: 100% data completeness for current scope
-- ✅ **Integration**: 5 enrichment strategies operational
-- ✅ **Performance**: Sub-second queries on current dataset
+- 	**Data Coverage**: 9,007 parcels successfully processed (baseline)
+- 	**Quality**: 100% data completeness for current scope
+- 	**Integration**: 5 enrichment strategies operational
+- 	**Performance**: Sub-second queries on current dataset
 
 ### **Production Phase (Future)**
-- 🎯 **Scale**: Expanded to full metropolitan area
-- 🎯 **Performance**: Maintained sub-second query times at scale
-- 🎯 **Reliability**: 99.9% uptime for processing operations
-- 🎯 **Efficiency**: Optimized resource usage for larger datasets
+- 	**Scale**: Expanded to all Saudi provinces
+- 	**Performance**: Maintained sub-second query times at scale
+- 	**Reliability**: 99.9% uptime for processing operations
+- 	**Efficiency**: Optimized resource usage for larger datasets
 
 ## Business Value
 
@@ -58,7 +60,7 @@ Scalable geospatial data processing pipeline for Riyadh real estate parcels, cur
 - **Quality**: Proper referential integrity and spatial accuracy
 
 ### **Future Value**
-- **Scale Economics**: Automated processing for entire city
+- **Scale Economics**: Automated processing for entire country
 - **Data Insights**: Comprehensive real estate analytics
 - **Decision Support**: Enriched spatial data for planning
 - **Operational Efficiency**: Reduced manual processing overhead

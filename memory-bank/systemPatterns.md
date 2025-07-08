@@ -1,27 +1,29 @@
 # System Patterns and Architecture
 
-## 🏗️ **Core Architecture: Functional Async Design**
+## 🏗️ **Core Architecture: DB-Driven, Functional Async Design**
 
 ### **Design Philosophy**
-The Meshic pipeline uses **functional async patterns** rather than class-based OOP, optimized for high-performance geospatial data processing at scale.
+The Meshic pipeline uses **database-driven, functional async patterns** for high-performance geospatial data processing at scale. All tile discovery and orchestration is managed via the `tile_urls` table in the database, supporting province-wide and all-Saudi scrapes with resumable processing.
 
 ### **Key Architectural Principles**
-1. **Async-First**: All I/O operations use async/await patterns
-2. **Functional Composition**: Functions compose rather than inherit
-3. **Resource Efficiency**: Proper session and connection management
-4. **Error Resilience**: Graceful failure handling with retry logic
-5. **Database as Truth**: Schema-first design with type safety
+1. **DB-Driven Tile Orchestration**: All tiles to be processed are stored in the `tile_urls` table; pipeline queries for pending/failed tiles and updates status as it processes.
+2. **Async-First**: All I/O operations use async/await patterns
+3. **Functional Composition**: Functions compose rather than inherit
+4. **Resource Efficiency**: Proper session and connection management
+5. **Error Resilience**: Graceful failure handling with retry logic
+6. **Database as Truth**: Schema-first design with type safety
+7. **Resumability**: Pipeline can be stopped and resumed, processing only pending/failed tiles
 
 ## 🔄 **Pipeline Architecture Patterns**
 
-### **1. Multi-Stage Processing Pipeline**
+### **1. Multi-Stage Processing Pipeline (DB-Driven)**
 
 #### **Stage 1: Geometric Data Extraction**
 ```python
-# Functional async pipeline pattern
+# DB-driven pipeline pattern
 async def geometric_pipeline():
-    # Tile discovery and download
-    tiles = await discover_tiles(province, zoom_level)
+    # Query DB for pending/failed tiles
+    tiles = await fetch_pending_tiles_from_db()
     downloaded = await download_tiles_concurrent(tiles, max_concurrent=5)
     
     # MVT decoding and spatial processing
@@ -30,6 +32,8 @@ async def geometric_pipeline():
     
     # Database persistence with type safety
     await persist_to_postgis(geometries, chunk_size=5000)
+    # Update tile status in DB
+    await mark_tiles_processed_in_db(tiles)
 ```
 
 #### **Stage 2: Enrichment Data Integration**

@@ -1,11 +1,11 @@
 # Active Context (Updated)
 
-## 🎯 **Current Status: Baseline Validation Complete**
+## 🎯 **Current Status: DB-Driven Tile Discovery and Orchestration**
 
 ### **Project Reality Check: COMPLETED**
 - **Database State**: Fresh PostgreSQL/PostGIS database (recently dropped and recreated)
-- **Data Volume**: 3x3 grid in central Riyadh successfully processed
-- **Current Scope**: 3x3 tile grid in central Riyadh for pipeline validation
+- **Data Volume**: 3x3 grid in central Riyadh successfully processed; now ready for province-wide and all-Saudi scrapes
+- **Current Scope**: All tile discovery and orchestration is now managed via the `tile_urls` table in the database
 - **Business Objective**: Commercial data capture for client sales (not Suhail platform development)
 
 ### **Git Baseline: ESTABLISHED**
@@ -14,30 +14,17 @@
 - ✅ **Testing Branch**: `test/3x3-riyadh-baseline` ready for validation
 - ✅ **Schema Migrations**: Fresh Alembic migration with robust PostGIS design
 
-## 🔄 **Active Work: Phase 1 Baseline Validation**
+## �� **Active Work: DB-Driven Pipeline**
 
-### **1.1 3x3 Riyadh Baseline Test** (COMPLETE)
-**Objective**: Validate basic pipeline functionality with fresh database
-
-**Current Tasks**:
-- [x] **Install Package**: Set up development environment with `uv add -e .`
-- [x] **Run Geometric Pipeline**: Execute `meshic-pipeline geometric` for 9-tile processing
-- [x] **Verify Database Population**: Confirm parcels and reference tables populated
-- [x] **Validate Schema**: Check data types and foreign key relationships
-- [x] **Test Enrichment**: Run `meshic-pipeline fast-enrich --limit 100` (**Success: 100 parcels processed, 10 transactions, 0 building rules, 200 price metrics added**)
-
-**Results**:
-- 3x3 grid in central Riyadh processed successfully
-- All reference tables (provinces, municipalities, etc.) populated from MVT data
-- Foreign key relationships functioning properly
-- Robust handling of mixed geometry types in temp tables (Polygon/MultiPolygon)
-- No pipeline errors or data corruption
-- All recent fixes and improvements merged and validated
-- **Enrichment pipeline for baseline phase was successful.**
+### **DB-Driven Tile Discovery and Orchestration**
+- All tiles to be processed are now stored in the `tile_urls` table
+- Pipeline entry point queries the database for pending/failed tiles
+- Status updates and resumability are managed via the database
+- Province-wide and all-Saudi scrapes are now possible and robust
 
 ### **Current Environment Status**
 - **Database**: Fresh PostGIS schema with robust spatial design
-- **Pipeline**: Functional async architecture, robust to geometry type issues
+- **Pipeline**: Functional async architecture, robust to geometry type issues, now orchestrated from the database
 - **Configuration**: Province-specific tile servers configured
 - **Dependencies**: All packages ready for installation via `uv`
 
@@ -71,6 +58,8 @@
 2. **Systematic Validation**: Don't skip testing phases - validate each step
 3. **Multi-Province Capability**: Ensure architecture scales across all 6 provinces
 4. **Chunked Processing**: Handle large datasets efficiently with proper batching
+5. **DB-Driven Orchestration**: All tile discovery, status tracking, and pipeline orchestration is managed via the `tile_urls` table in the database
+6. **Resumability**: Pipeline can be stopped and resumed, processing only pending/failed tiles
 
 ### **Development Approach**
 - **Start Small**: 3x3 baseline test first (now complete)
@@ -91,6 +80,7 @@
 - **Processing**: Chunked batch processing with memory management
 - **API Integration**: Suhail API endpoints for enrichment data
 - **CLI**: Unified command interface for all operations
+- **DB-Driven Tile Orchestration**: All tile discovery and processing is managed via the database
 
 ### **Data Sources**
 - **MVT Tiles**: Province-specific tile servers (riyadh, eastern_region, etc.)
@@ -105,6 +95,7 @@
 - [x] Foreign key relationships functional
 - [ ] Enrichment success rate >95%
 - [x] No pipeline errors or data corruption
+- **DB-driven tile orchestration and resumable processing validated**
 
 ### **Technical Validation Success**
 - [x] Package installation works smoothly
@@ -164,13 +155,13 @@ git tag v0.1.2-enrichment-validated   # After enrichment success
 
 ## 🎯 **Immediate Next Steps**
 
-1. **Complete Memory Bank Alignment**: Finish updating all files to reflect new stable baseline
+1. **Complete Memory Bank Alignment**: Finish updating all files to reflect new DB-driven pipeline
 2. **Execute Enrichment Test**: Run enrichment pipeline and validate results
 3. **Document Actual Results**: Update progress with real metrics from enrichment and multi-province tests
 4. **Plan Multi-Province Test**: Prepare for next validation phase
 5. **Track Performance**: Establish baseline metrics for scaling decisions
 
-This active context reflects the actual current state: fresh database, commercial objectives, and a validated baseline pipeline ready for enrichment and scaling.
+This active context reflects the actual current state: fresh database, commercial objectives, and a validated, DB-driven pipeline ready for enrichment and scaling.
 
 ## Pipeline Table Uniqueness & Upsert Robustness (May 2024)
 

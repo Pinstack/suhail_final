@@ -12,8 +12,10 @@ from sqlalchemy import (
     Boolean,
     UniqueConstraint,
     text,
+    select,
+    update,
 )
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import declarative_base, relationship, load_only
 from sqlalchemy.sql import func
 
 Base = declarative_base()
@@ -144,9 +146,31 @@ class Neighborhood(Base):
 
 class Province(Base):
     __tablename__ = 'provinces'
+    # API/DB field mapping:
+    # API id           -> region_id (or province_id for sub-provinces)
+    # API name         -> province_name
+    # API mapStyleUrl  -> tile_server_url
+    # API centroid.x   -> centroid_x
+    # API centroid.y   -> centroid_y
+    # API restrictBoundaryBox.southwest.x -> bbox_sw_lon
+    # API restrictBoundaryBox.southwest.y -> bbox_sw_lat
+    # API restrictBoundaryBox.northeast.x -> bbox_ne_lon
+    # API restrictBoundaryBox.northeast.y -> bbox_ne_lat
+    # API name (Arabic) -> province_name_ar
     province_id = Column(BigInteger, primary_key=True)
     province_name = Column(String)
+    province_name_ar = Column(String)
     geometry = Column(Geometry('MULTIPOLYGON', srid=4326))
+    centroid_lon = Column(Float)
+    centroid_lat = Column(Float)
+    centroid_x = Column(Float)
+    centroid_y = Column(Float)
+    tile_server_url = Column(String)
+    bbox_sw_lon = Column(Float)
+    bbox_sw_lat = Column(Float)
+    bbox_ne_lon = Column(Float)
+    bbox_ne_lat = Column(Float)
+    region_id = Column(BigInteger)
 
     parcels = relationship("Parcel", back_populates="province")
     neighborhoods = relationship("Neighborhood", back_populates="province")
@@ -238,4 +262,67 @@ class QIStripes(Base):
     __tablename__ = 'qi_stripes'
     strip_id = Column(String, primary_key=True)
     geometry = Column(Geometry('POLYGON', srid=4326))
-    value = Column(Float) 
+    value = Column(Float)
+
+class TileURL(Base):
+    __tablename__ = 'tile_urls'
+
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    url = Column(String, nullable=False, unique=True)
+    zoom_level = Column(Integer, nullable=False)
+    x = Column(Integer, nullable=False)
+    y = Column(Integer, nullable=False)
+    status = Column(String(32), nullable=False, server_default='pending')
+    last_checked_at = Column(DateTime, nullable=True)
+    error_message = Column(String, nullable=True)
+    retry_count = Column(Integer, nullable=False, server_default='0')
+    created_at = Column(DateTime, nullable=False, server_default=func.now())
+    updated_at = Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+
+    @classmethod
+    def fetch_tiles_by_status(cls, session, statuses, limit=None):
+        query = session.query(cls).filter(cls.status.in_(statuses))
+        if limit:
+            query = query.limit(limit)
+        return query.all()
+
+    @classmethod
+    def update_status(cls, session, url, new_status, error_message=None):
+        tile = session.query(cls).filter_by(url=url).first()
+        if tile:
+            tile.status = new_status
+            tile.last_checked_at = func.now()
+            if error_message:
+                tile.error_message = error_message
+            session.commit()
+        return tile
+
+    @classmethod
+    def claim_tiles_for_processing(cls, session, batch_size=1000, max_retries=5):
+        # Atomically claim a batch of tiles for processing
+        # Only claim tiles that are pending or failed and have not exceeded max_retries
+        # Returns the claimed TileURL objects
+        candidate_ids = [row.id for row in session.query(cls.id)
+                         .filter(cls.status.in_(['pending', 'failed']), cls.retry_count < max_retries)
+                         .order_by(cls.id)
+                         .limit(batch_size)
+                         .with_for_update(skip_locked=True)]
+        if not candidate_ids:
+            return []
+        # Step 2: Update their status to 'in_progress' and increment retry_count
+        session.query(cls).filter(cls.id.in_(candidate_ids)).update({cls.status: 'in_progress', cls.last_checked_at: func.now(), cls.retry_count: cls.retry_count + 1}, synchronize_session=False)
+        session.commit()
+        # Step 3: Return the claimed objects
+        return session.query(cls).filter(cls.id.in_(candidate_ids)).all()
+
+    @classmethod
+    def reset_stale_in_progress(cls, session, stale_minutes=60):
+        from datetime import datetime, timedelta
+        threshold = datetime.utcnow() - timedelta(minutes=stale_minutes)
+        updated = session.query(cls).filter(
+            cls.status == 'in_progress',
+            cls.last_checked_at != None,
+            cls.last_checked_at < threshold
+        ).update({cls.status: 'failed', cls.error_message: 'Stale in_progress reset'}, synchronize_session=False)
+        session.commit()
+        return updated 
