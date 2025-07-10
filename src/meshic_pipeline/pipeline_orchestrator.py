@@ -293,6 +293,41 @@ async def run_pipeline(
                 after = len(gdf)
                 if after < before:
                     logger.warning(f"Dropped {before - after} duplicate rows for primary key '{pk_col}' in layer '{layer}' before DB write.")
+            
+            # --- STITCHING STEP: Merge overlapping geometries ---
+            if pk_col and pk_col in gdf.columns and layer in settings.aggregation_rules_per_layer:
+                logger.info(f"Stitching geometries for layer '{layer}' using ID column '{pk_col}'...")
+                try:
+                    # Get aggregation rules for this layer
+                    agg_rules = settings.aggregation_rules_per_layer.get(layer, {})
+                    # Get known columns for this layer
+                    known_columns = list(SCHEMA_MAP.get(layer, {}).keys())
+                    if 'geometry' not in known_columns:
+                        known_columns.append('geometry')
+                    
+                    # Use the original list of GeoDataFrames from different tiles for stitching
+                    # This allows the stitcher to merge overlapping geometries from different tiles
+                    gdf_list_for_stitching = gdf_list
+                    
+                    # Perform stitching
+                    stitched_gdf = stitcher.stitch_geometries(
+                        gdfs=gdf_list_for_stitching,
+                        layer_name=layer,
+                        id_column=pk_col,
+                        agg_rules=agg_rules,
+                        tiles=tiles,
+                        known_columns=known_columns
+                    )
+                    
+                    if not stitched_gdf.empty:
+                        gdf = stitched_gdf
+                        logger.info(f"Stitching complete for layer '{layer}': {len(gdf)} features after stitching")
+                    else:
+                        logger.warning(f"Stitching resulted in empty GeoDataFrame for layer '{layer}', using original")
+                        
+                except Exception as e:
+                    logger.error(f"Stitching failed for layer '{layer}': {e}, using original data")
+            
             # --- Audit for unseen ruleid values before DB write (parcels only) ---
             if layer == 'parcels' and 'ruleid' in gdf.columns:
                 engine = persister.engine
@@ -302,16 +337,8 @@ async def run_pipeline(
                 missing_ruleids = incoming_ruleids - existing_ruleids
                 if missing_ruleids:
                     print(f"[WARNING] Missing ruleid values in zoning_rules: {missing_ruleids}")
-                    # --- Enhanced auto-insert: include zoning_id, zoning_color, zoning_group if present ---
-                    insert_cols = ['ruleid']
-                    for col in ['zoning_id', 'zoning_color', 'zoning_group']:
-                        if col in gdf.columns:
-                            insert_cols.append(col)
-                    to_insert = gdf[gdf['ruleid'].isin(missing_ruleids)][insert_cols].drop_duplicates('ruleid')
-                    # Fill missing columns with None if not present
-                    for col in ['zoning_id', 'zoning_color', 'zoning_group']:
-                        if col not in to_insert.columns:
-                            to_insert[col] = None
+                    # --- Auto-insert missing ruleids (only ruleid column exists in zoning_rules table) ---
+                    to_insert = gdf[gdf['ruleid'].isin(missing_ruleids)][['ruleid']].drop_duplicates('ruleid')
                     to_insert.to_sql('zoning_rules', engine, if_exists='append', index=False, method='multi')
                     print(f"[INFO] Inserted {len(to_insert)} new ruleid(s) into zoning_rules with available zoning metadata.")
                 else:
