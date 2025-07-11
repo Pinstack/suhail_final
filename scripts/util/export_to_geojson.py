@@ -19,15 +19,15 @@ from meshic_pipeline.persistence.db import get_db_engine
 from sqlalchemy import text
 
 
-def export_table_to_geojson(table_name: str, output_file: str, limit: int = None) -> Dict[str, Any]:
+def export_table_to_geojson(table_name: str, output_file: str, limit: int = None, where_clause: str = None) -> Dict[str, Any]:
     """
-    Export a spatial table to GeoJSON format.
+    Export a spatial table to GeoJSON format, with optional filtering.
     
     Args:
         table_name: Name of the table to export
         output_file: Path to output GeoJSON file
         limit: Optional limit on number of features to export
-    
+        where_clause: Optional SQL WHERE clause (without 'WHERE')
     Returns:
         Dictionary with export statistics
     """
@@ -74,7 +74,8 @@ def export_table_to_geojson(table_name: str, output_file: str, limit: int = None
             SELECT {', '.join(select_cols)}
             FROM {table_name}
         """
-        
+        if where_clause:
+            query += f" WHERE {where_clause}"
         if limit:
             query += f" LIMIT {limit}"
         
@@ -124,58 +125,18 @@ def export_table_to_geojson(table_name: str, output_file: str, limit: int = None
             "file": output_file
         }
 
+import argparse
 
 def main():
-    """Main export function."""
-    # Tables to export (spatial tables with data)
-    tables_to_export = [
-        "neighborhoods",
-        "subdivisions", 
-        "parcels",
-        "metro_lines",
-        "metro_stations",
-        "bus_lines",
-        "riyadh_bus_stations",
-        "qi_population_metrics",
-        "qi_stripes"
-    ]
-    
-    # Create output directory
-    output_dir = Path("exports")
-    output_dir.mkdir(exist_ok=True)
-    
-    print("🚀 Starting GeoJSON export...")
-    print(f"📁 Output directory: {output_dir.absolute()}")
-    print()
-    
-    results = []
-    
-    for table_name in tables_to_export:
-        output_file = output_dir / f"{table_name}.geojson"
-        result = export_table_to_geojson(table_name, str(output_file))
-        results.append(result)
-        print()
-    
-    # Summary
-    print("📊 Export Summary:")
-    print("=" * 50)
-    
-    successful = [r for r in results if r["status"] == "success"]
-    skipped = [r for r in results if r["status"] == "skipped"]
-    
-    if successful:
-        print(f"✅ Successfully exported {len(successful)} tables:")
-        for result in successful:
-            print(f"   - {result['table']}: {result['features']} features → {result['file']}")
-    
-    if skipped:
-        print(f"⚠️  Skipped {len(skipped)} tables:")
-        for result in skipped:
-            print(f"   - {result['table']}: {result['reason']}")
-    
-    print()
-    print(f"🎉 Export complete! Files saved in: {output_dir.absolute()}")
+    """Main export function with CLI filtering support."""
+    parser = argparse.ArgumentParser(description="Export spatial table to GeoJSON with optional filtering.")
+    parser.add_argument("table", help="Table name to export")
+    parser.add_argument("output", help="Output GeoJSON file path")
+    parser.add_argument("--limit", type=int, default=None, help="Limit number of features")
+    parser.add_argument("--where", type=str, default=None, help="Optional SQL WHERE clause (without 'WHERE')")
+    args = parser.parse_args()
 
+    export_table_to_geojson(args.table, args.output, limit=args.limit, where_clause=args.where)
 
 if __name__ == "__main__":
     main() 

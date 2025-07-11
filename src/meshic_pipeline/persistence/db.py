@@ -12,6 +12,7 @@ def get_db_engine(database_url=None):
 
 def get_async_db_engine():
     """Creates and returns an optimized async SQLAlchemy engine."""
+    from ..config import settings
     # Convert postgresql:// to postgresql+asyncpg://
     async_url = str(settings.database_url).replace("postgresql://", "postgresql+asyncpg://")
     return create_async_engine(
@@ -36,7 +37,7 @@ def get_async_db_engine():
 async def setup_database_async(engine):
     """Creates the necessary tables if they don't exist using async engine."""
     # import logging; logging.info("Setting up database tables...")
-    with engine.begin() as conn:
+    async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all, checkfirst=True)
     # import logging; logging.info("Tables checked/created successfully.")
 
