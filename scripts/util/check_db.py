@@ -161,12 +161,19 @@ def table_size(table_name: str = typer.Argument(..., help="The full name of the 
     schema, table = table_name.split('.') if '.' in table_name else ('public', table_name)
     with engine.connect() as conn:
         try:
-            sql = f"SELECT pg_size_pretty(pg_total_relation_size('\"{schema}.{table}\"')) AS size;"
+            # Use schema.table::regclass for Postgres
+            sql = f"SELECT pg_size_pretty(pg_total_relation_size('{schema}.{table}'::regclass)) AS size;"
             result = conn.execute(text(sql))
             size = result.scalar()
-            console.print(f"[bold cyan]Table size for {schema}.{table}: {size}[/bold cyan]")
+            if size:
+                console.print(f"[bold cyan]Table size for {schema}.{table}: {size}[/bold cyan]")
+            else:
+                console.print(f"[yellow]Could not retrieve table size for {schema}.{table}.[/yellow]")
         except Exception as e:
-            console.print(f"[bold red]Error: {e}[/bold red]")
+            if 'does not exist' in str(e):
+                console.print(f"[bold red]Table {schema}.{table} does not exist.[/bold red]")
+            else:
+                console.print(f"[bold red]Error: {e}[/bold red]")
 
 # --- 10. Check Nulls ---
 @app.command()
@@ -174,6 +181,15 @@ def check_nulls(table_name: str = typer.Argument(..., help="The full name of the
     """Show count of NULLs in a column."""
     engine = get_engine()
     schema, table = table_name.split('.') if '.' in table_name else ('public', table_name)
+    inspector = inspect(engine)
+    try:
+        columns = [col['name'] for col in inspector.get_columns(table, schema=schema)]
+        if column not in columns:
+            console.print(f"[bold red]Column '{column}' does not exist in table {schema}.{table}.[/bold red]")
+            raise typer.Exit(code=1)
+    except Exception as e:
+        console.print(f"[bold red]Error inspecting columns: {e}[/bold red]")
+        raise typer.Exit(code=1)
     with engine.connect() as conn:
         try:
             sql = f'SELECT COUNT(*) FROM "{schema}"."{table}" WHERE "{column}" IS NULL'
@@ -237,16 +253,22 @@ def export_schema(table_name: str = typer.Argument(..., help="The full name of t
     schema, table = table_name.split('.') if '.' in table_name else ('public', table_name)
     with engine.connect() as conn:
         try:
-            sql = f"SELECT pg_get_tabledef('\"{schema}.{table}\"'::regclass);"
+            # Try pg_get_tabledef (if available)
+            sql = f"SELECT pg_get_tabledef('{schema}.{table}'::regclass);"
             result = conn.execute(text(sql))
             ddl = result.scalar()
             if ddl:
                 console.print(f"[bold cyan]CREATE TABLE for {schema}.{table}:[/bold cyan]")
                 console.print(ddl)
             else:
-                console.print("[yellow]Could not retrieve table definition.[/yellow]")
+                console.print("[yellow]Could not retrieve table definition using pg_get_tabledef.[/yellow]")
         except Exception as e:
-            console.print(f"[bold red]Error: {e}[/bold red]")
+            if 'does not exist' in str(e):
+                console.print(f"[bold red]Table {schema}.{table} does not exist.[/bold red]")
+            elif 'function pg_get_tabledef' in str(e):
+                console.print("[yellow]pg_get_tabledef is not available on this server. Please use pg_dump or information_schema for schema export.[/yellow]")
+            else:
+                console.print(f"[bold red]Error: {e}[/bold red]")
 
 if __name__ == "__main__":
     app() 
