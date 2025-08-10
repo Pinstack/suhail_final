@@ -39,6 +39,7 @@ dependencies = [
     "uvicorn",
     "asyncpg",
     "greenlet",
+    "requests>=2.32.4",
 ]
 
 [project.optional-dependencies]
@@ -75,3 +76,11 @@ alembic = "^1.13.1"
 asyncpg = "^0.29.0"
 
 [tool.poetry.group.dev.dependencies]
+
+[tool.uv.sources]
+meshic-pipeline = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "meshic-pipeline",
+]

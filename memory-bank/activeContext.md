@@ -14,7 +14,7 @@
 - ✅ **Testing Branch**: `test/3x3-riyadh-baseline` ready for validation
 - ✅ **Schema Migrations**: Fresh Alembic migration with robust PostGIS design
 
-## �� **Active Work: DB-Driven Pipeline**
+## 🔄 **Active Work: DB-Driven Pipeline**
 
 ### **DB-Driven Tile Discovery and Orchestration**
 - All tiles to be processed are now stored in the `tile_urls` table
@@ -130,7 +130,7 @@ python scripts/check_db.py             # Database validation
 ### **Git Workflow**
 ```bash
 # Current branch
-test/3x3-riyadh-baseline
+countrywide-tile-discovery
 
 # Success tagging strategy
 git tag v0.1.1-3x3-validated    # After successful baseline
@@ -143,9 +143,9 @@ git tag v0.1.2-enrichment-validated   # After enrichment success
 - ✅ **Project Brief**: Updated to reflect commercial objectives
 - ✅ **TODO.md**: Rewritten for actual baseline validation plan
 - ✅ **Active Context**: Updated for new stable baseline
-- 🔄 **Progress**: Needs update to reflect fresh database state
-- 🔄 **System Patterns**: Needs alignment with actual implementation
-- 🔄 **Tech Context**: Needs update for baseline testing scope
+- ✅ **Progress**: Updated to reflect fresh database state and enrichment baseline results
+- ✅ **System Patterns**: Aligned with DB-driven orchestration and async patterns
+- ✅ **Tech Context**: Updated for baseline testing scope and DB-driven orchestration
 
 ### **Critical Corrections Made**
 - **Scale Claims**: Removed inflated parcel counts - database is now populated for 3x3 grid

@@ -89,6 +89,27 @@ async def get_all_enrichable_parcel_ids(
     )
     return parcel_ids
 
+async def get_all_parcel_ids_for_metrics(
+    engine: AsyncEngine, limit: Optional[int] = None
+) -> List[str]:
+    """
+    Get ALL parcel IDs for price metrics enrichment.
+    Suhail API provides calculated neighborhood-based price metrics for all parcels,
+    not just those with direct transaction data.
+    """
+    query = """
+        SELECT parcel_objectid FROM public.parcels
+        ORDER BY parcel_objectid
+    """
+
+    rows = await _execute_query(engine, query, limit=limit)
+    parcel_ids = [row[0] for row in rows]
+
+    logger.info(
+        f"Found {len(parcel_ids):,} total parcels for metrics enrichment (all parcels)."
+    )
+    return parcel_ids
+
 async def get_stale_parcel_ids(
     engine: AsyncEngine, days_old: int = 30, limit: Optional[int] = None
 ) -> List[str]:

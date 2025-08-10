@@ -38,9 +38,11 @@ from meshic_pipeline.enrichment.strategies import (
     get_stale_parcel_ids,
     get_delta_parcel_ids,
     get_all_enrichable_parcel_ids,
+    get_all_parcel_ids_for_metrics,
     get_delta_parcel_ids_with_details,
 )
 from meshic_pipeline.enrichment.processor import fast_worker
+from meshic_pipeline.enrichment.metrics_only_processor import metrics_only_worker
 from meshic_pipeline.persistence.db import (
     get_async_db_engine,
     setup_database_async,
@@ -108,11 +110,56 @@ async def run_enrichment_for_ids(
     )
     return total_tx, total_rules, total_metrics
 
+async def run_metrics_only_for_ids(
+    parcel_ids: List[str], batch_size: int, process_name: str
+):
+    """Specialized function to run price metrics only enrichment."""
+    if not parcel_ids:
+        logger.info(f"No parcels to process for {process_name}.")
+        return
+
+    logger.info(
+        f"Starting {process_name} for {len(parcel_ids)} parcels with batch size {batch_size}"
+    )
+
+    async_engine = get_async_db_engine()
+    async_session_factory = async_sessionmaker(async_engine, expire_on_commit=False)
+    total_tx = total_rules = total_metrics = 0
+
+    connector = aiohttp.TCPConnector(limit_per_host=50)
+    async with aiohttp.ClientSession(connector=connector) as session:
+        api_client = SuhailAPIClient(session)
+        
+        async for transactions, rules, metrics in metrics_only_worker(
+            parcel_ids, batch_size, api_client
+        ):
+            if not metrics:  # Only care about metrics for this processor
+                continue
+
+            async with async_session_factory() as db_session:
+                tx_count, rules_count, metrics_count = await fast_store_batch_data(
+                    db_session, transactions, rules, metrics
+                )
+                total_tx += tx_count
+                total_rules += rules_count
+                total_metrics += metrics_count
+
+    logger.info(
+        f"Finished {process_name}. Added {total_tx} transactions, {total_rules} building rules, {total_metrics} price metrics."
+    )
+    return total_tx, total_rules, total_metrics
+
 async def _run_enrichment(strategy_func, engine, batch_size, limit, **kwargs):
     """A single async function to orchestrate the entire enrichment process."""
     await setup_database_async(engine)
     parcel_ids = await strategy_func(engine, limit=limit, **kwargs)
     await run_enrichment_for_ids(parcel_ids, batch_size, strategy_func.__name__)
+
+async def _run_metrics_enrichment(strategy_func, engine, batch_size, limit, **kwargs):
+    """A single async function to orchestrate metrics-only enrichment."""
+    await setup_database_async(engine)
+    parcel_ids = await strategy_func(engine, limit=limit, **kwargs)
+    await run_metrics_only_for_ids(parcel_ids, batch_size, strategy_func.__name__)
 
 @app.command()
 def fast_enrich(
@@ -150,6 +197,17 @@ def full_refresh(
     engine = get_async_db_engine()
     asyncio.run(
         _run_enrichment(get_all_enrichable_parcel_ids, engine, batch_size, limit)
+    )
+
+@app.command()
+def universal_metrics(
+    batch_size: int = typer.Option(200, "--batch-size", help="Batch size"),
+    limit: int = typer.Option(None, "--limit", help="Limit parcels"),
+):
+    """Enriches ALL parcels with price metrics (including those without transaction data)."""
+    engine = get_async_db_engine()
+    asyncio.run(
+        _run_metrics_enrichment(get_all_parcel_ids_for_metrics, engine, batch_size, limit)
     )
 
 @app.command()

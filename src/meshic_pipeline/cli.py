@@ -66,6 +66,14 @@ def full_refresh(
     run_enrichment_pipeline.full_refresh(batch_size=batch_size, limit=limit)
 
 @app.command()
+def universal_metrics(
+    batch_size: int = typer.Option(200, "--batch-size", help="Number of parcels per batch"),
+    limit: Optional[int] = typer.Option(None, "--limit", help="Limit parcels for testing"),
+):
+    """Enrich ALL parcels with derived price metrics (including those without transaction data)."""
+    run_enrichment_pipeline.universal_metrics(batch_size=batch_size, limit=limit)
+
+@app.command()
 def delta_enrich(
     batch_size: int = typer.Option(200, "--batch-size", help="Number of parcels per batch"),
     limit: Optional[int] = typer.Option(None, "--limit", help="Limit parcels for testing"),
@@ -131,6 +139,113 @@ def saudi_arabia_geometric(
         cmd.append("--recreate-db")
     if save_as_temp:
         cmd += ["--save-as-temp", save_as_temp]
+    subprocess.run(cmd, check=True)
+
+@app.command()
+def seed_tiles(
+    province: Optional[str] = typer.Option(None, "--province", "-p", help="Province key as returned by settings.list_provinces(); if omitted, seeds all provinces unless --region-slugs set"),
+    provinces: Optional[List[str]] = typer.Option(None, "--provinces", help="Multiple province keys"),
+    region_slugs: Optional[List[str]] = typer.Option(None, "--region-slugs", help="Filter provinces by tile_url_template slug(s), e.g., riyadh, eastern_region"),
+    status: str = typer.Option("pending", "--status", help="Initial status for seeded tiles"),
+    limit: Optional[int] = typer.Option(None, "--limit", help="Limit number of tiles per province (after stride)"),
+    stride: int = typer.Option(1, "--stride", help="Take every Nth tile from bbox coverage"),
+):
+    """Seed the tile_urls table from province bbox metadata (z15) for one or all provinces.
+
+    Use --limit and/or --stride to seed a small pilot sample.
+    """
+    from meshic_pipeline.config import settings
+    from meshic_pipeline.utils.tile_list_generator import tiles_from_bbox_z
+    from meshic_pipeline.persistence.db import get_db_engine
+    from sqlalchemy.orm import Session
+    from sqlalchemy.dialects.postgresql import insert as pg_insert
+    from meshic_pipeline.persistence.models import TileURL
+
+    engine = get_db_engine(str(settings.database_url))
+    session = Session(engine)
+    # Determine province keys to seed
+    provs = provinces or ([province] if province else None)
+    if provs is None:
+        if region_slugs:
+            slugs = {s.lower() for s in region_slugs}
+            provs = []
+            for key in settings.list_provinces():
+                meta = settings.get_province_meta(key)
+                tpl = (meta.get("tile_url_template") or "").lower()
+                for s in slugs:
+                    if f"/{s}/" in tpl:
+                        provs.append(key)
+                        break
+        else:
+            provs = settings.list_provinces()
+    if not provs:
+        typer.echo("No provinces matched selection criteria.")
+        raise typer.Exit(code=1)
+    total = 0
+    from urllib.parse import urlparse
+
+    def normalize_base(tile_url_template: str) -> str:
+        """Return base like https://host/maps/<region> regardless of template variations."""
+        tpl = tile_url_template.strip()
+        parts = urlparse(tpl)
+        # last non-empty path segment as slug
+        segs = [s for s in parts.path.split('/') if s]
+        slug = segs[-1] if segs else ''
+        base = f"{parts.scheme}://{parts.netloc}/maps/{slug}"
+        return base
+
+    for prov in provs:
+        meta = settings.get_province_meta(prov)
+        bbox = meta["bbox_z15"]
+        tile_tuples = tiles_from_bbox_z(bbox, zoom=15)
+        if stride and stride > 1:
+            tile_tuples = tile_tuples[::stride]
+        if limit is not None and limit >= 0:
+            tile_tuples = tile_tuples[:limit]
+        rows = []
+        base = normalize_base(meta.get("tile_url_template", ""))
+        for z, x, y in tile_tuples:
+            url = f"{base}/{z}/{x}/{y}.vector.pbf"
+            rows.append({
+                "url": url,
+                "zoom_level": z,
+                "x": x,
+                "y": y,
+                "status": status,
+            })
+        if rows:
+            stmt = pg_insert(TileURL).values(rows).on_conflict_do_nothing(index_elements=[TileURL.url])
+            session.execute(stmt)
+            session.commit()
+            total += len(rows)
+            typer.echo(f"Seeded {len(rows)} tiles for {prov}")
+    typer.echo(f"Done. Seeded {total} tiles (before dedup).")
+
+@app.command()
+def db_geometric(
+    batch_size: int = typer.Option(1000, "--batch-size", help="Tiles to claim per batch"),
+    concurrency: int = typer.Option(5, "--concurrency", help="Initial concurrent HTTP requests (adaptive)"),
+    request_delay: float = typer.Option(0.05, "--request-delay", help="Delay between requests (s)"),
+    recreate_db: bool = typer.Option(False, "--recreate-db", help="Drop and recreate database schema"),
+    save_as_temp: Optional[str] = typer.Option(None, "--save-as-temp", help="Save parcels to a temp table"),
+    max_retries: int = typer.Option(5, "--max-retries", help="Max retries before permanent failure"),
+    adaptive: bool = typer.Option(True, "--adaptive/--no-adaptive", help="Enable adaptive concurrency"),
+):
+    """Run geometric pipeline in DB-driven mode using the tile_urls queue."""
+    script = SCRIPT_DIR / "run_db_geometric.py"
+    cmd = [sys.executable, str(script),
+           "--batch-size", str(batch_size),
+           "--concurrency", str(concurrency),
+           "--request-delay", str(request_delay),
+           "--max-retries", str(max_retries)]
+    if recreate_db:
+        cmd.append("--recreate-db")
+    if save_as_temp:
+        cmd += ["--save-as-temp", save_as_temp]
+    if adaptive:
+        cmd.append("--adaptive")
+    else:
+        cmd.append("--no-adaptive")
     subprocess.run(cmd, check=True)
 
 @app.command()

@@ -97,7 +97,12 @@ def upgrade() -> None:
                existing_type=sa.TEXT(),
                type_=sa.String(),
                existing_nullable=True)
-    op.drop_index(op.f('idx_tile_urls_status'), table_name='tile_urls')
+    # Ensure we have an index to query tile_urls by status efficiently at scale
+    try:
+        op.create_index('idx_tile_urls_status', 'tile_urls', ['status'], unique=False)
+    except Exception:
+        # If it exists, ignore
+        pass
     # ### end Alembic commands ###
 
 

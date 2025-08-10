@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.ext.asyncio import create_async_engine
 from .models import Base
+import mercantile
 
 
 def get_db_engine(database_url=None):
@@ -62,6 +63,24 @@ def load_provinces_from_db(database_url=None):
         ).mappings()
         provinces = {}
         for row in result:
+            # Derive z15 tile bbox from lat/lon bbox
+            sw_lon = row['bbox_sw_lon']
+            sw_lat = row['bbox_sw_lat']
+            ne_lon = row['bbox_ne_lon']
+            ne_lat = row['bbox_ne_lat']
+            # Compute tiles for all four corners to be safe
+            tl = mercantile.tile(sw_lon, ne_lat, 15)  # top-left (west, north)
+            tr = mercantile.tile(ne_lon, ne_lat, 15)  # top-right (east, north)
+            bl = mercantile.tile(sw_lon, sw_lat, 15)  # bottom-left (west, south)
+            br = mercantile.tile(ne_lon, sw_lat, 15)  # bottom-right (east, south)
+            xs = [tl.x, tr.x, bl.x, br.x]
+            ys = [tl.y, tr.y, bl.y, br.y]
+            bbox_z15 = {
+                "min_x": int(min(xs)),
+                "max_x": int(max(xs)),
+                "min_y": int(min(ys)),
+                "max_y": int(max(ys)),
+            }
             provinces[row['province_name'].lower()] = {
                 "display_name": row['province_name'],
                 "display_name_ar": row['province_name_ar'],
@@ -74,6 +93,7 @@ def load_provinces_from_db(database_url=None):
                     "northeast": {"lat": row['bbox_ne_lat'], "lon": row['bbox_ne_lon']},
                 },
                 "tile_url_template": row['tile_server_url'],
+                "bbox_z15": bbox_z15,
                 "province_id": row['province_id'],
             }
         return provinces 
