@@ -85,6 +85,98 @@ def _apply_arabic_and_columns(layer_name: str, gdf: gpd.GeoDataFrame) -> gpd.Geo
     return gdf[[c for c in gdf.columns if c in allowed_cols]]
 
 
+def enrich_parcels_with_spatial_assignments(gdf: gpd.GeoDataFrame, persister: PostGISPersister) -> gpd.GeoDataFrame:
+    """
+    🔧 FIX: Add spatial assignments for neighborhood_id and province_id to parcels.
+    This function addresses the missing spatial join logic that caused 1M+ parcels to be unassigned.
+    """
+    if gdf.empty:
+        return gdf
+    
+    logger.info("🔗 Enriching %d parcels with spatial assignments...", len(gdf))
+    
+    # Create temporary table for spatial joins
+    import uuid
+    temp_table = f"temp_parcels_enrich_{uuid.uuid4().hex[:12]}"
+    
+    try:
+        # Write parcels to temp table
+        persister.write(gdf, "parcels", temp_table, if_exists="replace", id_column=None)
+        
+        # Create spatial index for performance
+        persister.execute(f'CREATE INDEX IF NOT EXISTS idx_{temp_table}_geom ON "{temp_table}" USING GIST("geometry")')
+        
+        # Step 1: Assign neighborhood_id via spatial join
+        logger.info("📍 Step 1: Assigning neighborhood_id via spatial intersection...")
+        
+        # First, add the columns if they don't exist
+        persister.execute(f'ALTER TABLE "{temp_table}" ADD COLUMN IF NOT EXISTS neighborhood_id BIGINT;')
+        persister.execute(f'ALTER TABLE "{temp_table}" ADD COLUMN IF NOT EXISTS province_id BIGINT;')
+        persister.execute(f'ALTER TABLE "{temp_table}" ADD COLUMN IF NOT EXISTS neighborhood_ar VARCHAR;')
+        
+        update_neighborhood_sql = f"""
+            UPDATE "{temp_table}" AS p
+            SET neighborhood_id = n.neighborhood_id,
+                neighborhood_ar = COALESCE(p.neighborhood_ar, n.neighborhood_ar)
+            FROM neighborhoods n
+            WHERE ST_Intersects(p.geometry, n.geometry)
+            AND p.neighborhood_id IS NULL;
+        """
+        persister.execute(update_neighborhood_sql)
+        
+        # Step 2: Assign province_id via neighborhood inheritance
+        logger.info("🏛️ Step 2: Assigning province_id via neighborhood inheritance...")
+        update_province_sql = f"""
+            UPDATE "{temp_table}" AS p
+            SET province_id = n.province_id
+            FROM neighborhoods n
+            WHERE p.neighborhood_id = n.neighborhood_id
+            AND p.province_id IS NULL
+            AND n.province_id IS NOT NULL;
+        """
+        persister.execute(update_province_sql)
+        
+        # Step 3: Fallback province assignment via geographical bounding boxes
+        logger.info("🗺️ Step 3: Fallback province assignment via geographical coordinates...")
+        
+        # Use actual database bounding boxes instead of hardcoded approximations
+        fallback_sql = f"""
+            UPDATE "{temp_table}" AS p
+            SET province_id = prov.province_id
+            FROM provinces prov
+            WHERE p.province_id IS NULL
+            AND prov.bbox_sw_lon IS NOT NULL
+            AND ST_X(ST_Centroid(p.geometry)) BETWEEN prov.bbox_sw_lon AND prov.bbox_ne_lon
+            AND ST_Y(ST_Centroid(p.geometry)) BETWEEN prov.bbox_sw_lat AND prov.bbox_ne_lat;
+        """
+        persister.execute(fallback_sql)
+        
+        # Read back enriched data
+        enriched_gdf = persister.read_sql(f'SELECT * FROM "{temp_table}"')
+        
+        # Log assignment statistics
+        total_parcels = len(enriched_gdf)
+        with_neighborhood = len(enriched_gdf[enriched_gdf['neighborhood_id'].notna()])
+        with_province = len(enriched_gdf[enriched_gdf['province_id'].notna()])
+        
+        logger.info("✅ Spatial assignment complete:")
+        logger.info("   • Total parcels: %d", total_parcels)
+        logger.info("   • With neighborhood_id: %d (%.1f%%)", with_neighborhood, with_neighborhood/total_parcels*100)
+        logger.info("   • With province_id: %d (%.1f%%)", with_province, with_province/total_parcels*100)
+        
+        return enriched_gdf
+        
+    except Exception as e:
+        logger.error("❌ Spatial assignment failed: %s", e)
+        return gdf
+    finally:
+        # Cleanup temp table
+        try:
+            persister.drop_table(temp_table)
+        except:
+            pass
+
+
 class AdaptiveConcurrency:
     def __init__(self, initial: int = 5, min_val: int = 2, max_val: int = 20):
         self.current = initial
@@ -118,8 +210,15 @@ def main(
     save_as_temp: Optional[str] = typer.Option(None, "--save-as-temp", help="Save parcels to a temp table"),
     max_retries: int = typer.Option(5, "--max-retries", help="Max retries before permanent failure"),
     adaptive: bool = typer.Option(True, "--adaptive/--no-adaptive", help="Enable adaptive concurrency"),
+    enable_spatial_assignment: bool = typer.Option(True, "--spatial/--no-spatial", help="Enable spatial assignment of province_id"),
 ):
-    """Run geometric pipeline in DB-driven mode using the tile_urls queue."""
+    """Run geometric pipeline in DB-driven mode using the tile_urls queue with FIXED spatial assignment logic."""
+    
+    if enable_spatial_assignment:
+        logger.info("🔧 RUNNING WITH FIXED SPATIAL ASSIGNMENT LOGIC")
+    else:
+        logger.warning("⚠️ Running without spatial assignment - parcels will not get province_id!")
+    
     engine = get_db_engine(str(settings.database_url))
     session = Session(engine)
 
@@ -191,6 +290,10 @@ def main(
             pk_col = settings.id_column_per_layer.get(layer)
             if pk_col and pk_col in gdf.columns:
                 gdf = gdf.drop_duplicates(subset=[pk_col])
+
+            # 🔧 NEW FIX: Apply spatial assignments for parcels
+            if layer == "parcels" and enable_spatial_assignment:
+                gdf = enrich_parcels_with_spatial_assignments(gdf, persister)
 
             persister.write(
                 gdf,
@@ -296,5 +399,3 @@ def main(
 
 if __name__ == "__main__":
     app()
-
-
