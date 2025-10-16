@@ -3,25 +3,32 @@ import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Polygon
 import mapbox_vector_tile
-import sqlalchemy
+from sqlalchemy import create_engine
 
-from meshic_pipeline.pipeline_orchestrator import run_pipeline
 from meshic_pipeline.config import settings
+import meshic_pipeline.persistence.table_management as table_management
+import meshic_pipeline.pipeline_orchestrator as orchestrator
+from meshic_pipeline.pipeline_orchestrator import run_pipeline
 
 # Integration test that exercises the pipeline orchestration with mocked
 # downloader and database persistence.
+ 
 
 
 def test_run_pipeline_with_mocks(monkeypatch):
-    import sqlalchemy
     # Patch inspect in orchestrator to always return a mock with has_table True
     class DummyInspector:
         def has_table(self, table_name, schema=None):
             return True
-    monkeypatch.setattr("meshic_pipeline.pipeline_orchestrator.inspect", lambda engine: DummyInspector())
-    # Patch reset_temp_table to a no-op
-    monkeypatch.setattr("meshic_pipeline.pipeline_orchestrator.reset_temp_table", lambda *a, **kw: None)
-
+    monkeypatch.setattr(
+        "meshic_pipeline.pipeline_orchestrator.inspect",
+        lambda engine: DummyInspector(),
+    )
+    # Patch reset_temp_table to a no-op in both orchestrator and table_management
+    monkeypatch.setattr(
+        "meshic_pipeline.pipeline_orchestrator.reset_temp_table", lambda *a, **kw: None
+    )
+    monkeypatch.setattr(table_management, "reset_temp_table", lambda *a, **kw: None)
     # sample tile with a single parcel feature
     tile_bytes = mapbox_vector_tile.encode(
         {
@@ -68,7 +75,8 @@ def test_run_pipeline_with_mocks(monkeypatch):
 
     class DummyPersister:
         def __init__(self, *args, **kwargs):
-            self.engine = None
+            # Provide a real in-memory engine for inspection
+            self.engine = create_engine("sqlite:///:memory:")
 
         def write(
             self,
@@ -165,14 +173,19 @@ def test_run_pipeline_with_mocks(monkeypatch):
 
 def test_run_pipeline_with_save_as_temp(monkeypatch):
     """Pipeline writes parcels to a temp table and creates indexes."""
-    import sqlalchemy
     # Patch inspect in orchestrator to always return a mock with has_table True
     class DummyInspector:
         def has_table(self, table_name, schema=None):
             return True
-    monkeypatch.setattr("meshic_pipeline.pipeline_orchestrator.inspect", lambda engine: DummyInspector())
-    monkeypatch.setattr("meshic_pipeline.pipeline_orchestrator.reset_temp_table", lambda *a, **kw: None)
-
+    monkeypatch.setattr(
+        "meshic_pipeline.pipeline_orchestrator.inspect",
+        lambda engine: DummyInspector(),
+    )
+    # Patch reset_temp_table to a no-op in both orchestrator and table_management
+    monkeypatch.setattr(
+        "meshic_pipeline.pipeline_orchestrator.reset_temp_table", lambda *a, **kw: None
+    )
+    monkeypatch.setattr(table_management, "reset_temp_table", lambda *a, **kw: None)
     tile_bytes = mapbox_vector_tile.encode(
         {
             "name": "parcels",
@@ -215,7 +228,8 @@ def test_run_pipeline_with_save_as_temp(monkeypatch):
 
     class DummyPersister:
         def __init__(self, *args, **kwargs):
-            self.engine = None
+            # Provide a real in-memory engine for inspection
+            self.engine = create_engine("sqlite:///:memory:")
 
         def write(
             self,

@@ -1,0 +1,993 @@
+src/__init__.py:1:1: W293 blank line contains whitespace
+src/meshic_pipeline/__init__.py:1:62: W291 trailing whitespace
+src/meshic_pipeline/cli.py:13:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/cli.py:43:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/cli.py:45:80: E501 line too long (92 > 79 characters)
+src/meshic_pipeline/cli.py:46:80: E501 line too long (91 > 79 characters)
+src/meshic_pipeline/cli.py:48:80: E501 line too long (88 > 79 characters)
+src/meshic_pipeline/cli.py:51:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/cli.py:53:80: E501 line too long (92 > 79 characters)
+src/meshic_pipeline/cli.py:54:80: E501 line too long (93 > 79 characters)
+src/meshic_pipeline/cli.py:55:80: E501 line too long (91 > 79 characters)
+src/meshic_pipeline/cli.py:57:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/cli.py:58:80: E501 line too long (101 > 79 characters)
+src/meshic_pipeline/cli.py:60:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/cli.py:62:80: E501 line too long (91 > 79 characters)
+src/meshic_pipeline/cli.py:63:80: E501 line too long (91 > 79 characters)
+src/meshic_pipeline/cli.py:68:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/cli.py:70:80: E501 line too long (92 > 79 characters)
+src/meshic_pipeline/cli.py:71:80: E501 line too long (91 > 79 characters)
+src/meshic_pipeline/cli.py:72:80: E501 line too long (103 > 79 characters)
+src/meshic_pipeline/cli.py:73:80: E501 line too long (109 > 79 characters)
+src/meshic_pipeline/cli.py:74:80: E501 line too long (104 > 79 characters)
+src/meshic_pipeline/cli.py:76:80: E501 line too long (106 > 79 characters)
+src/meshic_pipeline/cli.py:77:80: E501 line too long (167 > 79 characters)
+src/meshic_pipeline/cli.py:79:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/cli.py:81:80: E501 line too long (105 > 79 characters)
+src/meshic_pipeline/cli.py:82:80: E501 line too long (86 > 79 characters)
+src/meshic_pipeline/cli.py:83:80: E501 line too long (93 > 79 characters)
+src/meshic_pipeline/cli.py:85:80: E501 line too long (97 > 79 characters)
+src/meshic_pipeline/cli.py:87:80: E501 line too long (97 > 79 characters)
+src/meshic_pipeline/cli.py:94:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/cli.py:105:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/cli.py:107:80: E501 line too long (113 > 79 characters)
+src/meshic_pipeline/cli.py:108:80: E501 line too long (126 > 79 characters)
+src/meshic_pipeline/cli.py:109:80: E501 line too long (107 > 79 characters)
+src/meshic_pipeline/cli.py:110:80: E501 line too long (113 > 79 characters)
+src/meshic_pipeline/cli.py:112:80: E501 line too long (91 > 79 characters)
+src/meshic_pipeline/cli.py:114:80: E501 line too long (87 > 79 characters)
+src/meshic_pipeline/cli.py:121:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/cli.py:123:80: E501 line too long (126 > 79 characters)
+src/meshic_pipeline/cli.py:124:80: E501 line too long (107 > 79 characters)
+src/meshic_pipeline/cli.py:125:80: E501 line too long (113 > 79 characters)
+src/meshic_pipeline/cli.py:127:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/cli.py:129:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/cli.py:136:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/cli.py:143:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/cli.py:145:80: E501 line too long (113 > 79 characters)
+src/meshic_pipeline/cli.py:146:80: E501 line too long (91 > 79 characters)
+src/meshic_pipeline/cli.py:147:80: E501 line too long (86 > 79 characters)
+src/meshic_pipeline/cli.py:148:80: E501 line too long (105 > 79 characters)
+src/meshic_pipeline/cli.py:150:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/cli.py:152:61: W291 trailing whitespace
+src/meshic_pipeline/cli.py:153:80: E501 line too long (91 > 79 characters)
+src/meshic_pipeline/cli.py:158:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/cli.py:160:80: E501 line too long (134 > 79 characters)
+src/meshic_pipeline/cli.py:161:80: E501 line too long (86 > 79 characters)
+src/meshic_pipeline/cli.py:162:80: E501 line too long (105 > 79 characters)
+src/meshic_pipeline/cli.py:164:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/cli.py:166:58: W291 trailing whitespace
+src/meshic_pipeline/cli.py:172:1: E305 expected 2 blank lines after class or function definition, found 1
+src/meshic_pipeline/config.py:3:1: F401 'os' imported but unused
+src/meshic_pipeline/config.py:5:1: F401 'typing.Tuple' imported but unused
+src/meshic_pipeline/config.py:23:80: E501 line too long (93 > 79 characters)
+src/meshic_pipeline/config.py:36:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/config.py:43:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/config.py:47:80: E501 line too long (91 > 79 characters)
+src/meshic_pipeline/config.py:52:80: E501 line too long (86 > 79 characters)
+src/meshic_pipeline/config.py:57:80: E501 line too long (86 > 79 characters)
+src/meshic_pipeline/config.py:60:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/config.py:62:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/config.py:63:80: E501 line too long (92 > 79 characters)
+src/meshic_pipeline/config.py:64:80: E501 line too long (87 > 79 characters)
+src/meshic_pipeline/config.py:66:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/config.py:68:80: E501 line too long (86 > 79 characters)
+src/meshic_pipeline/config.py:69:80: E501 line too long (87 > 79 characters)
+src/meshic_pipeline/config.py:70:80: E501 line too long (86 > 79 characters)
+src/meshic_pipeline/config.py:71:80: E501 line too long (87 > 79 characters)
+src/meshic_pipeline/config.py:72:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/config.py:73:80: E501 line too long (95 > 79 characters)
+src/meshic_pipeline/config.py:76:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/config.py:90:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/config.py:96:80: E501 line too long (90 > 79 characters)
+src/meshic_pipeline/config.py:97:80: E501 line too long (94 > 79 characters)
+src/meshic_pipeline/config.py:98:80: E501 line too long (92 > 79 characters)
+src/meshic_pipeline/config.py:102:80: E501 line too long (91 > 79 characters)
+src/meshic_pipeline/config.py:108:80: E501 line too long (87 > 79 characters)
+src/meshic_pipeline/config.py:111:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/config.py:113:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/config.py:134:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/config.py:141:80: E501 line too long (93 > 79 characters)
+src/meshic_pipeline/config.py:148:80: E501 line too long (90 > 79 characters)
+src/meshic_pipeline/config.py:150:80: E501 line too long (108 > 79 characters)
+src/meshic_pipeline/config.py:151:80: E501 line too long (100 > 79 characters)
+src/meshic_pipeline/config.py:152:80: E501 line too long (100 > 79 characters)
+src/meshic_pipeline/config.py:153:80: E501 line too long (108 > 79 characters)
+src/meshic_pipeline/config.py:154:80: E501 line too long (109 > 79 characters)
+src/meshic_pipeline/config.py:167:80: E501 line too long (86 > 79 characters)
+src/meshic_pipeline/config.py:170:80: E501 line too long (99 > 79 characters)
+src/meshic_pipeline/config.py:174:80: E501 line too long (92 > 79 characters)
+src/meshic_pipeline/config.py:176:80: E501 line too long (86 > 79 characters)
+src/meshic_pipeline/config.py:193:80: E501 line too long (150 > 79 characters)
+src/meshic_pipeline/config.py:201:43: W291 trailing whitespace
+src/meshic_pipeline/config.py:212:46: W291 trailing whitespace
+src/meshic_pipeline/config.py:218:40: W291 trailing whitespace
+src/meshic_pipeline/config.py:234:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/config.py:251:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/config.py:256:1: W293 blank line contains whitespace
+src/meshic_pipeline/config.py:271:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/config.py:281:80: E501 line too long (101 > 79 characters)
+src/meshic_pipeline/config.py:326:22: W291 trailing whitespace
+src/meshic_pipeline/decoder/mvt_decoder.py:4:1: F401 'typing.Sequence' imported but unused
+src/meshic_pipeline/decoder/mvt_decoder.py:6:1: F401 'json' imported but unused
+src/meshic_pipeline/decoder/mvt_decoder.py:7:1: F401 'os' imported but unused
+src/meshic_pipeline/decoder/mvt_decoder.py:22:80: E501 line too long (87 > 79 characters)
+src/meshic_pipeline/decoder/mvt_decoder.py:26:71: W291 trailing whitespace
+src/meshic_pipeline/decoder/mvt_decoder.py:29:1: W293 blank line contains whitespace
+src/meshic_pipeline/decoder/mvt_decoder.py:30:80: E501 line too long (102 > 79 characters)
+src/meshic_pipeline/decoder/mvt_decoder.py:38:1: W293 blank line contains whitespace
+src/meshic_pipeline/decoder/mvt_decoder.py:50:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/decoder/mvt_decoder.py:55:80: E501 line too long (112 > 79 characters)
+src/meshic_pipeline/decoder/mvt_decoder.py:76:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/decoder/mvt_decoder.py:84:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/decoder/mvt_decoder.py:92:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/decoder/mvt_decoder.py:138:80: E501 line too long (87 > 79 characters)
+src/meshic_pipeline/decoder/mvt_decoder.py:146:1: W293 blank line contains whitespace
+src/meshic_pipeline/decoder/mvt_decoder.py:150:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/decoder/mvt_decoder.py:154:1: W293 blank line contains whitespace
+src/meshic_pipeline/decoder/mvt_decoder.py:161:1: W293 blank line contains whitespace
+src/meshic_pipeline/decoder/mvt_decoder.py:167:1: W293 blank line contains whitespace
+src/meshic_pipeline/decoder/mvt_decoder.py:171:80: E501 line too long (84 > 79 characters)
+src/meshic_pipeline/decoder/mvt_decoder.py:177:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/decoder/mvt_decoder.py:178:80: E501 line too long (90 > 79 characters)
+src/meshic_pipeline/decoder/mvt_decoder.py:183:80: E501 line too long (87 > 79 characters)
+src/meshic_pipeline/decoder/mvt_decoder.py:187:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/decoder/mvt_decoder.py:189:1: W293 blank line contains whitespace
+src/meshic_pipeline/decoder/mvt_decoder.py:192:1: W293 blank line contains whitespace
+src/meshic_pipeline/decoder/mvt_decoder.py:196:80: E501 line too long (87 > 79 characters)
+src/meshic_pipeline/decoder/mvt_decoder.py:210:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/decoder/mvt_decoder.py:216:1: W293 blank line contains whitespace
+src/meshic_pipeline/discovery/tile_discovery.py:3:80: E501 line too long (172 > 79 characters)
+src/meshic_pipeline/discovery/tile_discovery.py:19:1: F401 'shapely.wkb' imported but unused
+src/meshic_pipeline/discovery/tile_discovery.py:30:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/discovery/tile_discovery.py:34:80: E501 line too long (96 > 79 characters)
+src/meshic_pipeline/discovery/tile_discovery.py:37:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/discovery/tile_discovery.py:43:80: E501 line too long (96 > 79 characters)
+src/meshic_pipeline/discovery/tile_discovery.py:49:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/discovery/tile_discovery.py:61:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/discovery/tile_discovery.py:73:80: E501 line too long (99 > 79 characters)
+src/meshic_pipeline/discovery/tile_discovery.py:76:80: E501 line too long (105 > 79 characters)
+src/meshic_pipeline/discovery/tile_discovery.py:77:80: E501 line too long (105 > 79 characters)
+src/meshic_pipeline/discovery/tile_discovery.py:79:80: E501 line too long (112 > 79 characters)
+src/meshic_pipeline/discovery/tile_discovery.py:85:80: E501 line too long (140 > 79 characters)
+src/meshic_pipeline/discovery/tile_discovery.py:86:80: E501 line too long (113 > 79 characters)
+src/meshic_pipeline/discovery/tile_discovery.py:87:80: E501 line too long (86 > 79 characters)
+src/meshic_pipeline/discovery/tile_discovery.py:88:80: E501 line too long (89 > 79 characters)
+src/meshic_pipeline/discovery/tile_discovery.py:90:80: E501 line too long (98 > 79 characters)
+src/meshic_pipeline/discovery/tile_discovery.py:91:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/discovery/tile_discovery.py:100:80: E501 line too long (111 > 79 characters)
+src/meshic_pipeline/discovery/tile_discovery.py:104:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/discovery/tile_discovery.py:111:80: E501 line too long (92 > 79 characters)
+src/meshic_pipeline/discovery/tile_discovery.py:114:80: E501 line too long (87 > 79 characters)
+src/meshic_pipeline/discovery/tile_discovery.py:121:80: E501 line too long (92 > 79 characters)
+src/meshic_pipeline/discovery/tile_discovery.py:136:80: E501 line too long (96 > 79 characters)
+src/meshic_pipeline/discovery/tile_discovery.py:143:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/discovery/tile_discovery.py:148:24: W291 trailing whitespace
+src/meshic_pipeline/discovery/tile_discovery.py:148:25: W292 no newline at end of file
+src/meshic_pipeline/downloader/async_tile_downloader.py:37:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/downloader/async_tile_downloader.py:41:80: E501 line too long (89 > 79 characters)
+src/meshic_pipeline/downloader/async_tile_downloader.py:74:1: W293 blank line contains whitespace
+src/meshic_pipeline/downloader/async_tile_downloader.py:80:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/downloader/async_tile_downloader.py:83:1: W293 blank line contains whitespace
+src/meshic_pipeline/downloader/async_tile_downloader.py:97:52: E261 at least two spaces before inline comment
+src/meshic_pipeline/downloader/async_tile_downloader.py:98:1: W293 blank line contains whitespace
+src/meshic_pipeline/downloader/async_tile_downloader.py:99:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/downloader/async_tile_downloader.py:107:1: W293 blank line contains whitespace
+src/meshic_pipeline/downloader/async_tile_downloader.py:111:1: W293 blank line contains whitespace
+src/meshic_pipeline/downloader/async_tile_downloader.py:114:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/downloader/async_tile_downloader.py:116:1: W293 blank line contains whitespace
+src/meshic_pipeline/downloader/async_tile_downloader.py:120:1: W293 blank line contains whitespace
+src/meshic_pipeline/downloader/async_tile_downloader.py:121:32: W291 trailing whitespace
+src/meshic_pipeline/enrichment/__init__.py:1:1: W391 blank line at end of file
+src/meshic_pipeline/enrichment/api_client.py:3:1: F401 'typing.Any' imported but unused
+src/meshic_pipeline/enrichment/api_client.py:28:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:39:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:43:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:44:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:45:80: E501 line too long (88 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:53:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:55:80: E501 line too long (95 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:68:80: E501 line too long (84 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:86:80: E501 line too long (91 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:95:80: E501 line too long (89 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:99:80: E501 line too long (106 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:118:80: E501 line too long (101 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:128:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:134:80: E501 line too long (84 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:135:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:139:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:140:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:141:80: E501 line too long (90 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:152:80: E501 line too long (86 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:185:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:186:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:222:80: E501 line too long (93 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:228:80: E501 line too long (86 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:235:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:241:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/enrichment/api_client.py:264:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/enrichment/processor.py:2:1: F401 'aiohttp' imported but unused
+src/meshic_pipeline/enrichment/processor.py:12:1: F401 'meshic_pipeline.persistence.db.get_async_db_engine' imported but unused
+src/meshic_pipeline/enrichment/processor.py:13:1: F401 'sqlalchemy.ext.asyncio.async_sessionmaker' imported but unused
+src/meshic_pipeline/enrichment/processor.py:20:80: E501 line too long (97 > 79 characters)
+src/meshic_pipeline/enrichment/processor.py:26:1: W293 blank line contains whitespace
+src/meshic_pipeline/enrichment/processor.py:28:33: E203 whitespace before ':'
+src/meshic_pipeline/enrichment/processor.py:30:80: E501 line too long (97 > 79 characters)
+src/meshic_pipeline/enrichment/processor.py:33:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/enrichment/processor.py:34:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/enrichment/processor.py:45:1: W293 blank line contains whitespace
+src/meshic_pipeline/enrichment/processor.py:47:80: E501 line too long (88 > 79 characters)
+src/meshic_pipeline/enrichment/processor.py:48:80: E501 line too long (91 > 79 characters)
+src/meshic_pipeline/enrichment/processor.py:49:80: E501 line too long (89 > 79 characters)
+src/meshic_pipeline/enrichment/processor.py:56:80: E501 line too long (110 > 79 characters)
+src/meshic_pipeline/enrichment/processor.py:57:80: E501 line too long (106 > 79 characters)
+src/meshic_pipeline/enrichment/processor.py:60:65: W291 trailing whitespace
+src/meshic_pipeline/enrichment/strategies.py:14:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/enrichment/strategies.py:30:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/enrichment/strategies.py:39:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/enrichment/strategies.py:43:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/enrichment/strategies.py:48:1: W293 blank line contains whitespace
+src/meshic_pipeline/enrichment/strategies.py:50:80: E501 line too long (99 > 79 characters)
+src/meshic_pipeline/enrichment/strategies.py:51:80: E501 line too long (109 > 79 characters)
+src/meshic_pipeline/enrichment/strategies.py:71:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/enrichment/strategies.py:88:80: E501 line too long (89 > 79 characters)
+src/meshic_pipeline/enrichment/strategies.py:92:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/enrichment/strategies.py:99:1: W293 blank line contains whitespace
+src/meshic_pipeline/enrichment/strategies.py:101:80: E501 line too long (91 > 79 characters)
+src/meshic_pipeline/enrichment/strategies.py:121:80: E501 line too long (91 > 79 characters)
+src/meshic_pipeline/enrichment/strategies.py:124:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/enrichment/strategies.py:129:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/enrichment/strategies.py:133:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/enrichment/strategies.py:134:80: E501 line too long (104 > 79 characters)
+src/meshic_pipeline/enrichment/strategies.py:135:80: E501 line too long (100 > 79 characters)
+src/meshic_pipeline/enrichment/strategies.py:136:80: E501 line too long (144 > 79 characters)
+src/meshic_pipeline/enrichment/strategies.py:137:80: E501 line too long (115 > 79 characters)
+src/meshic_pipeline/enrichment/strategies.py:144:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/enrichment/strategies.py:145:80: E501 line too long (119 > 79 characters)
+src/meshic_pipeline/enrichment/strategies.py:146:80: E501 line too long (86 > 79 characters)
+src/meshic_pipeline/enrichment/strategies.py:151:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/enrichment/strategies.py:152:25: W291 trailing whitespace
+src/meshic_pipeline/enrichment/strategies.py:159:1: W293 blank line contains whitespace
+src/meshic_pipeline/enrichment/strategies.py:164:1: W293 blank line contains whitespace
+src/meshic_pipeline/enrichment/strategies.py:166:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/enrichment/strategies.py:181:80: E501 line too long (101 > 79 characters)
+src/meshic_pipeline/enrichment/strategies.py:186:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/enrichment/strategies.py:189:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/enrichment/strategies.py:196:1: W293 blank line contains whitespace
+src/meshic_pipeline/enrichment/strategies.py:221:21: F541 f-string is missing placeholders
+src/meshic_pipeline/enrichment/strategies.py:222:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/enrichment/strategies.py:228:22: W291 trailing whitespace
+src/meshic_pipeline/exceptions.py:19:1: F401 'typing.List' imported but unused
+src/meshic_pipeline/exceptions.py:19:1: F401 'typing.Union' imported but unused
+src/meshic_pipeline/exceptions.py:74:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:110:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:122:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:134:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:146:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:159:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:171:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:183:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:206:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:219:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:254:80: E501 line too long (84 > 79 characters)
+src/meshic_pipeline/exceptions.py:255:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/exceptions.py:262:80: E501 line too long (84 > 79 characters)
+src/meshic_pipeline/exceptions.py:286:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:304:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:316:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:321:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:329:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/exceptions.py:335:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:337:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/exceptions.py:338:80: E501 line too long (90 > 79 characters)
+src/meshic_pipeline/exceptions.py:349:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:352:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:356:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:364:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/exceptions.py:370:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:372:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/exceptions.py:373:80: E501 line too long (90 > 79 characters)
+src/meshic_pipeline/exceptions.py:385:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:388:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:394:1: W293 blank line contains whitespace
+src/meshic_pipeline/exceptions.py:411:21: W291 trailing whitespace
+src/meshic_pipeline/geometry/stitcher.py:9:1: F401 'shapely.geometry.Polygon' imported but unused
+src/meshic_pipeline/geometry/stitcher.py:10:1: F401 'shapely.errors.GEOSException' imported but unused
+src/meshic_pipeline/geometry/stitcher.py:11:1: F401 'shapely.ops.snap' imported but unused
+src/meshic_pipeline/geometry/stitcher.py:12:1: F401 'tqdm.tqdm' imported but unused
+src/meshic_pipeline/geometry/stitcher.py:13:1: F401 'mercantile' imported but unused
+src/meshic_pipeline/geometry/stitcher.py:14:1: F401 'sqlalchemy.text' imported but unused
+src/meshic_pipeline/geometry/stitcher.py:55:80: E501 line too long (108 > 79 characters)
+src/meshic_pipeline/geometry/stitcher.py:68:80: E501 line too long (92 > 79 characters)
+src/meshic_pipeline/geometry/stitcher.py:92:80: E501 line too long (103 > 79 characters)
+src/meshic_pipeline/geometry/stitcher.py:132:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/geometry/stitcher.py:148:80: E501 line too long (84 > 79 characters)
+src/meshic_pipeline/geometry/stitcher.py:150:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/geometry/stitcher.py:157:80: E501 line too long (117 > 79 characters)
+src/meshic_pipeline/geometry/stitcher.py:163:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/geometry/stitcher.py:169:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/geometry/stitcher.py:174:80: E501 line too long (101 > 79 characters)
+src/meshic_pipeline/geometry/stitcher.py:176:80: E501 line too long (84 > 79 characters)
+src/meshic_pipeline/geometry/stitcher.py:181:80: E501 line too long (84 > 79 characters)
+src/meshic_pipeline/geometry/stitcher.py:186:80: E501 line too long (91 > 79 characters)
+src/meshic_pipeline/geometry/stitcher.py:214:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/geometry/stitcher.py:218:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/geometry/stitcher.py:223:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/geometry/validator.py:20:38: W291 trailing whitespace
+src/meshic_pipeline/logging_utils.py:18:1: F401 'asyncio' imported but unused
+src/meshic_pipeline/logging_utils.py:24:1: F401 'typing.Union' imported but unused
+src/meshic_pipeline/logging_utils.py:27:1: F401 'weakref' imported but unused
+src/meshic_pipeline/logging_utils.py:38:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:50:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:54:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:57:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:60:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:63:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:67:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:73:80: E501 line too long (122 > 79 characters)
+src/meshic_pipeline/logging_utils.py:75:80: E501 line too long (111 > 79 characters)
+src/meshic_pipeline/logging_utils.py:77:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/logging_utils.py:83:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:84:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/logging_utils.py:91:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:96:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:105:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:109:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:115:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:121:80: E501 line too long (92 > 79 characters)
+src/meshic_pipeline/logging_utils.py:123:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:128:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:136:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:143:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:147:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:152:47: W291 trailing whitespace
+src/meshic_pipeline/logging_utils.py:155:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:163:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/logging_utils.py:164:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:167:80: E501 line too long (94 > 79 characters)
+src/meshic_pipeline/logging_utils.py:169:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:174:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:181:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:185:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:194:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:208:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:218:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:233:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:234:80: E501 line too long (84 > 79 characters)
+src/meshic_pipeline/logging_utils.py:246:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:252:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:256:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/logging_utils.py:258:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:267:80: E501 line too long (91 > 79 characters)
+src/meshic_pipeline/logging_utils.py:268:80: E501 line too long (93 > 79 characters)
+src/meshic_pipeline/logging_utils.py:274:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:280:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:284:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:290:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:293:80: E501 line too long (91 > 79 characters)
+src/meshic_pipeline/logging_utils.py:294:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:297:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:301:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:305:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:309:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:313:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:317:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:322:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:325:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/logging_utils.py:332:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:351:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:358:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:361:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:367:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:369:80: E501 line too long (92 > 79 characters)
+src/meshic_pipeline/logging_utils.py:372:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:376:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:379:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:381:80: E501 line too long (97 > 79 characters)
+src/meshic_pipeline/logging_utils.py:383:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:392:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/logging_utils.py:393:80: E501 line too long (88 > 79 characters)
+src/meshic_pipeline/logging_utils.py:394:80: E501 line too long (101 > 79 characters)
+src/meshic_pipeline/logging_utils.py:406:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:408:29: W291 trailing whitespace
+src/meshic_pipeline/logging_utils.py:409:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/logging_utils.py:411:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:416:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:427:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:430:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/logging_utils.py:432:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:441:80: E501 line too long (99 > 79 characters)
+src/meshic_pipeline/logging_utils.py:442:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:448:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:449:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/logging_utils.py:451:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:466:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:471:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:474:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:476:80: E501 line too long (92 > 79 characters)
+src/meshic_pipeline/logging_utils.py:478:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:489:80: E501 line too long (86 > 79 characters)
+src/meshic_pipeline/logging_utils.py:491:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:495:80: E501 line too long (86 > 79 characters)
+src/meshic_pipeline/logging_utils.py:497:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:499:9: F811 redefinition of unused 'asyncio' from line 18
+src/meshic_pipeline/logging_utils.py:504:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:508:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/logging_utils.py:514:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:519:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:520:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/logging_utils.py:521:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:527:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/logging_utils.py:537:1: W293 blank line contains whitespace
+src/meshic_pipeline/logging_utils.py:543:16: W291 trailing whitespace
+src/meshic_pipeline/memory_utils.py:47:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:56:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:62:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/memory_utils.py:64:80: E501 line too long (93 > 79 characters)
+src/meshic_pipeline/memory_utils.py:66:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:69:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:75:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/memory_utils.py:79:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:85:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:87:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:92:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:97:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:101:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:106:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:109:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:114:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:117:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:120:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:130:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:132:80: E501 line too long (107 > 79 characters)
+src/meshic_pipeline/memory_utils.py:135:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:137:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:143:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:144:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/memory_utils.py:150:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:154:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:160:56: W291 trailing whitespace
+src/meshic_pipeline/memory_utils.py:163:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:169:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:171:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:175:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:181:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:182:80: E501 line too long (97 > 79 characters)
+src/meshic_pipeline/memory_utils.py:184:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:186:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:205:80: E501 line too long (84 > 79 characters)
+src/meshic_pipeline/memory_utils.py:208:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:210:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:213:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:218:80: E501 line too long (90 > 79 characters)
+src/meshic_pipeline/memory_utils.py:223:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:224:5: F841 local variable 'e' is assigned to but never used
+src/meshic_pipeline/memory_utils.py:229:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:233:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:236:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/memory_utils.py:245:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/memory_utils.py:251:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:255:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:258:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:262:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:266:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:269:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:276:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:280:80: E501 line too long (108 > 79 characters)
+src/meshic_pipeline/memory_utils.py:284:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:286:80: E501 line too long (95 > 79 characters)
+src/meshic_pipeline/memory_utils.py:288:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:291:80: E501 line too long (99 > 79 characters)
+src/meshic_pipeline/memory_utils.py:292:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:300:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:303:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:306:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/memory_utils.py:307:80: E501 line too long (97 > 79 characters)
+src/meshic_pipeline/memory_utils.py:309:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:314:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/memory_utils.py:316:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:329:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:332:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:339:80: E501 line too long (92 > 79 characters)
+src/meshic_pipeline/memory_utils.py:342:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:344:80: E501 line too long (86 > 79 characters)
+src/meshic_pipeline/memory_utils.py:345:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:350:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:353:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:358:1: W293 blank line contains whitespace
+src/meshic_pipeline/memory_utils.py:362:14: W291 trailing whitespace
+src/meshic_pipeline/persistence/db.py:16:21: F821 undefined name 'settings'
+src/meshic_pipeline/persistence/db.py:16:80: E501 line too long (92 > 79 characters)
+src/meshic_pipeline/persistence/db.py:19:19: F821 undefined name 'settings'
+src/meshic_pipeline/persistence/db.py:20:22: F821 undefined name 'settings'
+src/meshic_pipeline/persistence/db.py:20:50: F821 undefined name 'settings'
+src/meshic_pipeline/persistence/db.py:21:23: F821 undefined name 'settings'
+src/meshic_pipeline/persistence/db.py:22:22: F821 undefined name 'settings'
+src/meshic_pipeline/persistence/db.py:23:14: F821 undefined name 'settings'
+src/meshic_pipeline/persistence/db.py:25:22: F821 undefined name 'settings'
+src/meshic_pipeline/persistence/db.py:27:32: F821 undefined name 'settings'
+src/meshic_pipeline/persistence/db.py:52:80: E501 line too long (114 > 79 characters)
+src/meshic_pipeline/persistence/db.py:57:80: E501 line too long (109 > 79 characters)
+src/meshic_pipeline/persistence/db.py:72:80: E501 line too long (88 > 79 characters)
+src/meshic_pipeline/persistence/db.py:73:80: E501 line too long (88 > 79 characters)
+src/meshic_pipeline/persistence/db.py:78:25: W291 trailing whitespace
+src/meshic_pipeline/persistence/db.py:78:26: W292 no newline at end of file
+src/meshic_pipeline/persistence/enrichment_persister.py:5:1: F401 'math.ceil' imported but unused
+src/meshic_pipeline/persistence/enrichment_persister.py:19:80: E501 line too long (112 > 79 characters)
+src/meshic_pipeline/persistence/enrichment_persister.py:46:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/persistence/enrichment_persister.py:82:80: E501 line too long (102 > 79 characters)
+src/meshic_pipeline/persistence/enrichment_persister.py:105:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/persistence/enrichment_persister.py:120:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/persistence/enrichment_persister.py:136:48: W291 trailing whitespace
+src/meshic_pipeline/persistence/models.py:2:1: F401 'sqlalchemy.create_engine' imported but unused
+src/meshic_pipeline/persistence/models.py:2:1: F401 'sqlalchemy.select' imported but unused
+src/meshic_pipeline/persistence/models.py:2:1: F401 'sqlalchemy.update' imported but unused
+src/meshic_pipeline/persistence/models.py:18:1: F401 'sqlalchemy.orm.load_only' imported but unused
+src/meshic_pipeline/persistence/models.py:35:80: E501 line too long (100 > 79 characters)
+src/meshic_pipeline/persistence/models.py:43:80: E501 line too long (88 > 79 characters)
+src/meshic_pipeline/persistence/models.py:50:80: E501 line too long (97 > 79 characters)
+src/meshic_pipeline/persistence/models.py:67:80: E501 line too long (94 > 79 characters)
+src/meshic_pipeline/persistence/models.py:73:1: W293 blank line contains whitespace
+src/meshic_pipeline/persistence/models.py:77:80: E501 line too long (93 > 79 characters)
+src/meshic_pipeline/persistence/models.py:84:80: E501 line too long (94 > 79 characters)
+src/meshic_pipeline/persistence/models.py:89:80: E501 line too long (100 > 79 characters)
+src/meshic_pipeline/persistence/models.py:90:1: W293 blank line contains whitespace
+src/meshic_pipeline/persistence/models.py:96:80: E501 line too long (88 > 79 characters)
+src/meshic_pipeline/persistence/models.py:103:80: E501 line too long (97 > 79 characters)
+src/meshic_pipeline/persistence/models.py:121:1: W293 blank line contains whitespace
+src/meshic_pipeline/persistence/models.py:125:80: E501 line too long (88 > 79 characters)
+src/meshic_pipeline/persistence/models.py:127:1: W293 blank line contains whitespace
+src/meshic_pipeline/persistence/models.py:128:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/persistence/models.py:135:80: E501 line too long (88 > 79 characters)
+src/meshic_pipeline/persistence/models.py:144:80: E501 line too long (84 > 79 characters)
+src/meshic_pipeline/persistence/models.py:147:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/persistence/models.py:179:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/persistence/models.py:189:80: E501 line too long (88 > 79 characters)
+src/meshic_pipeline/persistence/models.py:193:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/persistence/models.py:198:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/persistence/models.py:202:1: W293 blank line contains whitespace
+src/meshic_pipeline/persistence/models.py:205:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/persistence/models.py:210:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/persistence/models.py:217:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/persistence/models.py:225:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/persistence/models.py:233:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/persistence/models.py:241:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/persistence/models.py:248:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/persistence/models.py:255:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/persistence/models.py:261:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/persistence/models.py:267:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/persistence/models.py:280:80: E501 line too long (97 > 79 characters)
+src/meshic_pipeline/persistence/models.py:301:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/persistence/models.py:303:80: E501 line too long (87 > 79 characters)
+src/meshic_pipeline/persistence/models.py:306:80: E501 line too long (102 > 79 characters)
+src/meshic_pipeline/persistence/models.py:312:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/persistence/models.py:313:80: E501 line too long (194 > 79 characters)
+src/meshic_pipeline/persistence/models.py:324:33: E711 comparison to None should be 'if cond is not None:'
+src/meshic_pipeline/persistence/models.py:326:80: E501 line too long (113 > 79 characters)
+src/meshic_pipeline/persistence/models.py:328:23: W291 trailing whitespace
+src/meshic_pipeline/persistence/models.py:328:24: W292 no newline at end of file
+src/meshic_pipeline/persistence/postgis_persister.py:26:1: E305 expected 2 blank lines after class or function definition, found 1
+src/meshic_pipeline/persistence/postgis_persister.py:131:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/persistence/postgis_persister.py:134:71: W291 trailing whitespace
+src/meshic_pipeline/persistence/postgis_persister.py:137:1: W293 blank line contains whitespace
+src/meshic_pipeline/persistence/postgis_persister.py:142:1: W293 blank line contains whitespace
+src/meshic_pipeline/persistence/postgis_persister.py:143:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:151:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:160:80: E501 line too long (99 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:162:80: E501 line too long (114 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:163:80: E501 line too long (101 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:172:80: E501 line too long (120 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:179:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:183:80: E501 line too long (97 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:205:80: E501 line too long (100 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:207:80: E501 line too long (84 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:209:80: E501 line too long (100 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:211:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:217:80: E501 line too long (94 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:219:80: E501 line too long (92 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:221:80: E501 line too long (88 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:248:80: E501 line too long (99 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:250:80: E501 line too long (96 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:258:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:259:80: E501 line too long (96 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:265:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:268:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:275:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:276:1: W293 blank line contains whitespace
+src/meshic_pipeline/persistence/postgis_persister.py:279:80: E501 line too long (88 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:282:80: E501 line too long (98 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:284:80: E501 line too long (92 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:291:80: E501 line too long (90 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:295:80: E501 line too long (90 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:309:80: E501 line too long (115 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:310:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:312:80: E501 line too long (101 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:314:80: E501 line too long (97 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:326:80: E501 line too long (126 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:340:80: E501 line too long (107 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:360:80: E501 line too long (111 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:362:80: E501 line too long (90 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:363:80: E501 line too long (104 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:366:80: E501 line too long (121 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:368:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:375:80: E501 line too long (97 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:377:80: E501 line too long (96 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:402:80: E501 line too long (91 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:415:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:424:80: E501 line too long (84 > 79 characters)
+src/meshic_pipeline/persistence/postgis_persister.py:429:36: W291 trailing whitespace
+src/meshic_pipeline/persistence/table_management.py:7:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/persistence/table_management.py:16:80: E501 line too long (94 > 79 characters)
+src/meshic_pipeline/persistence/table_management.py:18:75: W291 trailing whitespace
+src/meshic_pipeline/persistence/table_management.py:18:76: W292 no newline at end of file
+src/meshic_pipeline/pipeline_orchestrator.py:4:1: F401 'typing.Dict' imported but unused
+src/meshic_pipeline/pipeline_orchestrator.py:6:1: F401 'concurrent.futures' imported but unused
+src/meshic_pipeline/pipeline_orchestrator.py:12:1: F401 'sqlalchemy.create_engine' imported but unused
+src/meshic_pipeline/pipeline_orchestrator.py:22:1: F401 'sqlalchemy.text' imported but unused
+src/meshic_pipeline/pipeline_orchestrator.py:77:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:82:80: E501 line too long (107 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:85:80: E501 line too long (110 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:109:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:114:80: E501 line too long (86 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:171:80: E501 line too long (88 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:172:80: E501 line too long (89 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:210:80: E501 line too long (93 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:211:80: E501 line too long (84 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:229:80: E501 line too long (98 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:231:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:252:5: F841 local variable 'stitcher' is assigned to but never used
+src/meshic_pipeline/pipeline_orchestrator.py:252:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:264:80: E501 line too long (104 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:271:80: E501 line too long (101 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:274:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:295:80: E501 line too long (141 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:296:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:299:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:304:80: E501 line too long (96 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:305:80: E501 line too long (108 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:310:80: E501 line too long (111 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:315:80: E501 line too long (109 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:316:80: E501 line too long (126 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:333:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:340:80: E501 line too long (90 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:354:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:359:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:365:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:369:80: E501 line too long (90 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:378:80: E501 line too long (112 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:381:80: E501 line too long (119 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:388:80: E501 line too long (90 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:394:80: E501 line too long (114 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:399:80: E501 line too long (94 > 79 characters)
+src/meshic_pipeline/pipeline_orchestrator.py:409:80: E501 line too long (94 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:10:1: F401 'typing.Optional' imported but unused
+src/meshic_pipeline/run_enrichment_pipeline.py:11:1: F401 'sqlalchemy.create_engine' imported but unused
+src/meshic_pipeline/run_enrichment_pipeline.py:12:1: F401 'sqlalchemy.ext.asyncio.create_async_engine' imported but unused
+src/meshic_pipeline/run_enrichment_pipeline.py:12:80: E501 line too long (87 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:13:1: F401 'sqlalchemy.dialects.postgresql.insert as pg_insert' imported but unused
+src/meshic_pipeline/run_enrichment_pipeline.py:14:1: F401 'datetime.timedelta' imported but unused
+src/meshic_pipeline/run_enrichment_pipeline.py:23:1: F401 'meshic_pipeline.persistence.models.Base' imported but unused
+src/meshic_pipeline/run_enrichment_pipeline.py:23:1: F401 'meshic_pipeline.persistence.models.Transaction' imported but unused
+src/meshic_pipeline/run_enrichment_pipeline.py:23:1: F401 'meshic_pipeline.persistence.models.ParcelPriceMetric' imported but unused
+src/meshic_pipeline/run_enrichment_pipeline.py:23:1: F401 'meshic_pipeline.persistence.models.BuildingRule' imported but unused
+src/meshic_pipeline/run_enrichment_pipeline.py:23:1: E402 module level import not at top of file
+src/meshic_pipeline/run_enrichment_pipeline.py:29:1: E402 module level import not at top of file
+src/meshic_pipeline/run_enrichment_pipeline.py:30:1: F401 'logging' imported but unused
+src/meshic_pipeline/run_enrichment_pipeline.py:30:1: E402 module level import not at top of file
+src/meshic_pipeline/run_enrichment_pipeline.py:31:1: F401 'sqlalchemy.BigInteger' imported but unused
+src/meshic_pipeline/run_enrichment_pipeline.py:31:1: F401 'sqlalchemy.Column' imported but unused
+src/meshic_pipeline/run_enrichment_pipeline.py:31:1: F401 'sqlalchemy.DateTime' imported but unused
+src/meshic_pipeline/run_enrichment_pipeline.py:31:1: F401 'sqlalchemy.Float' imported but unused
+src/meshic_pipeline/run_enrichment_pipeline.py:31:1: F401 'sqlalchemy.Integer' imported but unused
+src/meshic_pipeline/run_enrichment_pipeline.py:31:1: F401 'sqlalchemy.String' imported but unused
+src/meshic_pipeline/run_enrichment_pipeline.py:31:1: F401 'sqlalchemy.JSON' imported but unused
+src/meshic_pipeline/run_enrichment_pipeline.py:31:1: E402 module level import not at top of file
+src/meshic_pipeline/run_enrichment_pipeline.py:31:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:32:1: F401 'sqlalchemy.orm.sessionmaker' imported but unused
+src/meshic_pipeline/run_enrichment_pipeline.py:32:1: E402 module level import not at top of file
+src/meshic_pipeline/run_enrichment_pipeline.py:33:1: F401 'sqlalchemy.ForeignKey' imported but unused
+src/meshic_pipeline/run_enrichment_pipeline.py:33:1: E402 module level import not at top of file
+src/meshic_pipeline/run_enrichment_pipeline.py:34:1: F401 'meshic_pipeline.exceptions.ValidationException' imported but unused
+src/meshic_pipeline/run_enrichment_pipeline.py:34:1: E402 module level import not at top of file
+src/meshic_pipeline/run_enrichment_pipeline.py:35:1: E402 module level import not at top of file
+src/meshic_pipeline/run_enrichment_pipeline.py:36:1: E402 module level import not at top of file
+src/meshic_pipeline/run_enrichment_pipeline.py:43:1: E402 module level import not at top of file
+src/meshic_pipeline/run_enrichment_pipeline.py:44:1: E402 module level import not at top of file
+src/meshic_pipeline/run_enrichment_pipeline.py:48:1: E402 module level import not at top of file
+src/meshic_pipeline/run_enrichment_pipeline.py:51:1: E402 module level import not at top of file
+src/meshic_pipeline/run_enrichment_pipeline.py:52:1: E402 module level import not at top of file
+src/meshic_pipeline/run_enrichment_pipeline.py:72:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/run_enrichment_pipeline.py:75:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:81:80: E501 line too long (93 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:85:80: E501 line too long (84 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:91:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_enrichment_pipeline.py:99:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:107:80: E501 line too long (127 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:111:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/run_enrichment_pipeline.py:115:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:117:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/run_enrichment_pipeline.py:122:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:126:80: E501 line too long (87 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:128:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/run_enrichment_pipeline.py:134:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:144:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/run_enrichment_pipeline.py:152:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:155:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/run_enrichment_pipeline.py:160:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:162:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:165:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:168:80: E501 line too long (84 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:171:80: E501 line too long (117 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:173:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:176:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_enrichment_pipeline.py:187:80: E501 line too long (89 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:193:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:208:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:209:80: E501 line too long (89 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:213:80: E501 line too long (84 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:223:80: E501 line too long (104 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:225:80: E501 line too long (90 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:226:80: E501 line too long (106 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:230:80: E501 line too long (89 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:231:80: E501 line too long (101 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:234:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:239:32: F541 f-string is missing placeholders
+src/meshic_pipeline/run_enrichment_pipeline.py:240:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:243:80: E501 line too long (91 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:244:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:245:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:251:80: E501 line too long (87 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:263:80: E501 line too long (94 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:264:80: E501 line too long (112 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:294:80: E501 line too long (99 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:300:80: E501 line too long (98 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:303:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:305:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:306:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_enrichment_pipeline.py:309:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/run_enrichment_pipeline.py:311:80: E501 line too long (105 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:312:80: E501 line too long (108 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:313:80: E501 line too long (86 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:314:80: E501 line too long (82 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:317:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:318:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_enrichment_pipeline.py:323:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_enrichment_pipeline.py:327:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_enrichment_pipeline.py:330:80: E501 line too long (89 > 79 characters)
+src/meshic_pipeline/run_enrichment_pipeline.py:332:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_enrichment_pipeline.py:337:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_enrichment_pipeline.py:341:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_enrichment_pipeline.py:347:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_enrichment_pipeline.py:355:1: E305 expected 2 blank lines after class or function definition, found 1
+src/meshic_pipeline/run_enrichment_pipeline.py:356:10: W291 trailing whitespace
+src/meshic_pipeline/run_geometric_pipeline.py:3:1: F401 'subprocess' imported but unused
+src/meshic_pipeline/run_geometric_pipeline.py:4:1: F401 'sys' imported but unused
+src/meshic_pipeline/run_geometric_pipeline.py:5:1: F401 'typing.Tuple' imported but unused
+src/meshic_pipeline/run_geometric_pipeline.py:17:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/run_geometric_pipeline.py:23:80: E501 line too long (100 > 79 characters)
+src/meshic_pipeline/run_geometric_pipeline.py:29:80: E501 line too long (86 > 79 characters)
+src/meshic_pipeline/run_geometric_pipeline.py:48:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/run_geometric_pipeline.py:63:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_geometric_pipeline.py:65:51: W291 trailing whitespace
+src/meshic_pipeline/run_geometric_pipeline.py:77:80: E501 line too long (86 > 79 characters)
+src/meshic_pipeline/run_geometric_pipeline.py:79:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_geometric_pipeline.py:83:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_geometric_pipeline.py:105:1: E305 expected 2 blank lines after class or function definition, found 1
+src/meshic_pipeline/run_geometric_pipeline.py:106:10: W291 trailing whitespace
+src/meshic_pipeline/run_monitoring.py:4:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:17:1: E402 module level import not at top of file
+src/meshic_pipeline/run_monitoring.py:21:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/run_monitoring.py:25:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_monitoring.py:28:80: E501 line too long (118 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:29:80: E501 line too long (123 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:30:80: E501 line too long (90 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:31:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_monitoring.py:34:19: W291 trailing whitespace
+src/meshic_pipeline/run_monitoring.py:35:80: E501 line too long (92 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:36:80: E501 line too long (92 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:37:80: E501 line too long (94 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:38:80: E501 line too long (94 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:41:32: W291 trailing whitespace
+src/meshic_pipeline/run_monitoring.py:44:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_monitoring.py:47:15: F541 f-string is missing placeholders
+src/meshic_pipeline/run_monitoring.py:53:15: F541 f-string is missing placeholders
+src/meshic_pipeline/run_monitoring.py:55:80: E501 line too long (99 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:57:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_monitoring.py:59:19: F541 f-string is missing placeholders
+src/meshic_pipeline/run_monitoring.py:61:65: W291 trailing whitespace
+src/meshic_pipeline/run_monitoring.py:66:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_monitoring.py:68:80: E501 line too long (107 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:70:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/run_monitoring.py:74:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_monitoring.py:76:80: E501 line too long (97 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:77:9: F841 local variable 'trigger_parcels' is assigned to but never used
+src/meshic_pipeline/run_monitoring.py:79:80: E501 line too long (84 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:82:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_monitoring.py:84:80: E501 line too long (121 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:85:80: E501 line too long (121 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:87:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_monitoring.py:92:40: W291 trailing whitespace
+src/meshic_pipeline/run_monitoring.py:95:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_monitoring.py:96:48: W291 trailing whitespace
+src/meshic_pipeline/run_monitoring.py:100:40: W291 trailing whitespace
+src/meshic_pipeline/run_monitoring.py:103:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_monitoring.py:106:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_monitoring.py:108:80: E501 line too long (104 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:109:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_monitoring.py:110:15: F541 f-string is missing placeholders
+src/meshic_pipeline/run_monitoring.py:112:80: E501 line too long (90 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:115:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_monitoring.py:118:80: E501 line too long (98 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:119:80: E501 line too long (114 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:120:19: F541 f-string is missing placeholders
+src/meshic_pipeline/run_monitoring.py:120:80: E501 line too long (108 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:121:80: E501 line too long (97 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:125:19: F541 f-string is missing placeholders
+src/meshic_pipeline/run_monitoring.py:125:80: E501 line too long (108 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:127:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_monitoring.py:131:19: F541 f-string is missing placeholders
+src/meshic_pipeline/run_monitoring.py:132:19: F541 f-string is missing placeholders
+src/meshic_pipeline/run_monitoring.py:132:80: E501 line too long (111 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:135:77: W291 trailing whitespace
+src/meshic_pipeline/run_monitoring.py:136:19: F541 f-string is missing placeholders
+src/meshic_pipeline/run_monitoring.py:136:80: E501 line too long (112 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:138:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_monitoring.py:143:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:149:1: W293 blank line contains whitespace
+src/meshic_pipeline/run_monitoring.py:152:80: E501 line too long (118 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:154:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:155:80: E501 line too long (94 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:156:80: E501 line too long (98 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:158:80: E501 line too long (88 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:166:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/run_monitoring.py:166:15: W291 trailing whitespace
+src/meshic_pipeline/run_monitoring.py:175:80: E501 line too long (87 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:176:80: E501 line too long (91 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:180:80: E501 line too long (90 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:181:80: E501 line too long (85 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:189:80: E501 line too long (81 > 79 characters)
+src/meshic_pipeline/run_monitoring.py:191:1: E305 expected 2 blank lines after class or function definition, found 1
+src/meshic_pipeline/run_monitoring.py:192:10: W291 trailing whitespace
+src/meshic_pipeline/run_tile_pipeline.py:14:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/run_tile_pipeline.py:28:80: E501 line too long (105 > 79 characters)
+src/meshic_pipeline/run_tile_pipeline.py:30:80: E501 line too long (95 > 79 characters)
+src/meshic_pipeline/run_tile_pipeline.py:37:80: E501 line too long (93 > 79 characters)
+src/meshic_pipeline/run_tile_pipeline.py:39:80: E501 line too long (83 > 79 characters)
+src/meshic_pipeline/run_tile_pipeline.py:42:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/run_tile_pipeline.py:51:80: E501 line too long (107 > 79 characters)
+src/meshic_pipeline/run_tile_pipeline.py:59:1: E305 expected 2 blank lines after class or function definition, found 1
+src/meshic_pipeline/run_tile_pipeline.py:60:11: W291 trailing whitespace
+src/meshic_pipeline/run_tile_pipeline.py:60:12: W292 no newline at end of file
+src/meshic_pipeline/show_discovery_summary.py:4:80: E501 line too long (80 > 79 characters)
+src/meshic_pipeline/show_discovery_summary.py:12:1: E402 module level import not at top of file
+src/meshic_pipeline/show_discovery_summary.py:13:1: E402 module level import not at top of file
+src/meshic_pipeline/show_discovery_summary.py:15:1: E302 expected 2 blank lines, found 1
+src/meshic_pipeline/show_discovery_summary.py:19:1: W293 blank line contains whitespace
+src/meshic_pipeline/show_discovery_summary.py:21:80: E501 line too long (107 > 79 characters)
+src/meshic_pipeline/show_discovery_summary.py:27:1: W293 blank line contains whitespace
+src/meshic_pipeline/show_discovery_summary.py:28:11: F541 f-string is missing placeholders
+src/meshic_pipeline/show_discovery_summary.py:31:1: W293 blank line contains whitespace
+src/meshic_pipeline/show_discovery_summary.py:32:11: F541 f-string is missing placeholders
+src/meshic_pipeline/show_discovery_summary.py:35:1: W293 blank line contains whitespace
+src/meshic_pipeline/show_discovery_summary.py:41:1: W293 blank line contains whitespace
+src/meshic_pipeline/show_discovery_summary.py:42:11: F541 f-string is missing placeholders
+src/meshic_pipeline/show_discovery_summary.py:43:11: F541 f-string is missing placeholders
+src/meshic_pipeline/show_discovery_summary.py:44:11: F541 f-string is missing placeholders
+src/meshic_pipeline/show_discovery_summary.py:45:11: F541 f-string is missing placeholders
+src/meshic_pipeline/show_discovery_summary.py:46:1: W293 blank line contains whitespace
+src/meshic_pipeline/show_discovery_summary.py:47:11: F541 f-string is missing placeholders
+src/meshic_pipeline/show_discovery_summary.py:48:11: F541 f-string is missing placeholders
+src/meshic_pipeline/show_discovery_summary.py:49:11: F541 f-string is missing placeholders
+src/meshic_pipeline/show_discovery_summary.py:50:11: F541 f-string is missing placeholders
+src/meshic_pipeline/show_discovery_summary.py:51:11: F541 f-string is missing placeholders
+src/meshic_pipeline/show_discovery_summary.py:52:11: F541 f-string is missing placeholders
+src/meshic_pipeline/show_discovery_summary.py:53:11: F541 f-string is missing placeholders
+src/meshic_pipeline/show_discovery_summary.py:54:11: F541 f-string is missing placeholders
+src/meshic_pipeline/show_discovery_summary.py:55:11: F541 f-string is missing placeholders
+src/meshic_pipeline/show_discovery_summary.py:55:80: E501 line too long (90 > 79 characters)
+src/meshic_pipeline/show_discovery_summary.py:56:1: W293 blank line contains whitespace
+src/meshic_pipeline/show_discovery_summary.py:57:11: F541 f-string is missing placeholders
+src/meshic_pipeline/show_discovery_summary.py:59:1: E305 expected 2 blank lines after class or function definition, found 1
+src/meshic_pipeline/show_discovery_summary.py:60:11: W291 trailing whitespace
+src/meshic_pipeline/utils/tile_list_generator.py:10:80: E501 line too long (80 > 79 characters)
+tests/__init__.py:1:1: W391 blank line at end of file
+tests/integration/test_pipeline_integration.py:28:80: E501 line too long (84 > 79 characters)
+tests/integration/test_pipeline_integration.py:29:80: E501 line too long (80 > 79 characters)
+tests/integration/test_pipeline_integration.py:47:80: E501 line too long (80 > 79 characters)
+tests/integration/test_pipeline_integration.py:127:80: E501 line too long (88 > 79 characters)
+tests/integration/test_pipeline_integration.py:135:80: E501 line too long (88 > 79 characters)
+tests/integration/test_pipeline_integration.py:140:80: E501 line too long (82 > 79 characters)
+tests/integration/test_pipeline_integration.py:143:80: E501 line too long (83 > 79 characters)
+tests/integration/test_pipeline_integration.py:158:80: E501 line too long (80 > 79 characters)
+tests/integration/test_pipeline_integration.py:175:80: E501 line too long (84 > 79 characters)
+tests/integration/test_pipeline_integration.py:176:80: E501 line too long (80 > 79 characters)
+tests/integration/test_pipeline_integration.py:192:80: E501 line too long (80 > 79 characters)
+tests/integration/test_pipeline_integration.py:266:80: E501 line too long (88 > 79 characters)
+tests/integration/test_pipeline_integration.py:273:80: E501 line too long (88 > 79 characters)
+tests/integration/test_pipeline_integration.py:275:80: E501 line too long (88 > 79 characters)
+tests/integration/test_pipeline_integration.py:281:80: E501 line too long (83 > 79 characters)
+tests/integration/test_pipeline_integration.py:295:80: E501 line too long (80 > 79 characters)
+tests/integration/test_pipeline_integration.py:301:80: E501 line too long (81 > 79 characters)
+tests/integration/test_pipeline_integration.py:305:80: E501 line too long (87 > 79 characters)
+tests/test_async_tile_downloader.py:3:1: F401 'pytest' imported but unused
+tests/test_async_tile_downloader.py:5:80: E501 line too long (80 > 79 characters)
+tests/test_async_tile_downloader.py:7:1: E302 expected 2 blank lines, found 1
+tests/test_async_tile_downloader.py:18:80: E501 line too long (92 > 79 characters)
+tests/test_async_tile_downloader.py:26:1: E302 expected 2 blank lines, found 1
+tests/test_async_tile_downloader.py:38:1: E302 expected 2 blank lines, found 1
+tests/test_async_tile_downloader.py:40:80: E501 line too long (125 > 79 characters)
+tests/test_async_tile_downloader.py:52:1: E302 expected 2 blank lines, found 1
+tests/test_async_tile_downloader.py:56:80: E501 line too long (111 > 79 characters)
+tests/test_async_tile_downloader.py:64:52: E231 missing whitespace after ','
+tests/test_async_tile_downloader.py:64:54: E231 missing whitespace after ','
+tests/test_async_tile_downloader.py:64:80: E501 line too long (81 > 79 characters)
+tests/unit/test_async_tile_downloader.py:3:1: F401 'pytest' imported but unused
+tests/unit/test_async_tile_downloader.py:6:80: E501 line too long (80 > 79 characters)
+tests/unit/test_async_tile_downloader.py:8:1: E302 expected 2 blank lines, found 1
+tests/unit/test_async_tile_downloader.py:27:1: E302 expected 2 blank lines, found 1
+tests/unit/test_async_tile_downloader.py:55:1: E302 expected 2 blank lines, found 1
+tests/unit/test_async_tile_downloader.py:57:80: E501 line too long (125 > 79 characters)
+tests/unit/test_async_tile_downloader.py:69:1: E302 expected 2 blank lines, found 1
+tests/unit/test_async_tile_downloader.py:73:80: E501 line too long (111 > 79 characters)
+tests/unit/test_async_tile_downloader.py:81:52: E231 missing whitespace after ','
+tests/unit/test_async_tile_downloader.py:81:54: E231 missing whitespace after ','
+tests/unit/test_async_tile_downloader.py:81:80: E501 line too long (81 > 79 characters)
+tests/unit/test_async_tile_downloader.py:89:80: E501 line too long (111 > 79 characters)
+tests/unit/test_cli_commands.py:4:1: F401 'asyncio' imported but unused
+tests/unit/test_cli_commands.py:9:1: E302 expected 2 blank lines, found 1
+tests/unit/test_cli_commands.py:26:80: E501 line too long (92 > 79 characters)
+tests/unit/test_cli_commands.py:29:1: E302 expected 2 blank lines, found 1
+tests/unit/test_cli_commands.py:35:80: E501 line too long (131 > 79 characters)
+tests/unit/test_cli_commands.py:40:1: E302 expected 2 blank lines, found 1
+tests/unit/test_cli_commands.py:48:80: E501 line too long (99 > 79 characters)
+tests/unit/test_cli_commands.py:49:80: E501 line too long (89 > 79 characters)
+tests/unit/test_cli_commands.py:51:80: E501 line too long (132 > 79 characters)
+tests/unit/test_cli_commands.py:62:1: E302 expected 2 blank lines, found 1
+tests/unit/test_cli_commands.py:65:80: E501 line too long (114 > 79 characters)
+tests/unit/test_cli_commands.py:67:80: E501 line too long (81 > 79 characters)
+tests/unit/test_cli_commands.py:75:80: E501 line too long (85 > 79 characters)
+tests/unit/test_cli_commands.py:77:1: E302 expected 2 blank lines, found 1
+tests/unit/test_cli_commands.py:84:80: E501 line too long (131 > 79 characters)
+tests/unit/test_cli_commands.py:89:80: E501 line too long (97 > 79 characters)
+tests/unit/test_cli_commands.py:91:1: E302 expected 2 blank lines, found 1
+tests/unit/test_cli_commands.py:103:1: E302 expected 2 blank lines, found 1
+tests/unit/test_cli_commands.py:115:1: E302 expected 2 blank lines, found 1
+tests/unit/test_cli_commands.py:126:1: E302 expected 2 blank lines, found 1
+tests/unit/test_cli_commands.py:133:80: E501 line too long (131 > 79 characters)
+tests/unit/test_cli_commands.py:137:1: E302 expected 2 blank lines, found 1
+tests/unit/test_cli_commands.py:153:1: E302 expected 2 blank lines, found 1
+tests/unit/test_cli_commands.py:158:1: E302 expected 2 blank lines, found 1
+tests/unit/test_cli_commands.py:160:80: E501 line too long (92 > 79 characters)
+tests/unit/test_cli_commands.py:171:1: E302 expected 2 blank lines, found 1
+tests/unit/test_cli_commands.py:173:80: E501 line too long (84 > 79 characters)
+tests/unit/test_cli_commands.py:183:1: E302 expected 2 blank lines, found 1
+tests/unit/test_cli_commands.py:186:80: E501 line too long (91 > 79 characters)
+tests/unit/test_cli_commands.py:190:1: E302 expected 2 blank lines, found 1
+tests/unit/test_cli_commands.py:194:80: E501 line too long (99 > 79 characters)
+tests/unit/test_cli_commands.py:195:80: E501 line too long (89 > 79 characters)
+tests/unit/test_cli_commands.py:197:80: E501 line too long (132 > 79 characters)
+tests/unit/test_cli_commands.py:201:80: E501 line too long (114 > 79 characters)
+tests/unit/test_cli_commands.py:205:1: E302 expected 2 blank lines, found 1
+tests/unit/test_cli_commands.py:206:80: E501 line too long (145 > 79 characters)
+tests/unit/test_cli_commands.py:211:62: W291 trailing whitespace
+tests/unit/test_cli_commands.py:211:63: W292 no newline at end of file
+tests/unit/test_config.py:6:80: E501 line too long (81 > 79 characters)
+tests/unit/test_config.py:16:80: E501 line too long (89 > 79 characters)
+tests/unit/test_data_validation.py:7:1: E302 expected 2 blank lines, found 1
+tests/unit/test_data_validation.py:12:1: E302 expected 2 blank lines, found 1
+tests/unit/test_delta_enrichment_cli.py:14:80: E501 line too long (81 > 79 characters)
+tests/unit/test_delta_enrichment_cli.py:16:80: E501 line too long (84 > 79 characters)
+tests/unit/test_delta_enrichment_cli.py:17:80: E501 line too long (84 > 79 characters)
+tests/unit/test_delta_enrichment_cli.py:19:80: E501 line too long (94 > 79 characters)
+tests/unit/test_delta_enrichment_cli.py:64:80: E501 line too long (86 > 79 characters)
+tests/unit/test_discovery.py:13:13: F821 undefined name 'get_tile_coordinates_for_grid'
+tests/unit/test_province_loader.py:2:1: F401 'meshic_pipeline.utils.tile_list_generator.tiles_from_bbox_z' imported but unused
+tests/unit/test_province_loader.py:13:80: E501 line too long (84 > 79 characters)
+tests/unit/test_smart_pipeline_enrich.py:6:5: E306 expected 1 blank line before a nested definition, found 0
+tests/unit/test_smart_pipeline_enrich.py:8:80: E501 line too long (81 > 79 characters)
+tests/unit/test_smart_pipeline_enrich.py:10:80: E501 line too long (99 > 79 characters)
+tests/unit/test_stitcher.py:4:1: E302 expected 2 blank lines, found 1
+tests/unit/test_stitcher.py:7:5: E301 expected 1 blank line, found 0
+tests/unit/test_stitcher.py:10:5: E301 expected 1 blank line, found 0
+tests/unit/test_stitcher.py:12:5: E301 expected 1 blank line, found 0
+tests/unit/test_stitcher.py:14:5: E301 expected 1 blank line, found 0

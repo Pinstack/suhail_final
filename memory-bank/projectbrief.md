@@ -5,9 +5,9 @@ Commercial geospatial data processing pipeline for capturing Saudi Arabian land 
 
 ## Current Status
 - **Database**: Fresh PostgreSQL/PostGIS database (recently dropped and recreated)
-- **Data State**: Empty - ready for baseline testing
-- **Pipeline State**: Functional architecture with async processing capabilities
-- **Testing Scope**: 3x3 tile grid in central Riyadh for validation
+- **Data State**: All tile discovery and orchestration is now fully database-driven. The `tile_urls` table contains all tiles to be processed, supporting province-wide and all-Saudi scrapes.
+- **Pipeline State**: Functional architecture with async processing capabilities, now operating directly from the database for tile orchestration and resumability.
+- **Testing Scope**: 3x3 tile grid in central Riyadh for validation; ready for full-province and all-province runs.
 
 ## Business Objective
 Extract and process Saudi Arabian real estate data to build commercial analytics products for client sales. This is a data capture and value-add operation, not platform development for Suhail.
@@ -24,7 +24,7 @@ Extract and process Saudi Arabian real estate data to build commercial analytics
 - **Phase 1**: Full Riyadh province (52x52 grid from previous testing showed 1M+ parcels)
 - **Phase 2**: Test additional province to validate multi-province handling  
 - **Phase 3**: All 6 Saudi provinces with dynamic boundary discovery
-- **Future**: Dynamic boundary discovery system for automated extent detection
+- **Current Capability**: The pipeline can now orchestrate province-wide and all-Saudi scrapes directly from the database, with resumable processing and robust error handling.
 
 ## Technical Requirements
 
@@ -34,6 +34,8 @@ Extract and process Saudi Arabian real estate data to build commercial analytics
 4. **API Enrichment**: Integrate with Suhail APIs for transaction and zoning data
 5. **Data Integrity**: Maintain referential integrity with proper foreign keys
 6. **Chunked Processing**: Handle large datasets efficiently with batching
+7. **DB-Driven Tile Orchestration**: All tile discovery, status tracking, and pipeline orchestration is managed via the `tile_urls` table in the database.
+8. **Resumability**: Pipeline can be stopped and resumed, processing only pending/failed tiles.
 
 ## Technical Constraints
 
@@ -57,6 +59,7 @@ Extract and process Saudi Arabian real estate data to build commercial analytics
 - Second province test confirms no data conflicts
 - Pipeline architecture ready for 1M+ parcel scale
 - Database schema robust and performs well
+- **DB-driven tile orchestration and resumable processing validated**
 
 ## Future Development
 
@@ -78,3 +81,4 @@ Extract and process Saudi Arabian real estate data to build commercial analytics
 2. **Robust Database**: Multi-province capable schema
 3. **Scalable Architecture**: Ready for 1M+ parcels
 4. **Commercial Foundation**: Data capture system for client products 
+5. **DB-driven, resumable, province-wide and all-Saudi scraping capability** 

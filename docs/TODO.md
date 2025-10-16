@@ -1,6 +1,6 @@
 # Meshic Geospatial Pipeline Implementation Plan
 
-## 🚦 **Next Actions Summary (as of Baseline Validation Phase)**
+## 🚦 **Next Actions Summary (as of DB-Driven Pipeline Phase)**
 
 | Step | Action | Status |
 |------|--------|--------|
@@ -17,7 +17,7 @@
 
 # Meshic Geospatial Pipeline Implementation Plan
 
-This document outlines the implementation plan for the Meshic Geospatial Data Pipeline following database reset and memory bank cleanup. All tasks are organized around our git workflow and systematic validation approach.
+This document outlines the implementation plan for the Meshic Geospatial Data Pipeline following the transition to a fully DB-driven pipeline. All tile discovery and orchestration is now managed via the `tile_urls` table in the database, supporting province-wide and all-Saudi scrapes with resumable processing.
 
 ## 🎯 **Current Project Status**
 
@@ -511,3 +511,13 @@ Provide minimal pytest examples for each module to guide future implementations.
 
 **Update Summary:**
 - Enrichment pipeline has been validated and is operational. All enrichment-related tasks and success criteria are now complete. Next steps focus on multi-province validation and scaling.
+
+## CI Integration & CLI Test Maintenance Checklist
+
+- [ ] Push `.github/workflows/ci.yml` to remote repository
+- [ ] Update CI badge URL in README to match actual GitHub repo
+- [ ] Verify CI pipeline runs and passes on push and pull requests
+- [ ] Monitor CI for failures/regressions
+- [ ] Encourage contributors to run tests locally before pushing
+- [ ] Update CLI tests and documentation as new commands/features are added
+- [ ] Periodically review/refactor CLI tests for clarity, coverage, and speed

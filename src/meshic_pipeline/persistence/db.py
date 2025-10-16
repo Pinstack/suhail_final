@@ -1,19 +1,19 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.ext.asyncio import create_async_engine
-from meshic_pipeline.config import settings
-from meshic_pipeline.logging_utils import get_logger
 from .models import Base
+import mercantile
 
-logger = get_logger(__name__)
 
-
-def get_db_engine():
+def get_db_engine(database_url=None):
     """Creates and returns a SQLAlchemy engine for sync operations."""
-    return create_engine(str(settings.database_url))
+    import os
+    url = database_url or os.environ.get('DATABASE_URL')
+    return create_engine(str(url))
 
 
 def get_async_db_engine():
     """Creates and returns an optimized async SQLAlchemy engine."""
+    from ..config import settings
     # Convert postgresql:// to postgresql+asyncpg://
     async_url = str(settings.database_url).replace("postgresql://", "postgresql+asyncpg://")
     return create_async_engine(
@@ -37,14 +37,63 @@ def get_async_db_engine():
 
 async def setup_database_async(engine):
     """Creates the necessary tables if they don't exist using async engine."""
-    logger.info("Setting up database tables...")
+    # import logging; logging.info("Setting up database tables...")
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all, checkfirst=True)
-    logger.info("Tables checked/created successfully.")
+    # import logging; logging.info("Tables checked/created successfully.")
 
 
 def setup_database(engine):
     """Creates the necessary tables if they don't exist using sync engine."""
-    logger.info("Setting up database tables...")
+    # import logging; logging.info("Setting up database tables...")
     Base.metadata.create_all(engine, checkfirst=True)
-    logger.info("Tables checked/created successfully.") 
+    # import logging; logging.info("Tables checked/created successfully.")
+
+
+def load_provinces_from_db(database_url=None):
+    """Load province metadata from the provinces table and return as a dict keyed by province name (lowercase)."""
+    engine = get_db_engine(database_url)
+    with engine.connect() as conn:
+        result = conn.execute(
+            text("""
+            SELECT province_id, province_name, province_name_ar, centroid_lon, centroid_lat, tile_server_url,
+                   bbox_sw_lon, bbox_sw_lat, bbox_ne_lon, bbox_ne_lat
+            FROM provinces
+            """)
+        ).mappings()
+        provinces = {}
+        for row in result:
+            # Derive z15 tile bbox from lat/lon bbox
+            sw_lon = row['bbox_sw_lon']
+            sw_lat = row['bbox_sw_lat']
+            ne_lon = row['bbox_ne_lon']
+            ne_lat = row['bbox_ne_lat']
+            # Compute tiles for all four corners to be safe
+            tl = mercantile.tile(sw_lon, ne_lat, 15)  # top-left (west, north)
+            tr = mercantile.tile(ne_lon, ne_lat, 15)  # top-right (east, north)
+            bl = mercantile.tile(sw_lon, sw_lat, 15)  # bottom-left (west, south)
+            br = mercantile.tile(ne_lon, sw_lat, 15)  # bottom-right (east, south)
+            xs = [tl.x, tr.x, bl.x, br.x]
+            ys = [tl.y, tr.y, bl.y, br.y]
+            bbox_z15 = {
+                "min_x": int(min(xs)),
+                "max_x": int(max(xs)),
+                "min_y": int(min(ys)),
+                "max_y": int(max(ys)),
+            }
+            provinces[row['province_name'].lower()] = {
+                "display_name": row['province_name'],
+                "display_name_ar": row['province_name_ar'],
+                "centroid": {
+                    "lon": row['centroid_lon'],
+                    "lat": row['centroid_lat'],
+                },
+                "bbox_latlon": {
+                    "southwest": {"lat": row['bbox_sw_lat'], "lon": row['bbox_sw_lon']},
+                    "northeast": {"lat": row['bbox_ne_lat'], "lon": row['bbox_ne_lon']},
+                },
+                "tile_url_template": row['tile_server_url'],
+                "bbox_z15": bbox_z15,
+                "province_id": row['province_id'],
+            }
+        return provinces 

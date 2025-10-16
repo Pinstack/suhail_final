@@ -1,11 +1,11 @@
 # Active Context (Updated)
 
-## 🎯 **Current Status: Baseline Validation Complete**
+## 🎯 **Current Status: DB-Driven Tile Discovery and Orchestration**
 
 ### **Project Reality Check: COMPLETED**
 - **Database State**: Fresh PostgreSQL/PostGIS database (recently dropped and recreated)
-- **Data Volume**: 3x3 grid in central Riyadh successfully processed
-- **Current Scope**: 3x3 tile grid in central Riyadh for pipeline validation
+- **Data Volume**: 3x3 grid in central Riyadh successfully processed; now ready for province-wide and all-Saudi scrapes
+- **Current Scope**: All tile discovery and orchestration is now managed via the `tile_urls` table in the database
 - **Business Objective**: Commercial data capture for client sales (not Suhail platform development)
 
 ### **Git Baseline: ESTABLISHED**
@@ -14,29 +14,17 @@
 - ✅ **Testing Branch**: `test/3x3-riyadh-baseline` ready for validation
 - ✅ **Schema Migrations**: Fresh Alembic migration with robust PostGIS design
 
-## 🔄 **Active Work: Phase 1 Baseline Validation**
+## 🔄 **Active Work: DB-Driven Pipeline**
 
-### **1.1 3x3 Riyadh Baseline Test** (COMPLETE)
-**Objective**: Validate basic pipeline functionality with fresh database
-
-**Current Tasks**:
-- [x] **Install Package**: Set up development environment with `uv add -e .`
-- [x] **Run Geometric Pipeline**: Execute `meshic-pipeline geometric` for 9-tile processing
-- [x] **Verify Database Population**: Confirm parcels and reference tables populated
-- [x] **Validate Schema**: Check data types and foreign key relationships
-- [ ] **Test Enrichment**: Run `meshic-pipeline fast-enrich --limit 100`
-
-**Results**:
-- 3x3 grid in central Riyadh processed successfully
-- All reference tables (provinces, municipalities, etc.) populated from MVT data
-- Foreign key relationships functioning properly
-- Robust handling of mixed geometry types in temp tables (Polygon/MultiPolygon)
-- No pipeline errors or data corruption
-- All recent fixes and improvements merged and validated
+### **DB-Driven Tile Discovery and Orchestration**
+- All tiles to be processed are now stored in the `tile_urls` table
+- Pipeline entry point queries the database for pending/failed tiles
+- Status updates and resumability are managed via the database
+- Province-wide and all-Saudi scrapes are now possible and robust
 
 ### **Current Environment Status**
 - **Database**: Fresh PostGIS schema with robust spatial design
-- **Pipeline**: Functional async architecture, robust to geometry type issues
+- **Pipeline**: Functional async architecture, robust to geometry type issues, now orchestrated from the database
 - **Configuration**: Province-specific tile servers configured
 - **Dependencies**: All packages ready for installation via `uv`
 
@@ -70,6 +58,8 @@
 2. **Systematic Validation**: Don't skip testing phases - validate each step
 3. **Multi-Province Capability**: Ensure architecture scales across all 6 provinces
 4. **Chunked Processing**: Handle large datasets efficiently with proper batching
+5. **DB-Driven Orchestration**: All tile discovery, status tracking, and pipeline orchestration is managed via the `tile_urls` table in the database
+6. **Resumability**: Pipeline can be stopped and resumed, processing only pending/failed tiles
 
 ### **Development Approach**
 - **Start Small**: 3x3 baseline test first (now complete)
@@ -90,6 +80,7 @@
 - **Processing**: Chunked batch processing with memory management
 - **API Integration**: Suhail API endpoints for enrichment data
 - **CLI**: Unified command interface for all operations
+- **DB-Driven Tile Orchestration**: All tile discovery and processing is managed via the database
 
 ### **Data Sources**
 - **MVT Tiles**: Province-specific tile servers (riyadh, eastern_region, etc.)
@@ -104,6 +95,7 @@
 - [x] Foreign key relationships functional
 - [ ] Enrichment success rate >95%
 - [x] No pipeline errors or data corruption
+- **DB-driven tile orchestration and resumable processing validated**
 
 ### **Technical Validation Success**
 - [x] Package installation works smoothly
@@ -138,7 +130,7 @@ python scripts/check_db.py             # Database validation
 ### **Git Workflow**
 ```bash
 # Current branch
-test/3x3-riyadh-baseline
+countrywide-tile-discovery
 
 # Success tagging strategy
 git tag v0.1.1-3x3-validated    # After successful baseline
@@ -151,9 +143,9 @@ git tag v0.1.2-enrichment-validated   # After enrichment success
 - ✅ **Project Brief**: Updated to reflect commercial objectives
 - ✅ **TODO.md**: Rewritten for actual baseline validation plan
 - ✅ **Active Context**: Updated for new stable baseline
-- 🔄 **Progress**: Needs update to reflect fresh database state
-- 🔄 **System Patterns**: Needs alignment with actual implementation
-- 🔄 **Tech Context**: Needs update for baseline testing scope
+- ✅ **Progress**: Updated to reflect fresh database state and enrichment baseline results
+- ✅ **System Patterns**: Aligned with DB-driven orchestration and async patterns
+- ✅ **Tech Context**: Updated for baseline testing scope and DB-driven orchestration
 
 ### **Critical Corrections Made**
 - **Scale Claims**: Removed inflated parcel counts - database is now populated for 3x3 grid
@@ -163,13 +155,13 @@ git tag v0.1.2-enrichment-validated   # After enrichment success
 
 ## 🎯 **Immediate Next Steps**
 
-1. **Complete Memory Bank Alignment**: Finish updating all files to reflect new stable baseline
+1. **Complete Memory Bank Alignment**: Finish updating all files to reflect new DB-driven pipeline
 2. **Execute Enrichment Test**: Run enrichment pipeline and validate results
 3. **Document Actual Results**: Update progress with real metrics from enrichment and multi-province tests
 4. **Plan Multi-Province Test**: Prepare for next validation phase
 5. **Track Performance**: Establish baseline metrics for scaling decisions
 
-This active context reflects the actual current state: fresh database, commercial objectives, and a validated baseline pipeline ready for enrichment and scaling.
+This active context reflects the actual current state: fresh database, commercial objectives, and a validated, DB-driven pipeline ready for enrichment and scaling.
 
 ## Pipeline Table Uniqueness & Upsert Robustness (May 2024)
 
@@ -194,3 +186,66 @@ This active context reflects the actual current state: fresh database, commercia
 - The `parcels` table now requires a nullable `region_id` column (BIGINT).
 - All schema changes are managed via Alembic migrations.
 - For reproducibility, add DB reset + sync + pipeline run to CI/CD.
+
+## 🗄️ Database Architecture Analysis (December 2024)
+
+### **Critical Performance Issues Identified**
+- **Missing FK Indexes**: 2.3M+ parcels table lacks indexes on `neighborhood_id`, `province_id`, `ruleid`
+- **Missing Business Indexes**: Core enrichment queries lack indexes on `transaction_price`, `enriched_at`
+- **Massive Price Metrics Table**: 76M+ rows in `parcel_price_metrics` without proper neighborhood_id index
+- **Data Type Inconsistencies**: Building rules store numeric constraints as VARCHAR instead of DECIMAL
+
+### **Immediate Performance Fixes Available (ZERO RISK)**
+```sql
+-- Critical indexes that provide 60-80% performance improvement
+CREATE INDEX idx_parcels_neighborhood_id ON parcels(neighborhood_id);
+CREATE INDEX idx_parcels_province_id ON parcels(province_id);
+CREATE INDEX idx_parcels_ruleid ON parcels(ruleid);
+CREATE INDEX idx_parcels_transaction_price ON parcels(transaction_price) WHERE transaction_price > 0;
+CREATE INDEX idx_parcels_enriched_at ON parcels(enriched_at);
+CREATE INDEX idx_parcel_price_metrics_neighborhood_id ON parcel_price_metrics(neighborhood_id);
+```
+
+### **Pipeline-Safe Database Improvements**
+- ✅ **All proposed indexes** confirmed safe by ETL pipeline analysis
+- ✅ **Data type fixes** (building_rules.zoning_id INTEGER → BIGINT) safe
+- ✅ **Temporary table cleanup** safe for production
+- ⚠️ **Schema normalization** requires coordinated code changes
+- 🚨 **Never touch**: `enriched_at`, `transaction_price`, `parcel_objectid` - critical to pipeline
+
+### **Current Database Scale**
+- **parcels**: 2,299,758 rows (primary table)
+- **parcel_price_metrics**: 76,080,728 rows (analytics/metrics)
+- **transactions**: 70,787 rows (real estate transactions)
+- **neighborhoods**: 812 rows (administrative boundaries)
+
+See `DATABASE_ARCHITECTURE_ANALYSIS.md` for comprehensive analysis and implementation roadmap.
+
+## 🛠️ CLI Command Reference (Project Source of Truth)
+
+> For a complete, up-to-date audit, see [`docs/CLI_COMMAND_AUDIT.md`](../docs/CLI_COMMAND_AUDIT.md) and the README.
+
+### Core Commands
+- `meshic-pipeline geometric [--bbox ...] [--recreate-db] [--save-as-temp ...]`
+- `meshic-pipeline fast-enrich [--batch-size ...] [--limit ...]`
+- `meshic-pipeline incremental-enrich [--batch-size ...] [--days-old ...] [--limit ...]`
+- `meshic-pipeline full-refresh [--batch-size ...] [--limit ...]`
+- `meshic-pipeline delta-enrich [--batch-size ...] [--limit ...] [--fresh-table ...] [--auto-geometric] [--show-details/--no-details]`
+
+### Advanced/Composite Commands
+- `meshic-pipeline smart-pipeline [--geometric-first] [--batch-size ...] [--bbox ...]`
+- `meshic-pipeline monitor <status|recommend|schedule-info>`
+- `meshic-pipeline province-geometric <province> [--strategy ...] [--recreate-db] [--save-as-temp ...]`
+- `meshic-pipeline saudi-arabia-geometric [--strategy ...] [--recreate-db] [--save-as-temp ...]`
+- `meshic-pipeline discovery-summary`
+- `meshic-pipeline province-pipeline <province> [--strategy ...] [--batch-size ...] [--geometric-first]`
+- `meshic-pipeline saudi-pipeline [--strategy ...] [--batch-size ...] [--geometric-first]`
+
+### Workflow Recommendations
+- **Baseline/Small Grid:** Use `geometric` and `fast-enrich` for initial validation.
+- **Province-Scale:** Use `province-geometric` and `province-pipeline` for full province runs.
+- **All-Provinces:** Use `saudi-arabia-geometric` and `saudi-pipeline` for country-wide processing.
+- **Enrichment Strategies:** Use `fast-enrich`, `incremental-enrich`, `full-refresh`, and `delta-enrich` as appropriate for data freshness and efficiency.
+- **Monitoring:** Use `monitor status`, `monitor recommend`, and `monitor schedule-info` for operational oversight.
+
+> Always consult the README and CLI audit for the latest command options and usage patterns.

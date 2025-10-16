@@ -238,7 +238,22 @@ class SuhailAPIClient:
                     metrics = []
                     for parcel_data in data["data"]:
                         pid = parcel_data.get("parcelObjId")
+                        
+                        # Process parcel-specific metrics (if available)
                         for metric_data in parcel_data.get("parcelMetrics", []):
+                            new_metric = ParcelPriceMetric(
+                                parcel_objectid=pid,
+                                month=metric_data.get("month"),
+                                year=metric_data.get("year"),
+                                metrics_type=metric_data.get("metricsType"),
+                                average_price_of_meter=metric_data.get(
+                                    "avaragePriceOfMeter"
+                                ),
+                            )
+                            metrics.append(new_metric)
+                        
+                        # Process neighborhood-based metrics (main data source)
+                        for metric_data in parcel_data.get("neighborhoodMetrics", []):
                             new_metric = ParcelPriceMetric(
                                 parcel_objectid=pid,
                                 month=metric_data.get("month"),

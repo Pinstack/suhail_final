@@ -1,23 +1,28 @@
+[![CI](https://github.com/<your-org-or-username>/<your-repo>/actions/workflows/ci.yml/badge.svg)](https://github.com/<your-org-or-username>/<your-repo>/actions/workflows/ci.yml)
+
 # Meshic Geospatial Data Pipeline
 
-A sophisticated **two-stage geospatial data processing pipeline** for the Riyadh real estate market. This system processes over 1 million land parcels and 50,000+ transactions, combining high-performance MVT tile processing with comprehensive business intelligence enrichment.
+A sophisticated **two-stage geospatial data processing pipeline** for the Saudi real estate market. The pipeline is now fully database-driven: all tiles to be processed are stored in the `tile_urls` table, supporting province-wide and all-Saudi scrapes with resumable, robust processing.
 
 ## 🏗️ Architecture Overview
 
-### **Stage 1: Geometric Pipeline**
-Downloads and processes geospatial shapes from Mapbox Vector Tiles (MVT):
-- **Source**: `https://tiles.suhail.ai/maps/riyadh/{z}/{x}/{y}.vector.pbf`
-- **Coverage**: Riyadh metropolitan area (15 layers, 1M+ parcels)
-- **Output**: PostGIS database with geometric features
+### **Stage 1: Geometric Pipeline (DB-Driven)**
+- Downloads and processes geospatial shapes from Mapbox Vector Tiles (MVT)
+- **Tile discovery and orchestration is now fully managed via the `tile_urls` table in the database**
+- Supports province-wide and all-Saudi scrapes
+- Pipeline can be stopped and resumed, processing only pending/failed tiles
 
 ### **Stage 2: Enrichment Pipeline**
-Fetches business intelligence data from external APIs:
-- **Transactions**: Historical real estate transaction data
-- **Building Rules**: Zoning and construction regulations  
-- **Price Metrics**: Market analysis and pricing trends
-- **Smart Processing**: Multiple enrichment strategies for comprehensive data capture
+- Fetches business intelligence data from external APIs
+- Status tracking and enrichment are managed via the database
 
 ## 🚀 Key Features
+
+### **DB-Driven Tile Discovery and Orchestration**
+- All tiles to be processed are stored in the `tile_urls` table
+- Pipeline entry point queries the database for pending/failed tiles
+- Status updates and resumability are managed via the database
+- Province-wide and all-Saudi scrapes are now possible and robust
 
 ### **Geometric Processing**
 - **Asynchronous Downloads**: High-performance MVT tile processing with `aiohttp`
@@ -390,3 +395,126 @@ This does not affect current functionality but should be addressed in the future
   3. **Run geometric pipeline**
   4. **Run enrichment pipeline**
 - Optionally, schedule the province sync as a cron job if the DB is long-lived.
+
+## 🛠️ CLI Command Reference (Full Surface)
+
+> **For a complete audit and up-to-date matrix, see [`docs/CLI_COMMAND_AUDIT.md`](docs/CLI_COMMAND_AUDIT.md).**
+
+### Core Commands
+
+- `meshic-pipeline geometric [--bbox ...] [--recreate-db] [--save-as-temp ...]`
+  - Run geometric pipeline (Stage 1)
+  - Options:
+    - `--bbox min_lon min_lat max_lon max_lat` — Bounding box for processing
+    - `--recreate-db` — Drop and recreate the database schema
+    - `--save-as-temp <table>` — Save parcels to a temporary table
+
+- `meshic-pipeline fast-enrich [--batch-size ...] [--limit ...]`
+  - Enrich new parcels with transaction prices
+  - Options:
+    - `--batch-size <int>` — Number of parcels per batch (default: 200)
+    - `--limit <int>` — Limit parcels for testing
+
+- `meshic-pipeline incremental-enrich [--batch-size ...] [--days-old ...] [--limit ...]`
+  - Enrich parcels not updated in X days
+  - Options:
+    - `--batch-size <int>` — Number of parcels per batch (default: 100)
+    - `--days-old <int>` — Days old threshold (default: 30)
+    - `--limit <int>` — Limit parcels for testing
+
+- `meshic-pipeline full-refresh [--batch-size ...] [--limit ...]`
+  - Enrich ALL parcels (complete refresh)
+  - Options:
+    - `--batch-size <int>` — Number of parcels per batch (default: 50)
+    - `--limit <int>` — Limit parcels for testing
+
+- `meshic-pipeline delta-enrich [--batch-size ...] [--limit ...] [--fresh-table ...] [--auto-geometric] [--show-details/--no-details]`
+  - Only process parcels with actual transaction price changes
+  - Options:
+    - `--batch-size <int>` — Number of parcels per batch (default: 200)
+    - `--limit <int>` — Limit parcels for testing
+    - `--fresh-table <table>` — Fresh MVT table name (default: parcels_fresh_mvt)
+    - `--auto-geometric` — Auto-run geometric pipeline first
+    - `--show-details/--no-details` — Show change analysis (default: show)
+
+### Advanced/Composite Commands
+
+- `meshic-pipeline smart-pipeline [--geometric-first] [--batch-size ...] [--bbox ...]`
+  - Complete geometric + enrichment workflow (recommended for full runs)
+
+- `meshic-pipeline monitor <status|recommend|schedule-info>`
+  - Run enrichment monitoring commands
+
+- `meshic-pipeline province-geometric <province> [--strategy ...] [--recreate-db] [--save-as-temp ...]`
+  - Geometric pipeline for a specific province
+  - Options:
+    - `province` — Province name (al_qassim, riyadh, madinah, asir, eastern, makkah)
+    - `--strategy <str>` — Discovery strategy (optimal, efficient, comprehensive; default: optimal)
+    - `--recreate-db` — Drop and recreate the database schema
+    - `--save-as-temp <table>` — Save parcels to a temporary table
+
+- `meshic-pipeline saudi-arabia-geometric [--strategy ...] [--recreate-db] [--save-as-temp ...]`
+  - Geometric pipeline for ALL Saudi provinces
+
+- `meshic-pipeline discovery-summary`
+  - Show province discovery capabilities/statistics
+
+- `meshic-pipeline province-pipeline <province> [--strategy ...] [--batch-size ...] [--geometric-first]`
+  - Complete province pipeline: geometric + enrichment for specific province
+
+- `meshic-pipeline saudi-pipeline [--strategy ...] [--batch-size ...] [--geometric-first]`
+  - Complete Saudi Arabia pipeline: ALL provinces geometric + enrichment
+
+### Usage Examples
+
+```bash
+# Run geometric pipeline for a bounding box
+meshic-pipeline geometric --bbox 46.428223 24.367114 47.010498 24.896402
+
+# Enrich new parcels (fast)
+meshic-pipeline fast-enrich --batch-size 400
+
+# Incremental enrichment (parcels not updated in 7 days)
+meshic-pipeline incremental-enrich --days-old 7 --batch-size 100
+
+# Full refresh (all enrichable parcels)
+meshic-pipeline full-refresh --batch-size 50
+
+# Delta enrichment (only parcels with price changes, auto-run geometric)
+meshic-pipeline delta-enrich --auto-geometric
+
+# Province-wide geometric processing
+meshic-pipeline province-geometric riyadh --strategy optimal
+
+# All-province geometric processing
+meshic-pipeline saudi-arabia-geometric --strategy efficient
+
+# Complete province pipeline (geometric + enrichment)
+meshic-pipeline province-pipeline riyadh --strategy optimal --batch-size 300
+
+# Complete Saudi pipeline (all provinces)
+meshic-pipeline saudi-pipeline --strategy efficient --batch-size 500
+
+# Show discovery summary
+meshic-pipeline discovery-summary
+
+# Monitor enrichment status
+meshic-pipeline monitor status
+```
+
+## 🧪 Running Tests
+
+To run all tests (including CLI tests) locally:
+
+```bash
+# Activate your virtual environment
+source .venv/bin/activate
+
+# Run all tests
+pytest
+
+# Or run only CLI tests
+pytest tests/unit/test_cli_commands.py
+```
+
+All tests are run automatically in CI on every push and pull request.

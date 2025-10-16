@@ -254,6 +254,17 @@ Found 1 schemas: public
 |  0 | ruleid        | character varying | NOT NULL      | zoning_rules_pkey |         |
 |  1 | description   | character varying | NULL          |                   |         |
 
+### Table: `public.tile_urls`
+|    | column_name   | data_type         | nullability   | pk              | check   |
+|---:|:--------------|:------------------|:--------------|:----------------|:--------|
+|  0 | url           | text              | NOT NULL      | tile_urls_pkey  |         |
+|  1 | zoom_level    | integer           | NOT NULL      |                 |         |
+|  2 | x             | integer           | NOT NULL      |                 |         |
+|  3 | y             | integer           | NOT NULL      |                 |         |
+|  4 | status        | text              | NOT NULL      |                 |         |
+|  5 | retry_count   | integer           | NOT NULL      |                 |         |
+|  6 | last_updated  | timestamp         | NOT NULL      |                 |         |
+
 # 2. Spatial Feature Summary
 
 ## Spatial Columns
@@ -351,4 +362,7 @@ Could not determine common keys (column might be empty, not uniformly structured
 - **Add Missing Indexes:** Beyond spatial indexes, add B-tree indexes to foreign key columns and other frequently queried columns to improve join performance and query speed.
 - **Create Materialized Views:** For complex queries or aggregations that are frequently accessed, create materialized views to pre-compute and store the results, leading to faster dashboards and analytics. Example: A view that joins property data with neighborhood names, average prices, and proximity scores to amenities.
 - **Data Dictionary:** Create and maintain a data dictionary that describes each table, column, and its meaning, source, and update frequency.
+        
+- The `tile_urls` table is now the authoritative source for all tile processing. The pipeline queries this table for pending/failed tiles and updates status as it processes.
+- This supports province-wide and all-Saudi scrapes, with resumable and robust processing.
         

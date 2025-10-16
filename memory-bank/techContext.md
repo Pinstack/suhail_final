@@ -35,10 +35,11 @@
 - **Processing**: Two-stage pipeline with geometric extraction followed by enrichment
 - **Concurrency**: Controlled async operations with proper resource management
 - **Error Handling**: Graceful degradation with retry logic and partial success handling
+- **DB-Driven Tile Orchestration**: All tile discovery, status tracking, and pipeline orchestration is managed via the `tile_urls` table in the database, supporting province-wide and all-Saudi scrapes with resumable processing.
 
 ### **Data Flow Architecture**
 ```
-Stage 1: MVT Tiles → Decode → Stitch → PostGIS
+Stage 1: MVT Tiles → Decode → Stitch → PostGIS (tiles sourced from DB)
 Stage 2: PostGIS → API Enrichment → Enhanced PostGIS
 ```
 
