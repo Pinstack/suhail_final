@@ -303,7 +303,7 @@ The pipeline **guarantees** capture of new transactions through:
 - **💡 LEVERAGE THE INSIGHT**: Use `fast-enrich` after geometric pipeline for maximum efficiency
 - **Never use only `fast-enrich`** for ongoing operations - it misses new transactions on existing parcels
 - **Use `incremental-enrich`** weekly to capture new transaction data
-- **Monitor regularly** with `monitor_enrichment.py recommend`
+- **Monitor regularly** with `uv run meshic-pipeline monitor recommend`
 
 ### **🚀 EFFICIENCY BREAKTHROUGH**
 Your insight reveals a **93.3% efficiency gain**:
@@ -321,12 +321,10 @@ Your insight reveals a **93.3% efficiency gain**:
 ## 🧪 Testing
 
 ```bash
-# Run test suite
-pytest tests/
+uv run pytest
 
-# Test specific components
-pytest tests/enrichment/
-pytest tests/geometry/
+uv run pytest tests/unit
+uv run pytest tests/integration
 ```
 
 ## 🛟 Troubleshooting
@@ -351,7 +349,7 @@ meshic-pipeline monitor status
 
 ## Clean Slate Protocol
 
-See [`CLEAN_SLATE_PROTOCOL.md`](./CLEAN_SLATE_PROTOCOL.md) for a step-by-step, safety-focused guide to resetting and rebuilding the spatial database environment for this project. **Use with caution: this protocol is destructive and intended for development environments only.**
+See [`CLEAN_SLATE_PROTOCOL.md`](./docs/CLEAN_SLATE_PROTOCOL.md) for a step-by-step, safety-focused guide to resetting and rebuilding the spatial database environment for this project. **Use with caution: this protocol is destructive and intended for development environments only.**
 
 ---
 
@@ -526,14 +524,9 @@ meshic-pipeline monitor status
 To run all tests (including CLI tests) locally:
 
 ```bash
-# Activate your virtual environment
-source .venv/bin/activate
+uv run pytest
 
-# Run all tests
-pytest
-
-# Or run only CLI tests
-pytest tests/unit/test_cli_commands.py
+uv run pytest tests/unit/test_cli_commands.py
 ```
 
 All tests are run automatically in CI on every push and pull request.

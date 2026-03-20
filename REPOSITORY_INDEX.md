@@ -15,9 +15,9 @@ High-level map of the whole tree for navigation and onboarding. Pair with [docs/
 
 | Path | Role |
 |------|------|
-| [pyproject.toml](pyproject.toml) | Project `meshic-pipeline`, dependencies, `[project.scripts]`, pytest config, dev dependency group. |
-| [requirements.txt](requirements.txt) | Pinned dependency export (companion to uv/pip workflows). |
-| [.github/workflows/ci.yml](.github/workflows/ci.yml) | CI: Python 3.11, `uv pip install -e .[dev]`, `pytest`. |
+| [pyproject.toml](pyproject.toml) | Project `meshic-pipeline`, dependencies, `[project.scripts]`, pytest config, `[dependency-groups].dev`. |
+| [uv.lock](uv.lock) | Locked dependency graph for reproducible installs (`uv sync --frozen`). |
+| [.github/workflows/ci.yml](.github/workflows/ci.yml) | CI: `astral-sh/setup-uv`, `uv sync --all-groups --frozen`, `uv run pytest`. |
 
 ## Documentation and BMAD
 

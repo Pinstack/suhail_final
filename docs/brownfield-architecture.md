@@ -55,7 +55,7 @@ Suhail Final is a sophisticated geospatial data processing pipeline that transfo
 ### Repository Structure Reality Check
 
 - **Type**: Monorepo (pipeline, monitoring, migrations, tests)
-- **Package Manager**: Poetry with modern dependency management
+- **Package Manager**: uv with modern dependency management
 - **Notable**: Extensive monitoring, comprehensive testing, spatial database design
 - **Development Stage**: Production-ready with advanced features
 
@@ -190,8 +190,8 @@ The enrichment system integrates with Suhail APIs through sophisticated patterns
 
 ### Local Development Setup (Actual)
 
-1. **Prerequisites**: Python 3.9+, PostgreSQL with PostGIS, Poetry
-2. **Dependencies**: `poetry install` for comprehensive dependency management
+1. **Prerequisites**: Python 3.9+, PostgreSQL with PostGIS, uv
+2. **Dependencies**: `uv sync --all-groups` for reproducible dependency management
 3. **Database**: Local PostgreSQL with PostGIS extensions
 4. **Configuration**: Environment variables + YAML config files
 5. **Execution**: `meshic-pipeline` CLI with 15+ commands
@@ -199,7 +199,7 @@ The enrichment system integrates with Suhail APIs through sophisticated patterns
 ### Build and Deployment Process (Actual)
 
 **Current Reality**:
-- Local development with Poetry
+- Local development with uv
 - Alembic migrations for database schema
 - Environment-based configuration
 - CLI-based execution model
@@ -217,16 +217,16 @@ The enrichment system integrates with Suhail APIs through sophisticated patterns
 
 - **Unit Tests**: pytest with async support, comprehensive test suite
 - **Integration Tests**: Real API integration testing
-- **Code Quality**: Poetry-managed dependencies, type hints
+- **Code Quality**: uv-managed dependencies, type hints
 - **Performance**: Built-in monitoring and metrics collection
 
 ### Running Tests (Configured but Limited)
 
 ```bash
 # Configured test commands
-poetry run pytest tests/          # Run test suite
-poetry run pytest tests/unit/     # Unit tests only
-poetry run pytest tests/integration/  # Integration tests
+uv run pytest                       # Run full test suite
+uv run pytest tests/unit            # Unit tests only
+uv run pytest tests/integration     # Integration tests
 ```
 
 ## Enhancement Impact Analysis

@@ -15,9 +15,9 @@ Rationale and historical analysis: **`docs/archive/legacy-root-md/DATABASE_ARCHI
 ## Apply
 
 ```bash
-# From repo root, with venv active
-alembic upgrade head
-# or: python scripts/db/upgrade.py
+# From repo root
+uv run alembic upgrade head
+# or: uv run python scripts/db/upgrade.py
 ```
 
 ## Verify

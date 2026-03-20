@@ -16,7 +16,13 @@ from meshic_pipeline.persistence.db import get_db_engine
 from meshic_pipeline.persistence.models import TileURL
 from meshic_pipeline.decoder.mvt_decoder import MVTDecoder
 from meshic_pipeline.geometry.validator import validate_geometries
-from meshic_pipeline.persistence.postgis_persister import PostGISPersister, SCHEMA_MAP
+from meshic_pipeline.persistence.postgis_persister import (
+    PostGISPersister,
+    SCHEMA_MAP,
+    ensure_neighborhood_centroids_primary_key,
+    ensure_neighborhood_stubs_for_parcels,
+    ensure_subdivision_stubs_for_parcels,
+)
 from meshic_pipeline.persistence.table_management import reset_temp_table
 from meshic_pipeline.pipeline_orchestrator import decode_and_validate_tile
 
@@ -79,6 +85,8 @@ def _url_to_coords(url: str) -> Tuple[int, int, int]:
 
 def _apply_arabic_and_columns(layer_name: str, gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     gdf = MVTDecoder.apply_arabic_column_mapping(gdf)
+    if layer_name == "neighborhoods-centroids":
+        gdf = ensure_neighborhood_centroids_primary_key(gdf)
     allowed_cols = set(SCHEMA_MAP.get(layer_name, {}).keys())
     if "geometry" in gdf.columns:
         allowed_cols.add("geometry")
@@ -248,12 +256,11 @@ def main(
             adaptive_controller.record_batch(successes, len(urls))
             current_concurrency = adaptive_controller.current
 
-        # Aggregate decoded data per layer
         layer_to_gdfs: Dict[str, List[gpd.GeoDataFrame]] = {}
+        urls_decode_ok: List[str] = []
         for t in tiles:
             data, err = fetch_map.get(t.url, (None, None))
             if not data:
-                # failed
                 TileURL.update_status(session, t.url, "failed", error_message=(err or "fetch_failed"))
                 continue
             try:
@@ -265,134 +272,163 @@ def main(
                     gdf = _apply_arabic_and_columns(layer_name, gdf)
                     if not gdf.empty:
                         layer_to_gdfs.setdefault(layer_name, []).append(gdf)
-                TileURL.update_status(session, t.url, "processed")
+                urls_decode_ok.append(t.url)
             except Exception as e:
                 TileURL.update_status(session, t.url, "failed", error_message=str(e))
 
-        # Persist per layer if we have data
-        for layer in settings.layers_to_process:
-            gdfs = layer_to_gdfs.get(layer)
-            if not gdfs:
-                continue
+        def persist_layers() -> None:
+            for layer in settings.layers_to_process:
+                gdfs = layer_to_gdfs.get(layer)
+                if not gdfs:
+                    continue
 
-            # Get the actual table name from mapping
-            table_name = settings.table_name_mapping.get(layer, layer)
-            if not inspector.has_table(table_name, schema="public"):
-                logger.warning("Skipping layer '%s': target table '%s' missing", layer, table_name)
-                continue
+                table_name = settings.table_name_mapping.get(layer, layer)
+                if not inspector.has_table(table_name, schema="public"):
+                    logger.warning("Skipping layer '%s': target table '%s' missing", layer, table_name)
+                    continue
 
-            temp_table = f"temp_{layer}"
-            reset_temp_table(persister.engine, layer, temp_table)
+                temp_table = f"temp_{table_name}"
+                reset_temp_table(persister.engine, table_name, temp_table)
 
-            gdf = gpd.GeoDataFrame(pd.concat(gdfs, ignore_index=True))
+                gdf = gpd.GeoDataFrame(pd.concat(gdfs, ignore_index=True))
 
-            # Deduplicate if a PK mapping exists
-            pk_col = settings.id_column_per_layer.get(layer)
-            if pk_col and pk_col in gdf.columns:
-                gdf = gdf.drop_duplicates(subset=[pk_col])
+                pk_col = settings.id_column_per_layer.get(layer)
+                if pk_col and pk_col in gdf.columns:
+                    before = len(gdf)
+                    gdf = gdf[gdf[pk_col].notna()]
+                    dropped = before - len(gdf)
+                    if dropped:
+                        logger.warning(
+                            "Dropped %d row(s) with null %s for layer '%s' before persist",
+                            dropped,
+                            pk_col,
+                            layer,
+                        )
+                    gdf = gdf.drop_duplicates(subset=[pk_col])
 
-            # 🔧 NEW FIX: Apply spatial assignments for parcels
-            if layer == "parcels" and enable_spatial_assignment:
-                gdf = enrich_parcels_with_spatial_assignments(gdf, persister)
+                if layer == "parcels" and enable_spatial_assignment:
+                    gdf = enrich_parcels_with_spatial_assignments(gdf, persister)
 
-            persister.write(
-                gdf,
-                layer,
-                temp_table,
-                if_exists="replace",
-                id_column=None,
-                chunksize=settings.db_chunk_size,
-            )
-
-            if layer == "parcels" and save_as_temp:
                 persister.write(
                     gdf,
                     layer,
-                    save_as_temp,
+                    temp_table,
                     if_exists="replace",
                     id_column=None,
                     chunksize=settings.db_chunk_size,
                 )
-            else:
-                table_name = settings.table_name_mapping.get(layer, layer)
-                id_col = settings.id_column_per_layer.get(layer)
 
-                # Ensure referential integrity for parcels -> zoning_rules before upsert
-                if layer == "parcels" and "ruleid" in gdf.columns:
-                    try:
-                        # Load existing ruleids and compute missing ones
-                        existing_df = pd.read_sql('SELECT ruleid FROM zoning_rules', persister.engine)
-                        existing = set(existing_df['ruleid']) if not existing_df.empty else set()
-                        incoming = set(gdf['ruleid'].dropna().unique())
-                        missing = incoming - existing
-                        if missing:
-                            to_insert = (
-                                gdf[gdf['ruleid'].isin(missing)][['ruleid']]
-                                .drop_duplicates('ruleid')
-                            )
-                            # Insert missing ruleids (description unknown at this stage)
-                            to_insert.to_sql('zoning_rules', persister.engine, if_exists='append', index=False, method='multi')
-                            logger.info("Inserted %d missing zoning rule(s) prior to parcel upsert", len(to_insert))
-                    except Exception as e:
-                        logger.warning("Could not pre-insert zoning_rules for parcels: %s", e)
-                
-                # Ensure referential integrity for neighborhoods -> provinces before upsert
-                if layer == "neighborhoods" and "province_id" in gdf.columns:
-                    try:
-                        # Load existing province_ids and compute missing ones
-                        existing_df = pd.read_sql('SELECT province_id FROM provinces', persister.engine)
-                        existing = set(existing_df['province_id']) if not existing_df.empty else set()
-                        incoming = set(gdf['province_id'].dropna().unique())
-                        missing = incoming - existing
-                        if missing:
-                            to_insert_data = []
-                            for pid in missing:
-                                # Derive province name from ID pattern based on known patterns
-                                province_name = f'Unknown_{pid}'
-                                province_name_ar = f'غير محدد_{pid}'
-                                
-                                # Infer region based on ID patterns
-                                if str(pid).startswith('101'):  # Riyadh region
-                                    province_name_ar = f'الرياض_منطقة_{pid}'
-                                    province_name = f'Riyadh_Region_{pid}'
-                                elif str(pid).startswith('21'):  # Makkah region  
-                                    province_name_ar = f'مكة_منطقة_{pid}'
-                                    province_name = f'Makkah_Region_{pid}'
-                                elif str(pid).startswith('51'):  # Eastern region
-                                    province_name_ar = f'الشرقية_منطقة_{pid}'
-                                    province_name = f'Eastern_Region_{pid}'
-                                elif str(pid).startswith('131'):  # Madinah region
-                                    province_name_ar = f'المدينة_منطقة_{pid}'
-                                    province_name = f'Madinah_Region_{pid}'
-                                
-                                to_insert_data.append({
-                                    'province_id': pid,
-                                    'province_name': province_name,
-                                    'province_name_ar': province_name_ar
-                                })
-                            to_insert_df = pd.DataFrame(to_insert_data)
-                            to_insert_df.to_sql('provinces', persister.engine, if_exists='append', index=False, method='multi')
-                            logger.info("Inserted %d missing province(s) with inferred names prior to neighborhoods upsert", len(to_insert_data))
-                    except Exception as e:
-                        logger.warning("Could not pre-insert provinces for neighborhoods: %s", e)
-
-                if id_col:
+                if layer == "parcels" and save_as_temp:
                     persister.write(
                         gdf,
                         layer,
-                        table_name,
-                        id_column=id_col,
-                        chunksize=settings.db_chunk_size,
-                    )
-                else:
-                    persister.write(
-                        gdf,
-                        layer,
-                        table_name,
+                        save_as_temp,
                         if_exists="replace",
                         id_column=None,
                         chunksize=settings.db_chunk_size,
                     )
+                else:
+                    table_name = settings.table_name_mapping.get(layer, layer)
+                    id_col = settings.id_column_per_layer.get(layer)
+
+                    if layer in ("neighborhoods", "parcels", "subdivisions") and "province_id" in gdf.columns:
+                        try:
+                            existing_df = pd.read_sql("SELECT province_id FROM provinces", persister.engine)
+                            existing = set(existing_df["province_id"]) if not existing_df.empty else set()
+                            incoming = {int(x) for x in gdf["province_id"].dropna().unique()}
+                            missing = incoming - existing
+                            if missing:
+                                to_insert_data = []
+                                for pid in missing:
+                                    province_name = f"Unknown_{pid}"
+                                    province_name_ar = f"غير محدد_{pid}"
+                                    spid = str(pid)
+                                    if spid.startswith("101"):
+                                        province_name_ar = f"الرياض_منطقة_{pid}"
+                                        province_name = f"Riyadh_Region_{pid}"
+                                    elif spid.startswith("21"):
+                                        province_name_ar = f"مكة_منطقة_{pid}"
+                                        province_name = f"Makkah_Region_{pid}"
+                                    elif spid.startswith("51"):
+                                        province_name_ar = f"الشرقية_منطقة_{pid}"
+                                        province_name = f"Eastern_Region_{pid}"
+                                    elif spid.startswith("131"):
+                                        province_name_ar = f"المدينة_منطقة_{pid}"
+                                        province_name = f"Madinah_Region_{pid}"
+                                    to_insert_data.append(
+                                        {
+                                            "province_id": pid,
+                                            "province_name": province_name,
+                                            "province_name_ar": province_name_ar,
+                                        }
+                                    )
+                                to_insert_df = pd.DataFrame(to_insert_data)
+                                to_insert_df.to_sql(
+                                    "provinces", persister.engine, if_exists="append", index=False, method="multi"
+                                )
+                                logger.info(
+                                    "Inserted %d missing province stub(s) prior to %s upsert",
+                                    len(to_insert_data),
+                                    layer,
+                                )
+                        except Exception as e:
+                            logger.warning("Could not pre-insert provinces for %s: %s", layer, e)
+
+                    if layer == "parcels":
+                        ensure_neighborhood_stubs_for_parcels(gdf, persister.engine)
+                        ensure_subdivision_stubs_for_parcels(gdf, persister.engine)
+
+                    if layer == "parcels" and "ruleid" in gdf.columns:
+                        try:
+                            existing_df = pd.read_sql("SELECT ruleid FROM zoning_rules", persister.engine)
+                            existing = set(existing_df["ruleid"]) if not existing_df.empty else set()
+                            incoming = set(gdf["ruleid"].dropna().unique())
+                            missing = incoming - existing
+                            if missing:
+                                to_insert = (
+                                    gdf[gdf["ruleid"].isin(missing)][["ruleid"]].drop_duplicates("ruleid")
+                                )
+                                to_insert.to_sql(
+                                    "zoning_rules", persister.engine, if_exists="append", index=False, method="multi"
+                                )
+                                logger.info(
+                                    "Inserted %d missing zoning rule(s) prior to parcel upsert", len(to_insert)
+                                )
+                        except Exception as e:
+                            logger.warning("Could not pre-insert zoning_rules for parcels: %s", e)
+
+                    if id_col:
+                        persister.write(
+                            gdf,
+                            layer,
+                            table_name,
+                            id_column=id_col,
+                            chunksize=settings.db_chunk_size,
+                        )
+                    else:
+                        persister.write(
+                            gdf,
+                            layer,
+                            table_name,
+                            if_exists="replace",
+                            id_column=None,
+                            chunksize=settings.db_chunk_size,
+                        )
+
+        try:
+            persist_layers()
+        except Exception as e:
+            logger.exception(
+                "Batch persist failed; re-queuing %d decoded tile URL(s) for retry",
+                len(urls_decode_ok),
+            )
+            msg = (str(e) or type(e).__name__)[:400]
+            for u in urls_decode_ok:
+                TileURL.update_status(session, u, "pending", error_message=f"persist_failed: {msg}")
+            continue
+
+        for u in urls_decode_ok:
+            TileURL.update_status(session, u, "processed")
 
     session.close()
 

@@ -2,6 +2,9 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.ext.asyncio import create_async_engine
 from .models import Base
 import mercantile
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def get_db_engine(database_url=None):
@@ -63,16 +66,44 @@ def load_provinces_from_db(database_url=None):
         ).mappings()
         provinces = {}
         for row in result:
+            tile_url = (row['tile_server_url'] or "").strip()
+            if not tile_url:
+                logger.warning("Skipping province %s (%s): missing tile_server_url", row['province_name'], row['province_id'])
+                continue
             # Derive z15 tile bbox from lat/lon bbox
             sw_lon = row['bbox_sw_lon']
             sw_lat = row['bbox_sw_lat']
             ne_lon = row['bbox_ne_lon']
             ne_lat = row['bbox_ne_lat']
+            if None in (sw_lon, sw_lat, ne_lon, ne_lat):
+                logger.warning(
+                    "Skipping province %s (%s): incomplete bbox (%s, %s, %s, %s)",
+                    row['province_name'],
+                    row['province_id'],
+                    sw_lon,
+                    sw_lat,
+                    ne_lon,
+                    ne_lat,
+                )
+                continue
             # Compute tiles for all four corners to be safe
-            tl = mercantile.tile(sw_lon, ne_lat, 15)  # top-left (west, north)
-            tr = mercantile.tile(ne_lon, ne_lat, 15)  # top-right (east, north)
-            bl = mercantile.tile(sw_lon, sw_lat, 15)  # bottom-left (west, south)
-            br = mercantile.tile(ne_lon, sw_lat, 15)  # bottom-right (east, south)
+            try:
+                tl = mercantile.tile(sw_lon, ne_lat, 15)  # top-left (west, north)
+                tr = mercantile.tile(ne_lon, ne_lat, 15)  # top-right (east, north)
+                bl = mercantile.tile(sw_lon, sw_lat, 15)  # bottom-left (west, south)
+                br = mercantile.tile(ne_lon, sw_lat, 15)  # bottom-right (east, south)
+            except Exception as exc:
+                logger.warning(
+                    "Skipping province %s (%s): could not compute tiles for bbox %s/%s/%s/%s (%s)",
+                    row['province_name'],
+                    row['province_id'],
+                    sw_lon,
+                    sw_lat,
+                    ne_lon,
+                    ne_lat,
+                    exc,
+                )
+                continue
             xs = [tl.x, tr.x, bl.x, br.x]
             ys = [tl.y, tr.y, bl.y, br.y]
             bbox_z15 = {
@@ -92,8 +123,8 @@ def load_provinces_from_db(database_url=None):
                     "southwest": {"lat": row['bbox_sw_lat'], "lon": row['bbox_sw_lon']},
                     "northeast": {"lat": row['bbox_ne_lat'], "lon": row['bbox_ne_lon']},
                 },
-                "tile_url_template": row['tile_server_url'],
+                "tile_url_template": tile_url,
                 "bbox_z15": bbox_z15,
                 "province_id": row['province_id'],
             }
-        return provinces 
+        return provinces

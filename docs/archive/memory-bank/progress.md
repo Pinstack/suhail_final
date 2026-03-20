@@ -31,7 +31,7 @@
 **Status**: Complete
 
 **Tasks**:
-- [x] **Package Installation**: Install meshic-pipeline with `uv add -e .`
+- [x] **Package Installation**: Install meshic-pipeline with `uv sync --all-groups`
 - [x] **Environment Activation**: Source virtual environment
 - [x] **Database Connection**: Verify PostgreSQL/PostGIS connectivity
 - [x] **Configuration Validation**: Confirm pipeline settings

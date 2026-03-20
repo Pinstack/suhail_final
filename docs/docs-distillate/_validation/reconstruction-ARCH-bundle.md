@@ -123,9 +123,9 @@ Alembic revision **`19c587b33197_add_critical_performance_indexes.py`** is the r
 
 ## Deployment and operations
 
-**Dev, staging, prod** share **migrations**. **Local:** PostgreSQL+PostGIS, **`uv pip install -e .[dev]`**, **`meshic-pipeline`** execution, **`alembic upgrade head`**. **Temp table policy:** **pipeline-owned `temp_*` only**.
+**Dev, staging, prod** share **migrations**. **Local:** PostgreSQL+PostGIS, **`uv sync --all-groups`**, **`uv run meshic-pipeline`**, **`uv run alembic upgrade head`**. **Temp table policy:** **pipeline-owned `temp_*` only**.
 
-**Migrations (`docs/ops/migrations.md` themes):** Prereqs **`DATABASE_URL`** in **`.env`**; Postgres + PostGIS. Upgrade via **`python scripts/db/upgrade.py`** or **`alembic upgrade head`**. Downgrade via **`python scripts/db/downgrade.py -1`** or **`... base`**. Critical indexes migration includes **`temp_*` cleanup**; apply in **low-traffic** windows with **baseline/post timings**. **Repair incomplete province metadata** with **`python scripts/util/backfill_province_metadata.py --province-id <id>`** before **auto-geometric delta** pipelines.
+**Migrations (`docs/ops/migrations.md` themes):** Prereqs **`DATABASE_URL`** in **`.env`**; Postgres + PostGIS. Upgrade via **`uv run python scripts/db/upgrade.py`** or **`uv run alembic upgrade head`**. Downgrade via **`uv run python scripts/db/downgrade.py -1`** or **`... base`**. Critical indexes migration includes **`temp_*` cleanup**; apply in **low-traffic** windows with **baseline/post timings**. **Repair incomplete province metadata** with **`uv run python scripts/util/backfill_province_metadata.py --province-id <id>`** before **auto-geometric delta** pipelines.
 
 ## Roadmap and immediate actions (compressed)
 

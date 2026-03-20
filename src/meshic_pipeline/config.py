@@ -6,7 +6,7 @@ from typing import Dict, Any, List, Optional, Tuple
 from enum import Enum
 import yaml
 
-from pydantic import Field, PostgresDsn, model_validator
+from pydantic import Field, PostgresDsn, PrivateAttr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from meshic_pipeline.persistence.db import load_provinces_from_db
 
@@ -183,7 +183,7 @@ class Settings(BaseSettings):
             "parcels-centroids": "parcel_no",
             "subdivisions": "subdivision_id",
             "neighborhoods": "neighborhood_id",
-            "neighborhoods-centroids": "neighborhood_id",
+            "neighborhoods-centroids": "id",
             "dimensions": "parcel_objectid",
             "metro_stations": "station_code",
             "riyadh_bus_stations": "station_code",
@@ -253,7 +253,8 @@ class Settings(BaseSettings):
 
     # --- Province Metadata ---
     provinces: Dict[str, Any] = Field(default_factory=dict)
-    
+    _provinces_loaded: bool = PrivateAttr(default=False)
+
     layers_to_process: List[str] = Field(
         default_factory=lambda: [
             "neighborhoods",
@@ -274,12 +275,25 @@ class Settings(BaseSettings):
     # --- Methods ---
     def __init__(self, **values):
         super().__init__(**values)
+        self._provinces_loaded = bool(self.provinces)
+
+    def _load_provinces_if_needed(self) -> None:
+        if self._provinces_loaded:
+            return
+        if self.provinces:
+            self._provinces_loaded = True
+            return
         try:
             self.provinces = load_provinces_from_db(self.database_url)
-        except Exception as e:
-            import warnings
-            warnings.warn(f"Could not load provinces from DB: {e}. Province metadata will be empty.")
+        except Exception as exc:
+            import logging
+            logging.getLogger(__name__).warning(
+                "Could not load provinces from DB (%s). Province metadata is empty until DB is available.",
+                exc,
+            )
             self.provinces = {}
+        finally:
+            self._provinces_loaded = True
 
     def get_tile_cache_path(self, z: int, x: int, y: int) -> Path:
         """Constructs the cache path for a specific tile."""
@@ -288,12 +302,14 @@ class Settings(BaseSettings):
 
     def get_province_meta(self, province: str) -> Dict[str, Any]:
         """Return metadata for a given province."""
+        self._load_provinces_if_needed()
         if province not in self.provinces:
             raise KeyError(f"Unknown province: {province}")
         return self.provinces[province]
 
     def list_provinces(self) -> List[str]:
         """Return available province keys."""
+        self._load_provinces_if_needed()
         return list(self.provinces.keys())
 
     def is_production(self) -> bool:
@@ -323,4 +339,4 @@ class Settings(BaseSettings):
 
 # --- Global Instance ---
 # A single, globally-accessible instance of the settings.
-settings = Settings() 
+settings = Settings()

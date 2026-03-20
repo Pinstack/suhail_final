@@ -21,10 +21,10 @@ Prioritized for **disk win** and **git index sanity**. Derived from a 2026-03-20
 ## Recommended next steps (highest impact first)
 
 1. **Delete local churn (not always in git):** `pipeline.log` (often ~100MB+), large `logs/*.log`, `.venv_py39_backup/` if unused (~200MB+).
-2. **Policy for `.agents/skills/`:** Either **commit** as the canonical bundle or **`.gitignore`** and document install from BMAD — avoid a permanent “untracked mega-tree” without docs.
+2. **Policy for `.agents/skills/`:** Done — local BMAD bundles are ignored (`/.agents/`, `/_bmad/`) to prevent persistent untracked churn.
 3. **Root report / test output files:** Done — former root `*_REPORT.md`, `*_test_results.txt`, and linter dumps live under **`docs/archive/legacy-root-md/`** and **`docs/archive/generated-txt/`**. Regenerate from CI when needed; do not move back to repo root.
-4. **Lockfile strategy:** CI uses **uv**; reconcile `poetry.lock` vs `uv.lock` / `requirements.txt` so one path is authoritative.
-5. **Large local data:** `retail_parcels.csv` (~25MB) — add `/retail_parcels.csv` to `.gitignore` if it must never be committed, or move under `data_raw/` with ignore rules.
+4. **Lockfile strategy:** Done — `uv.lock` + `pyproject.toml` are authoritative; legacy `poetry.lock`/`requirements.txt` removed.
+5. **Large local data:** Done — root `retail_parcels.csv` is ignored; move under `data_raw/` if it should be versioned later.
 6. **`alembic/versions_backup/`:** Keep, archive to docs, or delete only after confirming no operational dependency.
 
 ## Security

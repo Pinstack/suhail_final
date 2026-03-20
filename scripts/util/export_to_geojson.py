@@ -3,20 +3,13 @@
 Export spatial data from the database to GeoJSON format.
 """
 
+import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any, Dict
 
-# Add dotenv support
-from dotenv import load_dotenv
-load_dotenv()
-
-# Add the src directory to the path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
-
-from meshic_pipeline.persistence.db import get_db_engine
-from sqlalchemy import text
+_REPO_SRC = Path(__file__).resolve().parent.parent.parent / "src"
 
 
 def export_table_to_geojson(table_name: str, output_file: str, limit: int = None, where_clause: str = None) -> Dict[str, Any]:
@@ -31,6 +24,14 @@ def export_table_to_geojson(table_name: str, output_file: str, limit: int = None
     Returns:
         Dictionary with export statistics
     """
+    from dotenv import load_dotenv
+    from sqlalchemy import text
+
+    load_dotenv()
+    if str(_REPO_SRC) not in sys.path:
+        sys.path.insert(0, str(_REPO_SRC))
+    from meshic_pipeline.persistence.db import get_db_engine
+
     engine = get_db_engine()
     
     # Check if table has geometry column
@@ -125,7 +126,6 @@ def export_table_to_geojson(table_name: str, output_file: str, limit: int = None
             "file": output_file
         }
 
-import argparse
 
 def main():
     """Main export function with CLI filtering support."""

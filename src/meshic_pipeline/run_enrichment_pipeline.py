@@ -11,7 +11,7 @@ from typing import List, Optional
 from sqlalchemy import create_engine, text
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncEngine
 from sqlalchemy.dialects.postgresql import insert as pg_insert
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import sys
 from pathlib import Path
@@ -235,10 +235,12 @@ def delta_enrich(
     async def run_delta_enrichment():
         engine = get_async_db_engine()
 
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         auto_created_table = False
         metrics = {}
         enrichment_status = "failed"
+        db_count = 0
+        mvt_count = 0
 
         try:
             if auto_run_geometric:
@@ -284,9 +286,10 @@ def delta_enrich(
                     "Verify the table name or use the '--auto-geometric' flag to create it automatically."
                 )
 
-            async with engine.begin() as conn:
-                db_count = await conn.scalar(text("SELECT COUNT(*) FROM public.parcels"))
-                mvt_count = await conn.scalar(text(f"SELECT COUNT(*) FROM public.{fresh_mvt_table}"))
+            if engine is not None:
+                async with engine.begin() as conn:
+                    db_count = await conn.scalar(text("SELECT COUNT(*) FROM public.parcels"))
+                    mvt_count = await conn.scalar(text(f"SELECT COUNT(*) FROM public.{fresh_mvt_table}"))
 
             if show_details:
                 parcel_ids, change_stats = await get_delta_parcel_ids_with_details(
@@ -328,7 +331,7 @@ def delta_enrich(
             })
             enrichment_status = "success"
 
-            duration = datetime.utcnow() - start_time
+            duration = datetime.now(timezone.utc) - start_time
             typer.echo("\n✅ Delta Enrichment Complete!\n")
             typer.echo("--- Run Summary ---")
             typer.echo(f"Duration:          {int(duration.total_seconds())}s")
@@ -355,7 +358,7 @@ def delta_enrich(
             if auto_created_table:
                 typer.echo("🧹 Cleaning up auto-generated temporary table...")
                 try:
-                    from src.meshic_pipeline.persistence.postgis_persister import PostGISPersister
+                    from meshic_pipeline.persistence.postgis_persister import PostGISPersister
                     persister = PostGISPersister(str(settings.database_url))
                     persister.drop_table(fresh_mvt_table)
                     typer.echo(f"🧹 Cleaned up temporary table: {fresh_mvt_table}")

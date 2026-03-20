@@ -40,8 +40,10 @@ def test_run_pipeline_with_mocks(monkeypatch):
                 }
             ],
         },
-        quantize_bounds=(0, 0, 1, 1),
-        extents=4096,
+        default_options={
+            "quantize_bounds": (0, 0, 1, 1),
+            "extents": 4096,
+        },
     )
 
     # discovery returns exactly one tile coordinate
@@ -196,8 +198,10 @@ def test_run_pipeline_with_save_as_temp(monkeypatch):
                 }
             ],
         },
-        quantize_bounds=(0, 0, 1, 1),
-        extents=4096,
+        default_options={
+            "quantize_bounds": (0, 0, 1, 1),
+            "extents": 4096,
+        },
     )
 
     monkeypatch.setattr(

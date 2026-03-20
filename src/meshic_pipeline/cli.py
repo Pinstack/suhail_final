@@ -1,22 +1,41 @@
 import typer
 import subprocess
 import sys
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from pathlib import Path
 from meshic_pipeline import run_enrichment_pipeline
 
 # Determine the directory containing this CLI file
 SCRIPT_DIR = Path(__file__).parent
 
+ALLOWED_MONITOR_ACTIONS = {"status", "recommend", "schedule-info", "reset-stale", "perf"}
+
+
+def _parse_bbox_option(ctx: typer.Context, first_value: Optional[float]) -> Optional[Tuple[float, float, float, float]]:
+    if first_value is None:
+        return None
+    extra_numbers: List[float] = []
+    for token in ctx.args:
+        try:
+            extra_numbers.append(float(token))
+        except ValueError:
+            break
+    values = [first_value] + extra_numbers[:3]
+    if len(values) != 4:
+        typer.echo("Bounding box must be 4 floats")
+        raise typer.Exit(1)
+    return tuple(values)  # type: ignore[arg-type]
+
 app = typer.Typer(help="Unified CLI for the Suhail pipeline")
 
-@app.command()
+@app.command(context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
 def geometric(
-    bbox: Optional[List[float]] = typer.Option(
+    ctx: typer.Context,
+    bbox: Optional[float] = typer.Option(
         None,
         "--bbox",
         "-b",
-        help="Bounding box: min_lon min_lat max_lon max_lat"
+        help="Bounding box: min_lon min_lat max_lon max_lat",
     ),
     recreate_db: bool = typer.Option(
         False,
@@ -32,8 +51,9 @@ def geometric(
     """Run the geometric pipeline (Stage 1)."""
     script = SCRIPT_DIR / "run_geometric_pipeline.py"
     cmd = [sys.executable, str(script)]
-    if bbox:
-        cmd += ["--bbox"] + [str(x) for x in bbox]
+    bbox_values = _parse_bbox_option(ctx, bbox)
+    if bbox_values:
+        cmd += ["--bbox"] + [str(x) for x in bbox_values]
     if recreate_db:
         cmd.append("--recreate-db")
     if save_as_temp:
@@ -84,31 +104,39 @@ def delta_enrich(
     """🎯 Delta enrichment: Only process parcels with actual transaction price changes (most efficient)."""
     run_enrichment_pipeline.delta_enrich(batch_size=batch_size, limit=limit, fresh_mvt_table=fresh_table, auto_run_geometric=auto_geometric, show_details=show_details)
 
-@app.command()
+@app.command(context_settings={"allow_extra_args": True, "ignore_unknown_options": True})
 def smart_pipeline(
+    ctx: typer.Context,
     geometric_first: bool = typer.Option(True, "--geometric-first", help="Run geometric pipeline first"),
     batch_size: int = typer.Option(300, "--batch-size", help="Enrichment batch size"),
-    bbox: Optional[List[float]] = typer.Option(None, "--bbox", help="Bounding box: W S E N"),
+    bbox: Optional[float] = typer.Option(None, "--bbox", help="Bounding box: W S E N"),
 ):
     """🧠 Smart pipeline: Complete geometric + enrichment workflow (recommended for full runs)."""
     script = SCRIPT_DIR / "run_enrichment_pipeline.py"
     cmd = [sys.executable, str(script), "smart-pipeline-enrich", "--batch-size", str(batch_size)]
     if not geometric_first:
         cmd += ["--no-geometric-first"]
-    if bbox and len(bbox) == 4:
-        cmd += ["--bbox"] + [str(x) for x in bbox]
+    bbox_values = _parse_bbox_option(ctx, bbox)
+    if bbox_values:
+        cmd += ["--bbox"] + [str(x) for x in bbox_values]
     subprocess.run(cmd, check=True)
 
 @app.command()
 def monitor(
-    action: str = typer.Argument(
-        ..., help="Monitoring action: status, recommend, schedule-info"
-    ),
+    action: str = typer.Argument(..., help="Monitoring action"),
+    extra: Optional[List[str]] = typer.Argument(None, help="Additional options forwarded to monitoring command"),
 ):
-    """Run enrichment monitoring commands."""
+    """Run monitoring utilities (status, recommend, schedule-info, reset-stale, perf, ...)."""
+    if action not in ALLOWED_MONITOR_ACTIONS:
+        typer.echo(f"Error: unknown monitoring action '{action}'.")
+        raise typer.Exit(1)
     script = SCRIPT_DIR / "run_monitoring.py"
     cmd = [sys.executable, str(script), action]
-    subprocess.run(cmd, check=True)
+    if extra:
+        cmd.extend(extra)
+    result = subprocess.run(cmd, text=True)
+    if result.returncode != 0:
+        raise typer.Exit(result.returncode)
 
 @app.command()
 def province_geometric(

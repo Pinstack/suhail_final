@@ -23,8 +23,8 @@ class MVTDecoder:
 
     # Define expected integer ID fields for type casting
     INTEGER_ID_FIELDS = {
-        'parcel_id', 'zoning_id', 'subdivision_id', 'neighborhood_id', 
-        'province_id', 'region_id'
+        'parcel_id', 'zoning_id', 'subdivision_id', 'neighborhood_id',
+        'province_id', 'region_id', 'id',
     }
     
     # Define expected string ID fields (parcel_objectid comes as string but gets converted downstream)

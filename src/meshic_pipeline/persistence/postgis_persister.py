@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import logging
 from typing import List
 import uuid
@@ -70,9 +71,12 @@ SCHEMA_MAP = {
         'geometry_hash': 'string',
     },
     'neighborhoods-centroids': {
+        'id': 'int64',
         'neighborhood_id': 'int64',
         'geometry': 'geometry',
         'neighborhood_name': 'string',
+        'neighborh_aname': 'string',
+        'province_id': 'int64',
     },
     'subdivisions': {
         'subdivision_id': 'int64',
@@ -128,11 +132,100 @@ SCHEMA_MAP = {
     },
 }
 
+
+def ensure_neighborhood_centroids_primary_key(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Ensure neighborhoods-centroids rows have integer `id` for upsert (matches DB PK)."""
+    if gdf.empty:
+        return gdf
+    out = gdf.copy()
+    if "id" in out.columns and out["id"].notna().any():
+        return out
+    if "neighborhood_id" in out.columns:
+        out["id"] = out["neighborhood_id"]
+        return out
+
+    def _fid(row: pd.Series) -> int:
+        geom_wkt = row.geometry.wkt if row.geometry is not None else ""
+        label = row.get("neighborh_aname") if row.get("neighborh_aname") is not None else row.get("neighborhood_name")
+        base = "|".join(str(x) for x in (geom_wkt, label, row.get("province_id")))
+        return int(hashlib.sha256(base.encode("utf-8")).hexdigest()[:15], 16) % (2**31 - 1)
+
+    out["id"] = out.apply(_fid, axis=1)
+    return out
+
+
+def ensure_neighborhood_stubs_for_parcels(gdf: gpd.GeoDataFrame, engine: Engine) -> None:
+    """Insert minimal neighborhoods so parcel upserts satisfy parcels_neighborhood_id_fkey."""
+    if gdf.empty or "neighborhood_id" not in gdf.columns:
+        return
+    try:
+        existing_df = pd.read_sql("SELECT neighborhood_id FROM neighborhoods", engine)
+        existing = {int(x) for x in existing_df["neighborhood_id"]} if not existing_df.empty else set()
+        incoming = {int(x) for x in gdf["neighborhood_id"].dropna().unique()}
+        missing = incoming - existing
+        if not missing:
+            return
+        meta = gdf.dropna(subset=["neighborhood_id"]).drop_duplicates(subset=["neighborhood_id"])
+        pid_by_nid: dict[int, int | None] = {}
+        for _, row in meta.iterrows():
+            nid = int(row["neighborhood_id"])
+            if nid in pid_by_nid:
+                continue
+            p = row.get("province_id")
+            pid_by_nid[nid] = int(p) if pd.notna(p) else None
+        rows = [
+            {
+                "neighborhood_id": nid,
+                "neighborhood_name": f"Stub_neighborhood_{nid}",
+                "neighborhood_ar": f"عبور_{nid}",
+                "province_id": pid_by_nid.get(nid),
+            }
+            for nid in sorted(missing)
+        ]
+        pd.DataFrame(rows).to_sql("neighborhoods", engine, if_exists="append", index=False, method="multi")
+        logger.info("Inserted %d neighborhood stub(s) prior to parcel upsert", len(rows))
+    except Exception as e:
+        logger.warning("Could not pre-insert neighborhood stubs for parcels: %s", e)
+
+
+def ensure_subdivision_stubs_for_parcels(gdf: gpd.GeoDataFrame, engine: Engine) -> None:
+    """Insert minimal subdivisions so parcel upserts satisfy subdivision FK when present."""
+    if gdf.empty or "subdivision_id" not in gdf.columns:
+        return
+    try:
+        existing_df = pd.read_sql("SELECT subdivision_id FROM subdivisions", engine)
+        existing = {int(x) for x in existing_df["subdivision_id"]} if not existing_df.empty else set()
+        incoming = {int(x) for x in gdf["subdivision_id"].dropna().unique()}
+        missing = incoming - existing
+        if not missing:
+            return
+        meta = gdf.dropna(subset=["subdivision_id"]).drop_duplicates(subset=["subdivision_id"])
+        pid_by_sid: dict[int, int | None] = {}
+        for _, row in meta.iterrows():
+            sid = int(row["subdivision_id"])
+            if sid in pid_by_sid:
+                continue
+            p = row.get("province_id")
+            pid_by_sid[sid] = int(p) if pd.notna(p) else None
+        rows = [
+            {
+                "subdivision_id": sid,
+                "subdivision_no": str(sid),
+                "province_id": pid_by_sid.get(sid),
+            }
+            for sid in sorted(missing)
+        ]
+        pd.DataFrame(rows).to_sql("subdivisions", engine, if_exists="append", index=False, method="multi")
+        logger.info("Inserted %d subdivision stub(s) prior to parcel upsert", len(rows))
+    except Exception as e:
+        logger.warning("Could not pre-insert subdivision stubs for parcels: %s", e)
+
+
 class PostGISPersister:
     # Define expected integer ID fields for validation
     INTEGER_ID_FIELDS = {
-        'parcel_id', 'zoning_id', 'subdivision_id', 'neighborhood_id', 
-        'province_id', 'region_id', 'parcel_objectid'
+        'parcel_id', 'zoning_id', 'subdivision_id', 'neighborhood_id',
+        'province_id', 'region_id', 'parcel_objectid', 'id',
     }
     
     # Define expected numeric/float fields for proper schema creation

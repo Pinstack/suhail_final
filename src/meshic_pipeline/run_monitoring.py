@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """
-Enrichment Monitoring Script
-Tracks enrichment status and helps identify when incremental updates are needed.
+Monitoring utilities for Meshic pipeline.
+Provides:
+- status: queue + enrichment overview
+- recommend: next action suggestions
+- schedule-info: cadence guidance
+- reset-stale: reset stale in_progress tiles
 """
 
 import typer
 import sys
-from pathlib import Path
 from datetime import datetime, timedelta
 from sqlalchemy import create_engine, text
-
-# Add the src directory to the Python path
-src_path = Path(__file__).parent.parent / "src"
-sys.path.insert(0, str(src_path))
+from pathlib import Path
+import time
+import statistics
 
 from meshic_pipeline.config import settings
 
@@ -20,15 +22,47 @@ app = typer.Typer()
 
 @app.command()
 def status():
-    """Check current enrichment status."""
+    """Show queue status, enrichment coverage, and freshness."""
     engine = create_engine(str(settings.database_url))
-    
+
     with engine.connect() as conn:
-        # Basic counts
-        total_parcels = conn.execute(text("SELECT COUNT(*) FROM public.parcels WHERE transaction_price > 0")).scalar()
-        enriched_parcels = conn.execute(text("SELECT COUNT(*) FROM public.parcels WHERE enriched_at IS NOT NULL")).scalar()
-        tx_count = conn.execute(text("SELECT COUNT(*) FROM public.transactions")).scalar()
-        
+        # Queue counts
+        queue = conn.execute(text(
+            """
+            SELECT
+              COUNT(*) AS total,
+              COUNT(*) FILTER (WHERE status = 'pending') AS pending,
+              COUNT(*) FILTER (WHERE status = 'in_progress') AS in_progress,
+              COUNT(*) FILTER (WHERE status = 'processed') AS processed,
+              COUNT(*) FILTER (WHERE status = 'failed') AS failed
+            FROM public.tile_urls
+            """
+        )).mappings().first() or {}
+
+        # Oldest in_progress age and top errors
+        oldest = conn.execute(text(
+            """
+            SELECT MIN(last_checked_at)
+            FROM public.tile_urls
+            WHERE status = 'in_progress' AND last_checked_at IS NOT NULL
+            """
+        )).scalar()
+        top_errors = conn.execute(text(
+            """
+            SELECT COALESCE(error_message,'<none>') AS error, COUNT(*) AS cnt
+            FROM public.tile_urls
+            WHERE status = 'failed'
+            GROUP BY error
+            ORDER BY cnt DESC
+            LIMIT 5
+            """
+        )).fetchall()
+
+        # Enrichment counts
+        total_parcels = conn.execute(text("SELECT COUNT(*) FROM public.parcels WHERE transaction_price > 0")).scalar() or 0
+        enriched_parcels = conn.execute(text("SELECT COUNT(*) FROM public.parcels WHERE enriched_at IS NOT NULL")).scalar() or 0
+        tx_count = conn.execute(text("SELECT COUNT(*) FROM public.transactions")).scalar() or 0
+
         # Enrichment age analysis
         age_stats = conn.execute(text("""
             SELECT 
@@ -41,14 +75,34 @@ def status():
             FROM public.parcels 
             WHERE enriched_at IS NOT NULL
         """)).fetchone()
-        
-        print("🔍 ENRICHMENT STATUS REPORT")
-        print("=" * 50)
+
+        print("📊 PIPELINE STATUS REPORT")
+        print("=" * 60)
+        print("🧱 Tile Queue:")
+        if queue:
+            print(f"   • Total:     {queue.get('total',0):,}")
+            print(f"   • Pending:   {queue.get('pending',0):,}")
+            print(f"   • In-Progress: {queue.get('in_progress',0):,}")
+            print(f"   • Processed: {queue.get('processed',0):,}")
+            print(f"   • Failed:    {queue.get('failed',0):,}")
+        else:
+            print("   • No tile_urls table or no records found")
+        if oldest:
+            age_min = max(0, int((datetime.utcnow() - oldest.replace(tzinfo=None)).total_seconds() // 60))
+            print(f"   • Oldest in_progress age: {age_min} minutes")
+        if top_errors:
+            print("   • Top errors (failed):")
+            for err, cnt in top_errors:
+                print(f"      - {cnt:>6} × {err}")
+        print()
+
         print(f"📊 Parcel Overview:")
         print(f"   • Total enrichable parcels: {total_parcels:,}")
-        print(f"   • Enriched parcels: {enriched_parcels:,}")
-        print(f"   • Unenriched parcels: {total_parcels - enriched_parcels:,}")
-        print(f"   • Coverage: {(enriched_parcels/total_parcels)*100:.1f}%")
+        print(f"   • Enriched parcels:         {enriched_parcels:,}")
+        unenriched = max(total_parcels - enriched_parcels, 0)
+        coverage = (enriched_parcels/total_parcels)*100 if total_parcels else 0.0
+        print(f"   • Unenriched parcels:       {unenriched:,}")
+        print(f"   • Coverage:                 {coverage:.1f}%")
         print()
         print(f"📈 Transaction Data:")
         print(f"   • Total transactions: {tx_count:,}")
@@ -69,7 +123,7 @@ def status():
 
 @app.command()
 def recommend():
-    """Recommend next enrichment strategy."""
+    """Recommend next enrichment strategy and commands."""
     engine = create_engine(str(settings.database_url))
     
     with engine.connect() as conn:
@@ -115,25 +169,25 @@ def recommend():
         
         # Priority 1: Large number of unenriched parcels with transaction data
         if new_parcels > 10000:
-            print(f"🚀 HIGHEST PRIORITY: {new_parcels:,} UNENRICHED PARCels WITH TRANSACTION DATA")
-            print(f"   💡 Stage 1 geometric pipeline revealed {new_parcels:,} parcels with transaction_price > 0!")
-            print(f"   Recommended: python scripts/run_enrichment_pipeline.py fast-enrich --batch-size 400")
+            print(f"🚀 HIGHEST PRIORITY: {new_parcels:,} unenriched parcels with transaction data")
+            print(f"   💡 Stage 1 revealed parcels with transaction_price > 0.")
+            print(f"   Recommended: meshic-pipeline fast-enrich --batch-size 400")
             print("   → Leverages transaction_price field from MVT tiles for maximum efficiency")
             print()
         elif new_parcels > 1000:
             print(f"🆕 HIGH PRIORITY: {new_parcels:,} unenriched parcels found")
-            print(f"   Recommended: python scripts/run_enrichment_pipeline.py fast-enrich --batch-size 300")
+            print(f"   Recommended: meshic-pipeline fast-enrich --batch-size 300")
             print()
         
         # Priority 2: Incremental updates for already enriched parcels
         if stale_7d > 5000:
             print(f"⚠️  MEDIUM PRIORITY: {stale_7d:,} stale parcels (7+ days)")
             print(f"   💡 May have new transactions not yet captured")
-            print(f"   Recommended: python scripts/run_enrichment_pipeline.py incremental-enrich --days-old 7")
+            print(f"   Recommended: meshic-pipeline incremental-enrich --days-old 7")
             print()
         elif stale_30d > 1000:
             print(f"⏰ LOW PRIORITY: {stale_30d:,} stale parcels (30+ days)") 
-            print(f"   Recommended: python scripts/run_enrichment_pipeline.py incremental-enrich --days-old 30")
+            print(f"   Recommended: meshic-pipeline incremental-enrich --days-old 30")
             print()
         
         # System status
@@ -152,7 +206,7 @@ def recommend():
         print("   💡 The most efficient method is 'delta-enrich', which only processes parcels with detected changes.")
         print()
         print("   🆕 RECOMMENDED WORKFLOW: DELTA ENRICHMENT (Maximum Precision):")
-        print("      python scripts/run_enrichment_pipeline.py delta-enrich --auto-geometric")
+        print("      meshic-pipeline delta-enrich --auto-geometric")
         print("      → MVT-based change detection: Only enrich parcels with ACTUAL price changes")
         print("      → Detects: New parcels, price changes, market updates")
         print("      → Ultimate efficiency: Only processes parcels with proven changes")
@@ -172,21 +226,125 @@ def schedule_info():
     print("🔄 RECOMMENDED SCHEDULE:")
     print()
     print("1️⃣  DAILY / WEEKLY:")
-    print("   python scripts/run_enrichment_pipeline.py delta-enrich --auto-geometric")
+    print("   meshic-pipeline delta-enrich --auto-geometric")
     print("   → The most efficient method. Automatically finds and processes only parcels")
     print("   → with genuine changes, ensuring your data is always current.")
     print()
     print("2️⃣  MONTHLY (or as needed for a broader refresh):")
-    print("   python scripts/run_enrichment_pipeline.py incremental-enrich --days-old 30")
+    print("   meshic-pipeline incremental-enrich --days-old 30")
     print("   → Catches any parcels that might have been missed by delta detection.")
     print()
     print("3️⃣  QUARTERLY (for data integrity checks):")
-    print("   python scripts/run_enrichment_pipeline.py full-refresh")
+    print("   meshic-pipeline full-refresh")
     print("   → Complete refresh to guarantee data completeness.")
     print()
     print("💡 TIPS:")
-    print("   • Monitor with: python scripts/run_monitoring.py status")
-    print("   • Get recommendations: python scripts/run_monitoring.py recommend")
+    print("   • Monitor with: meshic-pipeline monitor status")
+    print("   • Get recommendations: meshic-pipeline monitor recommend")
+
+@app.command(name="reset-stale")
+def reset_stale(stale_minutes: int = typer.Option(60, "--stale-minutes", help="Minutes after which in_progress tiles are considered stale")):
+    """Reset stale in_progress tiles to failed so they can be retried."""
+    from sqlalchemy.orm import Session
+    from meshic_pipeline.persistence.db import get_db_engine
+    from meshic_pipeline.persistence.models import TileURL
+
+    engine = get_db_engine(str(settings.database_url))
+    session = Session(engine)
+    updated = TileURL.reset_stale_in_progress(session, stale_minutes=stale_minutes)
+    print(f"🔄 Reset {updated} stale in_progress tiles (threshold: {stale_minutes} minutes)")
+    session.close()
+
+@app.command(name="perf")
+def perf(
+    label: str = typer.Option("baseline", "--label", help="Label for this measurement run (e.g., baseline, post-index)"),
+    iterations: int = typer.Option(5, "--iterations", help="How many times to run each query"),
+    write_report: bool = typer.Option(True, "--write-report/--no-report", help="Write Markdown report to docs/reports"),
+):
+    """Measure sample query performance and optionally write a Markdown report."""
+    engine = create_engine(str(settings.database_url))
+    queries = [
+        (
+            "Parcels join neighborhoods (priced)",
+            """
+            SELECT COUNT(*)
+            FROM public.parcels p
+            JOIN public.neighborhoods n ON p.neighborhood_id = n.neighborhood_id
+            WHERE p.transaction_price > 0
+            """,
+        ),
+        (
+            "Stale enrichable parcels",
+            """
+            SELECT COUNT(*)
+            FROM public.parcels
+            WHERE transaction_price > 0
+              AND (enriched_at IS NULL OR enriched_at < NOW() - INTERVAL '30 days')
+            """,
+        ),
+        (
+            "Metrics aggregation (recent avg price)",
+            """
+            SELECT neighborhood_id, metrics_type, year, month, AVG(average_price_of_meter)
+            FROM public.parcel_price_metrics
+            WHERE metrics_type = 'average_price_of_meter'
+              AND year >= EXTRACT(YEAR FROM CURRENT_DATE) - 1
+            GROUP BY neighborhood_id, metrics_type, year, month
+            LIMIT 10000
+            """,
+        ),
+    ]
+
+    results = []
+    with engine.connect() as conn:
+        for name, sql in queries:
+            durations = []
+            # Warm-up run (not timed)
+            try:
+                conn.execute(text("SELECT 1")).scalar()
+            except Exception:
+                pass
+            for _ in range(max(iterations, 1)):
+                start = time.perf_counter()
+                conn.execute(text(sql)).fetchall()
+                end = time.perf_counter()
+                durations.append((end - start) * 1000.0)  # ms
+            durations.sort()
+            p50 = statistics.median(durations)
+            p95 = durations[int(len(durations) * 0.95) - 1] if durations else 0.0
+            results.append((name, durations, p50, p95))
+
+    # Print summary
+    print("📌 Performance Sample Results —", label)
+    print("=" * 60)
+    for name, durations, p50, p95 in results:
+        avg = sum(durations) / len(durations)
+        print(f"• {name}")
+        print(f"  - iters={len(durations)} avg={avg:.1f}ms p50={p50:.1f}ms p95={p95:.1f}ms")
+
+    if write_report:
+        ts = datetime.utcnow().strftime("%Y%m%d-%H%M")
+        out_dir = Path(__file__).resolve().parents[2] / "docs" / "reports"
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out_path = out_dir / f"perf-{label}-{ts}.md"
+        lines = [
+            f"# Performance Sample Results — {label}",
+            "",
+            f"Date (UTC): {datetime.utcnow().isoformat()}",
+            "",
+        ]
+        for name, durations, p50, p95 in results:
+            avg = sum(durations) / len(durations)
+            lines += [
+                f"## {name}",
+                f"- iterations: {len(durations)}",
+                f"- average: {avg:.1f} ms",
+                f"- p50: {p50:.1f} ms",
+                f"- p95: {p95:.1f} ms",
+                "",
+            ]
+        out_path.write_text("\n".join(lines), encoding="utf-8")
+        print(f"📝 Wrote report: {out_path}")
 
 if __name__ == "__main__":
     app() 

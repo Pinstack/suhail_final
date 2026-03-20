@@ -101,7 +101,7 @@ This section covers architecture, schema, and ground-truth production state. Par
 - Risks: missing indexes, stuck in_progress tiles, API rate limits, outdated stakeholder docs.
 
 ## Deployment and ops
-- Dev/staging/prod with shared migrations; local: PostgreSQL+PostGIS, `uv pip install -e .[dev]`, `meshic-pipeline` execution; `alembic upgrade head`.
+- Dev/staging/prod with shared migrations; local: PostgreSQL+PostGIS, `uv sync --all-groups`, `uv run meshic-pipeline …`, `uv run alembic upgrade head`.
 - Temp table policy: pipeline-owned `temp_*` only.
 
 ## Roadmap and recommendations (compressed)

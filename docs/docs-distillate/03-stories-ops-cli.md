@@ -75,6 +75,6 @@ This section covers implementation stories, CLI inventory, ops, and runbooks. Pa
 - Remove data dirs: Apple Silicon `rm -rf /opt/homebrew/var/postgres*`; Intel `rm -rf /usr/local/var/postgres*`.
 - `brew install postgis` (or pin `postgresql@14` + postgis); example `initdb --locale=C -E UTF-8 /opt/homebrew/var/postgresql@16`.
 - `brew services start postgresql@16`; `createdb meshic -T template0`; `psql -d meshic -c "CREATE EXTENSION postgis;"`.
-- Python: `python -m venv .venv && source .venv/bin/activate`; install alembic stack per doc.
-- Alembic: init, configure, autogenerate initial revision, manual spatial index checks, `alembic upgrade head`.
+- Python: from repo root, `uv sync --all-groups` (see `README.md`).
+- Alembic: init, configure, autogenerate initial revision, manual spatial index checks, `uv run alembic upgrade head`.
 - Verify: `psql -d meshic -c "\dt"`, `\d+ your_spatial_table`, `SELECT * FROM geometry_columns;`; run app tests.

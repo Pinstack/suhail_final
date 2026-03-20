@@ -23,7 +23,6 @@ parts/
 sdist/
 var/
 wheels/
-pip-wheel-metadata/
 share/python-wheels/
 *.egg-info/
 .installed.cfg
@@ -37,8 +36,6 @@ MANIFEST
 *.spec
 
 # Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
@@ -86,13 +83,6 @@ ipython_config.py
 
 # pyenv
 .python-version
-
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install different versions of packages depending
-#   on the platform. Pipfile.lock may be excluded in that case.
-# Pipfile.lock
 
 # PEP 582; used by PDM, PEP 582 compatible installers
 __pypackages__/
@@ -150,6 +140,10 @@ cython_debug/
 # Regenerated at runtime (scripts under logs/ stay tracked)
 logs/*.pid
 
+# Local BMAD agent bundles (not part of app source)
+/.agents/
+/_bmad/
+
 /tiles_cache/
 /temp_tiles/
 /stitched/
@@ -176,6 +170,16 @@ temp_tiles/
 stitched/
 stitched_cache/
 tiles_cache/
+
+# Large DB / pipeline exports (GeoJSON dumps and archives)
+outputs/*.geojson
+outputs/*.zip
+outputs/*.json
+outputs/*.md
+outputs/*.har
+outputs/*.txt
+outputs/.tmp.driveupload/
+outputs/tmp_uploads/
 test_tile_*.pbf
 /tile_list.txt
 
@@ -185,6 +189,13 @@ docs/reports/generated/*.md
 
 # Package metadata
 *.egg-info/
+
+# Legacy root report outputs
+/flake8_report.txt
+/vulture_report.txt
+
+# Root-level data export noise
+/retail_parcels.csv
 
 # Allow all files in sample_data to be tracked, even if normally ignored
 !/sample_data/

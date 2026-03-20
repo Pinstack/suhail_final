@@ -54,6 +54,7 @@ Scratch lists (not contractual specs):
 
 - **[migrations.md](./ops/migrations.md)** — How to run Alembic upgrades/downgrades and index migration notes.
 - **[index-migration-runbook.md](./ops/index-migration-runbook.md)** — Epic 1 index migration: apply, verify, links to perf reports.
+- **[MACHINE_POSTGRES_AUDIT.md](./ops/MACHINE_POSTGRES_AUDIT.md)** — Local machine PostgreSQL versions, ports, conflicts, PG18 plan.
 
 ### reports/
 

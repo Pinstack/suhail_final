@@ -18,10 +18,35 @@ from .decoder.mvt_decoder import MVTDecoder
 from .geometry.validator import validate_geometries
 from .geometry.stitcher import GeometryStitcher
 from .memory_utils import memory_optimized, get_memory_monitor
-from .persistence.postgis_persister import PostGISPersister, SCHEMA_MAP
+from .persistence.postgis_persister import (
+    PostGISPersister,
+    SCHEMA_MAP,
+    ensure_neighborhood_centroids_primary_key,
+)
 from sqlalchemy import text
 from meshic_pipeline.persistence.table_management import reset_temp_table
 import mercantile
+
+
+def get_tile_coordinates_for_bounds(
+    bbox: Tuple[float, float, float, float], zoom: int
+) -> List[Tuple[int, int, int]]:
+    """Return tile coordinates covering the bounding box at the given zoom."""
+    west, south, east, north = bbox
+    return [(t.z, t.x, t.y) for t in mercantile.tiles(west, south, east, north, [zoom])]
+
+
+def get_tile_coordinates_for_grid(
+    center_x: int, center_y: int, grid_w: int, grid_h: int, zoom: int
+) -> List[Tuple[int, int, int]]:
+    """Return tile coordinates for the configured grid."""
+    start_x = center_x - grid_w // 2
+    start_y = center_y - grid_h // 2
+    tiles: List[Tuple[int, int, int]] = []
+    for i in range(grid_w):
+        for j in range(grid_h):
+            tiles.append((zoom, start_x + i, start_y + j))
+    return tiles
 
 
 def setup_logging():
@@ -206,17 +231,13 @@ async def run_pipeline(
         )
     elif aoi_bbox:
         # Traditional bbox discovery using mercantile
-        west, south, east, north = aoi_bbox
-        tiles = [(t.z, t.x, t.y) for t in mercantile.tiles(west, south, east, north, [zoom])]
+        tiles = get_tile_coordinates_for_bounds(aoi_bbox, zoom)
         logger.info("\U0001F4E6 Bbox mode: Discovered %d tiles for AOI", len(tiles))
     else:
         # Default grid discovery using settings
-        start_x = settings.center_x - settings.grid_w // 2
-        start_y = settings.center_y - settings.grid_h // 2
-        tiles = []
-        for i in range(settings.grid_w):
-            for j in range(settings.grid_h):
-                tiles.append((zoom, start_x + i, start_y + j))
+        tiles = get_tile_coordinates_for_grid(
+            settings.center_x, settings.center_y, settings.grid_w, settings.grid_h, zoom
+        )
         logger.info(
             "\U0001F522 Grid mode: Discovered %d tiles for %dx%d grid",
             len(tiles),
@@ -256,8 +277,8 @@ async def run_pipeline(
 
     for layer in tqdm(layers_to_process, desc="Processing Layers"):
         logger.info("--- Starting processing for layer: %s ---", layer)
-        temp_table = f"temp_{layer}"
-        prod_table = layer  # Assumes production table name matches layer name
+        prod_table = settings.table_name_mapping.get(layer, layer)
+        temp_table = f"temp_{prod_table}"
         # Check if production table exists; skip if not
         inspector = inspect(persister.engine)
         if not inspector.has_table(prod_table, schema="public"):
@@ -271,6 +292,8 @@ async def run_pipeline(
             decoded_layers = decode_and_validate_tile((z, x, y), data, [layer], settings.default_crs)
             for _layer_name, gdf in decoded_layers:
                 gdf = MVTDecoder.apply_arabic_column_mapping(gdf)
+                if _layer_name == "neighborhoods-centroids":
+                    gdf = ensure_neighborhood_centroids_primary_key(gdf)
                 # Filter columns to only those in the canonical schema for this layer
                 allowed_cols = set(SCHEMA_MAP.get(_layer_name, {}).keys())
                 # Always keep geometry column
@@ -288,6 +311,15 @@ async def run_pipeline(
             # Deduplicate by primary key if applicable (DRY for all layers)
             pk_col = settings.id_column_per_layer.get(layer)
             if pk_col and pk_col in gdf.columns:
+                before_null = len(gdf)
+                gdf = gdf[gdf[pk_col].notna()]
+                if len(gdf) < before_null:
+                    logger.warning(
+                        "Dropped %d rows with null %s in layer '%s' before DB write.",
+                        before_null - len(gdf),
+                        pk_col,
+                        layer,
+                    )
                 before = len(gdf)
                 gdf = gdf.drop_duplicates(subset=[pk_col])
                 after = len(gdf)

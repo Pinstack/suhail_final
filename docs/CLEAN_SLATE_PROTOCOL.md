@@ -58,14 +58,12 @@
 
 ## Phase 3: Application and Migration Setup
 
-- [ ] **10. Set Up Python Environment:** Create and activate a fresh virtual environment.
+- [ ] **10. Install uv** (see [Astral docs](https://docs.astral.sh/uv/getting-started/installation/)) if not already available.
+- [ ] **11. Install Python dependencies from lockfile:** From the repo root:
   ```sh
-  python -m venv .venv && source .venv/bin/activate
+  uv sync --all-groups
   ```
-- [ ] **11. Install Dependencies:** Install project dependencies, ensuring `alembic`, `sqlalchemy`, `geoalchemy2`, and a DB driver (`psycopg` or `psycopg2`) are present.
-  ```sh
-  pip install "alembic" "sqlalchemy" "geoalchemy2" "psycopg[binary]"
-  ```
+  This installs the editable package and all runtime + dev dependencies declared in `pyproject.toml` / `uv.lock` (including Alembic, SQLAlchemy, GeoAlchemy2, and the configured Postgres driver).
 - [ ] **12. Configure Alembic:**
   - [ ] Initialize a new `alembic` directory: `alembic init alembic`
   - [ ] Set `sqlalchemy.url` in `alembic.ini` (ideally sourced from an environment variable).
@@ -77,7 +75,7 @@
 
 - [ ] **13. Generate Initial Migration:** Let Alembic autogenerate the first schema revision.
   ```sh
-  alembic revision --autogenerate -m "Initial database schema"
+  uv run alembic revision --autogenerate -m "Initial database schema"
   ```
 - [ ] **14. Manually Inspect the Migration File:**
   - [ ] Add `import geoalchemy2` at the top if it's missing.
@@ -86,7 +84,7 @@
   - [ ] Check for any redundant or incorrect operations.
 - [ ] **15. Apply the Migration:** Upgrade the database to the latest version.
   ```sh
-  alembic upgrade head
+  uv run alembic upgrade head
   ```
 - [ ] **16. Verify the Schema in PSQL:**
   - [ ] Check for tables: `psql -d meshic -c "\dt"`

@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.9"
 resolution-markers = [
     "python_full_version >= '3.12'",
@@ -885,23 +885,17 @@ dependencies = [
     { name = "uvicorn" },
 ]
 
-[package.optional-dependencies]
-test = [
+[package.dev-dependencies]
+dev = [
     { name = "aioresponses" },
     { name = "pytest" },
     { name = "pytest-asyncio" },
     { name = "pytest-postgresql" },
 ]
 
-[package.dev-dependencies]
-dev = [
-    { name = "meshic-pipeline" },
-]
-
 [package.metadata]
 requires-dist = [
     { name = "aiohttp" },
-    { name = "aioresponses", marker = "extra == 'test'" },
     { name = "alembic" },
     { name = "asyncpg" },
     { name = "fastapi" },
@@ -917,9 +911,6 @@ requires-dist = [
     { name = "psycopg2-binary" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
-    { name = "pytest", marker = "extra == 'test'" },
-    { name = "pytest-asyncio", marker = "extra == 'test'" },
-    { name = "pytest-postgresql", marker = "extra == 'test'" },
     { name = "pyyaml", specifier = ">=6.0" },
     { name = "requests", specifier = ">=2.32.4" },
     { name = "shapely" },
@@ -928,10 +919,14 @@ requires-dist = [
     { name = "typer" },
     { name = "uvicorn" },
 ]
-provides-extras = ["test"]
 
 [package.metadata.requires-dev]
-dev = [{ name = "meshic-pipeline", editable = "." }]
+dev = [
+    { name = "aioresponses" },
+    { name = "pytest", specifier = ">=8" },
+    { name = "pytest-asyncio" },
+    { name = "pytest-postgresql" },
+]
 
 [[package]]
 name = "mirakuru"

@@ -7,20 +7,40 @@ on:
     branches: [ main ]
 
 jobs:
+  hygiene:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Sync dependencies (locked)
+        run: uv sync --all-groups --frozen --python ${{ matrix.python-version }}
+      - name: Check lockfile
+        run: uv lock --check
+      - name: Check installed packages
+        run: uv pip check
+      - name: Audit dependencies
+        run: uv run --with pip-audit pip-audit --local
+      - name: Static undefined-name check
+        run: uv run --with ruff ruff check src scripts
+
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.11]
+        python-version: ["3.11"]
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
+      - uses: actions/checkout@v4
       - name: Install uv
-        run: pip install uv
-      - name: Install dependencies
-        run: uv pip install -e .[dev]
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Sync dependencies (locked)
+        run: uv sync --all-groups --frozen --python ${{ matrix.python-version }}
       - name: Run tests
-        run: pytest 
+        run: uv run pytest
