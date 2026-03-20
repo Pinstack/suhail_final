@@ -81,7 +81,7 @@ Suhail Final is a sophisticated geospatial data processing pipeline that transfo
 ├── logs/                          # ✅ IMPLEMENTED: Monitoring and logging
 ├── scripts/                       # ✅ IMPLEMENTED: Utility scripts
 ├── tests/                         # ✅ IMPLEMENTED: Test suite
-├── memory-bank/                   # ✅ IMPLEMENTED: Project knowledge base
+├── docs/archive/memory-bank/      # Legacy notes (historical; prefer docs/ + distillates)
 ├── pipeline_config.yaml           # ✅ IMPLEMENTED: Pipeline configuration
 └── pyproject.toml                 # ✅ IMPLEMENTED: Project configuration
 ```
@@ -283,7 +283,7 @@ alembic revision --autogenerate        # Generate new migration
 - `pipeline_config.yaml`: Pipeline configuration with grid settings
 - `pyproject.toml`: Python project configuration and dependencies
 - `schema_dump.sql`: Complete database schema (20+ tables)
-- `memory-bank/`: Project knowledge base with current state
+- `docs/archive/memory-bank/`: Legacy project notes (superseded by BMAD `docs/`)
 - `docs/`: Comprehensive documentation and troubleshooting
 
 ## Success Criteria (Brownfield Reality Check)

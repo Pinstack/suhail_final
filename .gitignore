@@ -104,6 +104,12 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
+# macOS
+.DS_Store
+
+# Local backup venv (not portable)
+.venv_py39_backup/
+
 # Environments
 .env
 .venv/
@@ -141,6 +147,9 @@ cython_debug/
 .vscode/
 
 # Suhail Pipeline Specific
+# Regenerated at runtime (scripts under logs/ stay tracked)
+logs/*.pid
+
 /tiles_cache/
 /temp_tiles/
 /stitched/
@@ -168,7 +177,11 @@ stitched/
 stitched_cache/
 tiles_cache/
 test_tile_*.pbf
-tile_list.txt
+/tile_list.txt
+
+# Regenerated DB report (keep README only)
+docs/reports/generated/*.md
+!docs/reports/generated/README.md
 
 # Package metadata
 *.egg-info/

@@ -1,4 +1,6 @@
 import os
+from pathlib import Path
+
 import pandas as pd
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
@@ -295,10 +297,18 @@ def main():
         if 'connection' in locals() and not connection.closed:
             connection.close()
 
-    with open("database_report.md", "w", encoding="utf-8") as f:
+    out = (
+        Path(__file__).resolve().parents[2]
+        / "docs"
+        / "reports"
+        / "generated"
+        / "database_report.md"
+    )
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with open(out, "w", encoding="utf-8") as f:
         f.write("\n".join(report))
-    
-    print("Database report generated successfully: database_report.md")
+
+    print(f"Database report generated successfully: {out}")
 
 
 if __name__ == "__main__":

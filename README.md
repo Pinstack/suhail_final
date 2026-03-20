@@ -42,13 +42,13 @@ A sophisticated **two-stage geospatial data processing pipeline** for the Saudi 
 - **CLI Interface**: Multiple command options for different operational needs
 - **Testing Framework**: Comprehensive `pytest` environment
 
-## 📊 Data Coverage
+## 📊 Data Coverage (Production)
 
-- **Parcels**: 1,032,380 land parcels with geometric boundaries
-- **Transactions**: 45,526+ real estate transactions with enrichment data
-- **Building Rules**: 68,396+ zoning and construction regulations
-- **Price Metrics**: 752,963+ market analysis data points
-- **Geographic Scope**: Complete Riyadh metropolitan area
+- Parcels: 2,163,003
+- Transactions: 70,787
+- Building Rules: 130,112
+- Price Metrics: 76,080,728
+- Geographic Scope: 12 provinces (812 neighborhoods)
 
 ## ✅ **API Integration Status: FULLY OPERATIONAL**
 
@@ -89,31 +89,40 @@ pip install -e .
 
 ### 2. **Database Configuration**
 ```bash
-# Create .env file
-echo "DATABASE_URL=postgresql://username:password@localhost:5432/meshic" > .env
-echo "SUHAIL_API_BASE_URL=https://api2.suhail.ai" >> .env
+# Local secrets: copy template (never commit .env — it is gitignored)
+cp .env.example .env
+# Edit DATABASE_URL for your Postgres/PostGIS instance.
+
+# Optional — enrichment API base URL when running Stage 2:
+# echo "SUHAIL_API_BASE_URL=https://api2.suhail.ai" >> .env
 ```
 
 ### 3. **Run Complete Pipeline**
 
-#### **Stage 1: Geometric Processing**
+#### Stage 1: Geometric Processing (DB-driven)
 ```bash
-# Process Riyadh metropolitan area (uses config grid)
-meshic-pipeline geometric
+# Seed tiles (optional; per province or all provinces)
+meshic-pipeline seed-tiles --province riyadh --limit 1000 --stride 2
 
-# Or specify custom bounding box
+# Process tiles using the DB queue (recommended)
+meshic-pipeline db-geometric --batch-size 1000 --concurrency 5 --adaptive
+
+# Or traditional bbox mode
 meshic-pipeline geometric --bbox 46.428223 24.367114 47.010498 24.896402
 ```
 
-#### **Stage 2: Business Intelligence Enrichment**
+#### Stage 2: Enrichment
 ```bash
-# Initial enrichment (new parcels only)
-meshic-pipeline enrich fast-enrich
+# Fast enrichment (new parcels that need data)
+meshic-pipeline fast-enrich --batch-size 200
 
-# Trigger-based enrichment (after geometric run)
-meshic-pipeline enrich smart-pipeline-enrich --geometric-first --trigger-after
+# Incremental enrichment (stale by days)
+meshic-pipeline incremental-enrich --days-old 30 --batch-size 100
 
-# Check status and get recommendations
+# Delta enrichment (only parcels with price changes)
+meshic-pipeline delta-enrich --auto-geometric
+
+# Monitoring
 meshic-pipeline monitor status
 meshic-pipeline monitor recommend
 ```
@@ -185,16 +194,25 @@ meshic-pipeline enrich delta-enrich --limit 100 --auto-geometric
 
 ## 📊 Monitoring & Operations
 
-### **Status Monitoring**
+### Status Monitoring (CLI)
 ```bash
-# Check enrichment coverage and freshness
-python monitor_enrichment.py status
+# Queue status, enrichment coverage, failures
+meshic-pipeline monitor status
 
-# Get automated recommendations
-python monitor_enrichment.py recommend
+# Automated recommendations
+meshic-pipeline monitor recommend
 
-# View scheduling guidance
-python monitor_enrichment.py schedule-info
+# Scheduling guidance
+meshic-pipeline monitor schedule-info
+
+# Reset stale in_progress tiles (for cron)
+meshic-pipeline monitor reset-stale -- --stale-minutes 60
+
+# Sample performance measurements (writes docs/reports)
+meshic-pipeline monitor perf -- --label baseline --iterations 5
+
+# Repair missing province metadata (tile URL/bbox)
+python scripts/util/backfill_province_metadata.py --province-id 21012
 ```
 
 ### **Recommended Operational Schedule**
@@ -276,9 +294,10 @@ The pipeline **guarantees** capture of new transactions through:
 ## 🚨 Important Notes
 
 ### **For New Deployments**
-1. Run geometric pipeline first: `python run_pipeline.py`
-2. Run initial enrichment: `meshic-pipeline enrich fast-enrich`
-3. Setup monitoring: `python monitor_enrichment.py status`
+1. Seed provinces (optional): `meshic-pipeline seed-tiles --province riyadh`
+2. Run geometric pipeline: `meshic-pipeline db-geometric`
+3. Run initial enrichment: `meshic-pipeline fast-enrich`
+4. Setup monitoring: `meshic-pipeline monitor status`
 
 ### **For Ongoing Operations**
 - **💡 LEVERAGE THE INSIGHT**: Use `fast-enrich` after geometric pipeline for maximum efficiency
@@ -312,16 +331,16 @@ pytest tests/geometry/
 
 ## 🛟 Troubleshooting
 
-### **Common Issues**
+### Common Issues
 ```bash
 # Database connection issues
-python check_db.py
+check_db
 
 # Memory issues during processing
-meshic-pipeline enrich incremental-enrich --batch-size 50
+meshic-pipeline incremental-enrich --batch-size 50
 
 # Check enrichment status
-python monitor_enrichment.py status
+meshic-pipeline monitor status
 ```
 
 ### **Performance Optimization**

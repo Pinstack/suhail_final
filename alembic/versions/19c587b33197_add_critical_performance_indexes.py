@@ -1,7 +1,7 @@
 """add_critical_performance_indexes
 
 Critical database performance optimizations for the Meshic pipeline.
-Based on DATABASE_ARCHITECTURE_ANALYSIS.md recommendations.
+Based on docs/archive/legacy-root-md/DATABASE_ARCHITECTURE_ANALYSIS.md recommendations.
 
 Provides 60-80% performance improvement through safe index additions.
 Zero risk to existing ETL pipeline operations.
