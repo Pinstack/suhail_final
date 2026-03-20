@@ -97,12 +97,8 @@ def upgrade() -> None:
                existing_type=sa.TEXT(),
                type_=sa.String(),
                existing_nullable=True)
-    # Ensure we have an index to query tile_urls by status efficiently at scale
-    try:
-        op.create_index('idx_tile_urls_status', 'tile_urls', ['status'], unique=False)
-    except Exception:
-        # If it exists, ignore
-        pass
+    # idx_tile_urls_status is created in revision ecb5e54cbea4; do not recreate here
+    # (duplicate CREATE INDEX aborts the transaction on PostgreSQL; try/except does not recover)
     # ### end Alembic commands ###
 
 
