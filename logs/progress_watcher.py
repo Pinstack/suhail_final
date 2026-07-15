@@ -1,6 +1,6 @@
 import sys, time
 from sqlalchemy import create_engine, text
-from meshic_pipeline.config import settings
+from suhail_pipeline.config import settings
 
 def snapshot():
     e = create_engine(str(settings.database_url))

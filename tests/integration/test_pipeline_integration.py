@@ -5,10 +5,10 @@ from shapely.geometry import Polygon
 import mapbox_vector_tile
 from sqlalchemy import create_engine
 
-from meshic_pipeline.config import settings
-import meshic_pipeline.persistence.table_management as table_management
-import meshic_pipeline.pipeline_orchestrator as orchestrator
-from meshic_pipeline.pipeline_orchestrator import run_pipeline
+from suhail_pipeline.config import settings
+import suhail_pipeline.persistence.table_management as table_management
+import suhail_pipeline.pipeline_orchestrator as orchestrator
+from suhail_pipeline.pipeline_orchestrator import run_pipeline
 
 # Integration test that exercises the pipeline orchestration with mocked
 # downloader and database persistence.
@@ -21,12 +21,12 @@ def test_run_pipeline_with_mocks(monkeypatch):
         def has_table(self, table_name, schema=None):
             return True
     monkeypatch.setattr(
-        "meshic_pipeline.pipeline_orchestrator.inspect",
+        "suhail_pipeline.pipeline_orchestrator.inspect",
         lambda engine: DummyInspector(),
     )
     # Patch reset_temp_table to a no-op in both orchestrator and table_management
     monkeypatch.setattr(
-        "meshic_pipeline.pipeline_orchestrator.reset_temp_table", lambda *a, **kw: None
+        "suhail_pipeline.pipeline_orchestrator.reset_temp_table", lambda *a, **kw: None
     )
     monkeypatch.setattr(table_management, "reset_temp_table", lambda *a, **kw: None)
     # sample tile with a single parcel feature
@@ -48,7 +48,7 @@ def test_run_pipeline_with_mocks(monkeypatch):
 
     # discovery returns exactly one tile coordinate
     monkeypatch.setattr(
-        "meshic_pipeline.pipeline_orchestrator.get_tile_coordinates_for_bounds",
+        "suhail_pipeline.pipeline_orchestrator.get_tile_coordinates_for_bounds",
         lambda bbox, zoom: [(15, 0, 0)],
     )
 
@@ -67,7 +67,7 @@ def test_run_pipeline_with_mocks(monkeypatch):
             return {tiles[0]: tile_bytes}
 
     monkeypatch.setattr(
-        "meshic_pipeline.pipeline_orchestrator.AsyncTileDownloader",
+        "suhail_pipeline.pipeline_orchestrator.AsyncTileDownloader",
         DummyDownloader,
     )
 
@@ -113,7 +113,7 @@ def test_run_pipeline_with_mocks(monkeypatch):
             temp_tables.pop(table, None)
 
     monkeypatch.setattr(
-        "meshic_pipeline.pipeline_orchestrator.PostGISPersister",
+        "suhail_pipeline.pipeline_orchestrator.PostGISPersister",
         DummyPersister,
     )
 
@@ -144,7 +144,7 @@ def test_run_pipeline_with_mocks(monkeypatch):
         return gpd.GeoDataFrame(df, geometry="geometry", crs=settings.default_crs)
 
     monkeypatch.setattr(
-        "meshic_pipeline.pipeline_orchestrator.GeometryStitcher.stitch_from_table",
+        "suhail_pipeline.pipeline_orchestrator.GeometryStitcher.stitch_from_table",
         dummy_stitch,
     )
 
@@ -180,12 +180,12 @@ def test_run_pipeline_with_save_as_temp(monkeypatch):
         def has_table(self, table_name, schema=None):
             return True
     monkeypatch.setattr(
-        "meshic_pipeline.pipeline_orchestrator.inspect",
+        "suhail_pipeline.pipeline_orchestrator.inspect",
         lambda engine: DummyInspector(),
     )
     # Patch reset_temp_table to a no-op in both orchestrator and table_management
     monkeypatch.setattr(
-        "meshic_pipeline.pipeline_orchestrator.reset_temp_table", lambda *a, **kw: None
+        "suhail_pipeline.pipeline_orchestrator.reset_temp_table", lambda *a, **kw: None
     )
     monkeypatch.setattr(table_management, "reset_temp_table", lambda *a, **kw: None)
     tile_bytes = mapbox_vector_tile.encode(
@@ -205,7 +205,7 @@ def test_run_pipeline_with_save_as_temp(monkeypatch):
     )
 
     monkeypatch.setattr(
-        "meshic_pipeline.pipeline_orchestrator.get_tile_coordinates_for_bounds",
+        "suhail_pipeline.pipeline_orchestrator.get_tile_coordinates_for_bounds",
         lambda bbox, zoom: [(15, 0, 0)],
     )
 
@@ -223,7 +223,7 @@ def test_run_pipeline_with_save_as_temp(monkeypatch):
             return {tiles[0]: tile_bytes}
 
     monkeypatch.setattr(
-        "meshic_pipeline.pipeline_orchestrator.AsyncTileDownloader",
+        "suhail_pipeline.pipeline_orchestrator.AsyncTileDownloader",
         DummyDownloader,
     )
 
@@ -264,7 +264,7 @@ def test_run_pipeline_with_save_as_temp(monkeypatch):
             pass
 
     monkeypatch.setattr(
-        "meshic_pipeline.pipeline_orchestrator.PostGISPersister",
+        "suhail_pipeline.pipeline_orchestrator.PostGISPersister",
         DummyPersister,
     )
 
@@ -294,7 +294,7 @@ def test_run_pipeline_with_save_as_temp(monkeypatch):
         )
 
     monkeypatch.setattr(
-        "meshic_pipeline.pipeline_orchestrator.GeometryStitcher.stitch_from_table",
+        "suhail_pipeline.pipeline_orchestrator.GeometryStitcher.stitch_from_table",
         dummy_stitch,
     )
 

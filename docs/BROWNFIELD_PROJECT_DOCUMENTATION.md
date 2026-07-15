@@ -1,7 +1,7 @@
-# Brownfield Project Documentation: Meshic Geospatial Data Pipeline
+# Brownfield Project Documentation: Suhail Geospatial Data Pipeline
 
 **Document Type**: Comprehensive Brownfield Analysis  
-**Project**: Meshic Real Estate Data Processing Pipeline  
+**Project**: Suhail Real Estate Data Processing Pipeline  
 **Date**: October 16, 2025  
 **Analyst**: Mary, Business Analyst  
 **Status**: Production System with 2.16M+ Parcels
@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-The Meshic pipeline is a **mature, production-scale geospatial data processing system** for Saudi Arabian real estate data. The system successfully processes 2.16M+ land parcels across Saudi Arabia with comprehensive enrichment data, demonstrating proven operational capability at commercial scale.
+The Suhail pipeline is a **mature, production-scale geospatial data processing system** for Saudi Arabian real estate data. The system successfully processes 2.16M+ land parcels across Saudi Arabia with comprehensive enrichment data, demonstrating proven operational capability at commercial scale.
 
 ### Key Findings
 
@@ -27,8 +27,8 @@ The Meshic pipeline is a **mature, production-scale geospatial data processing s
 
 ### 1.1 Database Reality Check
 
-**Database Name**: `meshic` (NOT `meshic_pipeline` as documented)  
-**Owner**: `postgres` (NOT `meshic_user` as might be expected)
+**Database Name**: `suhail` (NOT `suhail_pipeline` as documented)  
+**Owner**: `postgres` (NOT `suhail_user` as might be expected)
 
 #### Production Data Volumes (Actual Counts)
 
@@ -58,7 +58,7 @@ in_progress:      788 tiles (2.3%)
 ```python
 # Actual Implementation from pyproject.toml
 Language: Python 3.9+
-Package Name: "meshic-pipeline" (v0.1.0)
+Package Name: "suhail-pipeline" (v0.1.0)
 Database: PostgreSQL 14+ with PostGIS
 ORM: SQLAlchemy 2.0+ (async)
 HTTP Client: aiohttp (async)
@@ -69,7 +69,7 @@ Spatial Processing: GeoPandas, Shapely, h3
 #### Module Structure (Actual Source Code)
 
 ```
-src/meshic_pipeline/
+src/suhail_pipeline/
 ├── cli.py                    # 18 commands (NOT 6-7 as simplified docs suggest)
 ├── config.py                 # Pydantic settings with province loading
 ├── persistence/
@@ -184,36 +184,36 @@ The system provides **18 commands** across 5 categories (not the simplified 6-7 
 #### Geometric Processing Commands
 
 ```bash
-meshic-pipeline geometric [--bbox ...] [--recreate-db] [--save-as-temp <table>]
-meshic-pipeline province-geometric <province> [--strategy ...] [--recreate-db]
-meshic-pipeline saudi-arabia-geometric [--strategy ...] [--recreate-db]
-meshic-pipeline db-geometric [--batch-size] [--concurrency] [--adaptive]
+suhail-pipeline geometric [--bbox ...] [--recreate-db] [--save-as-temp <table>]
+suhail-pipeline province-geometric <province> [--strategy ...] [--recreate-db]
+suhail-pipeline saudi-arabia-geometric [--strategy ...] [--recreate-db]
+suhail-pipeline db-geometric [--batch-size] [--concurrency] [--adaptive]
 ```
 
 #### Enrichment Strategy Commands
 
 ```bash
-meshic-pipeline fast-enrich [--batch-size 200] [--limit]
-meshic-pipeline incremental-enrich [--batch-size 100] [--days-old 30]
-meshic-pipeline full-refresh [--batch-size 50] [--limit]
-meshic-pipeline universal-metrics [--batch-size 200] [--limit]
-meshic-pipeline delta-enrich [--auto-geometric] [--fresh-table] [--show-details]
+suhail-pipeline fast-enrich [--batch-size 200] [--limit]
+suhail-pipeline incremental-enrich [--batch-size 100] [--days-old 30]
+suhail-pipeline full-refresh [--batch-size 50] [--limit]
+suhail-pipeline universal-metrics [--batch-size 200] [--limit]
+suhail-pipeline delta-enrich [--auto-geometric] [--fresh-table] [--show-details]
 ```
 
 #### Composite Workflow Commands
 
 ```bash
-meshic-pipeline smart-pipeline [--geometric-first] [--batch-size] [--bbox]
-meshic-pipeline province-pipeline <province> [--strategy] [--batch-size]
-meshic-pipeline saudi-pipeline [--strategy] [--batch-size]
+suhail-pipeline smart-pipeline [--geometric-first] [--batch-size] [--bbox]
+suhail-pipeline province-pipeline <province> [--strategy] [--batch-size]
+suhail-pipeline saudi-pipeline [--strategy] [--batch-size]
 ```
 
 #### Orchestration & Monitoring
 
 ```bash
-meshic-pipeline seed-tiles [--province] [--provinces] [--region-slugs] [--stride] [--limit]
-meshic-pipeline discovery-summary
-meshic-pipeline monitor <status|recommend|schedule-info>
+suhail-pipeline seed-tiles [--province] [--provinces] [--region-slugs] [--stride] [--limit]
+suhail-pipeline discovery-summary
+suhail-pipeline monitor <status|recommend|schedule-info>
 ```
 
 **Critical Observation**: The CLI is far more sophisticated than documented, with comprehensive province-wide and all-Saudi processing capabilities.
@@ -479,7 +479,7 @@ DROP TABLE IF EXISTS temp_parcels, temp_neighborhoods, temp_subdivisions;
 
 **Priority 2: README Accuracy**
 - Update data coverage numbers (currently shows 1M parcels, should be 2.16M)
-- Clarify which database name is actually used (`meshic` vs `meshic_pipeline`)
+- Clarify which database name is actually used (`suhail` vs `suhail_pipeline`)
 - Document the 788 "in_progress" tiles situation
 
 ### 5.3 Code Quality Improvements
@@ -677,7 +677,7 @@ DROP TABLE IF EXISTS temp_parcels, temp_neighborhoods, temp_subdivisions;
 
 ### The Bottom Line
 
-The Meshic pipeline is a **production-grade geospatial data processing system** that has successfully achieved commercial scale with **2.16 million Saudi Arabian land parcels**. The system demonstrates:
+The Suhail pipeline is a **production-grade geospatial data processing system** that has successfully achieved commercial scale with **2.16 million Saudi Arabian land parcels**. The system demonstrates:
 
 ✅ **Proven Architecture**: DB-driven tile orchestration, async processing, comprehensive enrichment  
 ✅ **Production Data**: 76M+ price metrics, 130K+ building rules, 70K+ transactions  

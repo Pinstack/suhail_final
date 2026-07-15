@@ -169,9 +169,9 @@ WHERE tile_server_url = 'https://tiles.suhail.ai/makkah_region/';
 
 ```bash
 # After fixes applied
-meshic-pipeline province-geometric makkah
-meshic-pipeline province-geometric eastern_region  
-meshic-pipeline province-geometric al_madenieh
+suhail-pipeline province-geometric makkah
+suhail-pipeline province-geometric eastern_region  
+suhail-pipeline province-geometric al_madenieh
 # ... etc
 ```
 

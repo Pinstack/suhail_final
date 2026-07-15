@@ -1,5 +1,5 @@
 from typer.testing import CliRunner
-from meshic_pipeline.run_geometric_pipeline import app
+from suhail_pipeline.run_geometric_pipeline import app
 
 runner = CliRunner()
 

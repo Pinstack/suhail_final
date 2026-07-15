@@ -1,6 +1,6 @@
 import mercantile
 
-from meshic_pipeline.pipeline_orchestrator import get_tile_coordinates_for_grid
+from suhail_pipeline.pipeline_orchestrator import get_tile_coordinates_for_grid
 
 
 def test_get_tile_coordinates_for_bounds_round_trip():

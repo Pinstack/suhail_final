@@ -1,4 +1,4 @@
-# Architecture: Meshic Geospatial Data Pipeline (Lean)
+# Architecture: Suhail Geospatial Data Pipeline (Lean)
 
 Date: 2025-10-16
 Author: Mary (Business Analyst)
@@ -8,7 +8,7 @@ Status: v0.1 (Lean Architecture for Planning)
 
 ## 1. System Context
 
-Meshic is a two-stage, production-grade data pipeline for Saudi Arabian parcel intelligence:
+Suhail is a two-stage, production-grade data pipeline for Saudi Arabian parcel intelligence:
 
 - Inputs
   - Province-specific Mapbox Vector Tiles (MVT) — geometry + attributes
@@ -26,16 +26,16 @@ Meshic is a two-stage, production-grade data pipeline for Saudi Arabian parcel i
 ## 2. Core Components
 
 - CLI (Typer)
-  - `meshic-pipeline db-geometric`, `geometric`, `province-geometric`, `saudi-arabia-geometric`
+  - `suhail-pipeline db-geometric`, `geometric`, `province-geometric`, `saudi-arabia-geometric`
   - `fast-enrich`, `incremental-enrich`, `full-refresh`, `universal-metrics`, `delta-enrich`
   - `seed-tiles`, `discovery-summary`, `monitor <status|recommend|schedule-info>`
-  - File: `src/meshic_pipeline/cli.py`
+  - File: `src/suhail_pipeline/cli.py`
 
 - Discovery & Queue
   - `tile_urls` table stores z/x/y tile work items with statuses
   - Seeding via province bbox metadata (`provinces` table)
   - Model: `TileURL` with `claim_tiles_for_processing(..., SKIP LOCKED)` and `reset_stale_in_progress(...)`
-  - Files: `src/meshic_pipeline/persistence/models.py`, `src/meshic_pipeline/cli.py`
+  - Files: `src/suhail_pipeline/persistence/models.py`, `src/suhail_pipeline/cli.py`
 
 - Geometric Workers (Stage 1)
   - Downloader: `aiohttp` concurrent fetch with retry/backoff
@@ -43,27 +43,27 @@ Meshic is a two-stage, production-grade data pipeline for Saudi Arabian parcel i
   - Validation: geometry sanity checks
   - Stitcher: PostGIS-based dissolve across tiles using temporary tables
   - Persister: Schema-driven writes, upsert support, temp table utilities
-  - Files: `src/meshic_pipeline/run_db_geometric.py`, `.../decoder/mvt_decoder.py`, `.../geometry/stitcher.py`, `.../persistence/postgis_persister.py`, `.../persistence/table_management.py`
+  - Files: `src/suhail_pipeline/run_db_geometric.py`, `.../decoder/mvt_decoder.py`, `.../geometry/stitcher.py`, `.../persistence/postgis_persister.py`, `.../persistence/table_management.py`
 
 - Enrichment Workers (Stage 2)
   - Strategies: fast, incremental, full, universal metrics, delta
   - API client: Suhail endpoints; batch processing; async persistence
-  - Files: `src/meshic_pipeline/run_enrichment_pipeline.py`, `.../enrichment/strategies.py`, `.../enrichment/api_client.py`, `.../persistence/enrichment_persister.py`
+  - Files: `src/suhail_pipeline/run_enrichment_pipeline.py`, `.../enrichment/strategies.py`, `.../enrichment/api_client.py`, `.../persistence/enrichment_persister.py`
 
 - Monitoring & Ops
   - CLI `monitor` subcommands; queue and enrichment visibility
   - Stale-tile reset via `TileURL.reset_stale_in_progress`
-  - Files: `src/meshic_pipeline/run_monitoring.py`, `src/meshic_pipeline/persistence/models.py`
+  - Files: `src/suhail_pipeline/run_monitoring.py`, `src/suhail_pipeline/persistence/models.py`
 
 - Configuration
   - Pydantic settings; DB URL, API endpoints, layers, batch sizes
   - Province metadata loader (from DB) and tile server templates
-  - File: `src/meshic_pipeline/config.py`
+  - File: `src/suhail_pipeline/config.py`
 
 - Schema & Migrations
   - SQLAlchemy models (15+ tables)
   - Alembic migrations incl. critical performance indexes and temp-table cleanup
-  - Files: `src/meshic_pipeline/persistence/models.py`, `alembic/versions/`
+  - Files: `src/suhail_pipeline/persistence/models.py`, `alembic/versions/`
 
 ---
 
@@ -142,10 +142,10 @@ Indexes (via Alembic `19c587b33197...`):
 
 ## 7. Operations & Runbooks
 
-- Seeding: `meshic-pipeline seed-tiles [--province|--region-slugs] [--limit|--stride]`
-- Geometric run: `meshic-pipeline db-geometric --batch-size --concurrency --adaptive`
+- Seeding: `suhail-pipeline seed-tiles [--province|--region-slugs] [--limit|--stride]`
+- Geometric run: `suhail-pipeline db-geometric --batch-size --concurrency --adaptive`
 - Enrichment runs: `fast-enrich`, `incremental-enrich`, `full-refresh`, `universal-metrics`, `delta-enrich`
-- Monitoring: `meshic-pipeline monitor status|recommend|schedule-info`
+- Monitoring: `suhail-pipeline monitor status|recommend|schedule-info`
 - Stale reset: schedule `TileURL.reset_stale_in_progress(..., stale_minutes=60)`
 - Migrations: apply Alembic (indexes + hygiene) during low-traffic windows
 
@@ -198,6 +198,6 @@ Temp Table Policy
 - docs/ACCEPTANCE_CRITERIA.md
 - docs/BROWNFIELD_PROJECT_DOCUMENTATION.md
 - alembic/versions/19c587b33197_add_critical_performance_indexes.py
-- src/meshic_pipeline/cli.py
-- src/meshic_pipeline/persistence/models.py
+- src/suhail_pipeline/cli.py
+- src/suhail_pipeline/persistence/models.py
 

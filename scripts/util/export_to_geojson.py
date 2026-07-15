@@ -30,7 +30,7 @@ def export_table_to_geojson(table_name: str, output_file: str, limit: int = None
     load_dotenv()
     if str(_REPO_SRC) not in sys.path:
         sys.path.insert(0, str(_REPO_SRC))
-    from meshic_pipeline.persistence.db import get_db_engine
+    from suhail_pipeline.persistence.db import get_db_engine
 
     engine = get_db_engine()
     

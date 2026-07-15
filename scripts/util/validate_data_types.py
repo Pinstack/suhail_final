@@ -14,7 +14,7 @@ from sqlalchemy.exc import SQLAlchemyError
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from meshic_pipeline.logging_utils import get_logger
+from suhail_pipeline.logging_utils import get_logger
 
 logger = get_logger(__name__)
 

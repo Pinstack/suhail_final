@@ -1,4 +1,4 @@
-# Product Brief: Meshic Geospatial Data Pipeline
+# Product Brief: Suhail Geospatial Data Pipeline
 
 Date: 2025-10-16
 Author: Mary (Business Analyst)
@@ -8,7 +8,7 @@ Status: Draft for PM Review
 
 ## Executive Summary
 
-Meshic is a production-grade, DB-driven geospatial data pipeline that extracts, processes, and enriches Saudi Arabian land parcel data at national scale. The pipeline has processed 2.16M+ parcels across 12 provinces, generated 76M+ price metrics, and captured 130K+ building rules. A database-orchestrated tile queue (34,726 tiles) enables distributed, resumable geometric processing, followed by API-based enrichment (transactions, rules, price metrics). The system is ready for optimization and productization (monitoring, SLAs, client delivery interfaces).
+Suhail is a production-grade, DB-driven geospatial data pipeline that extracts, processes, and enriches Saudi Arabian land parcel data at national scale. The pipeline has processed 2.16M+ parcels across 12 provinces, generated 76M+ price metrics, and captured 130K+ building rules. A database-orchestrated tile queue (34,726 tiles) enables distributed, resumable geometric processing, followed by API-based enrichment (transactions, rules, price metrics). The system is ready for optimization and productization (monitoring, SLAs, client delivery interfaces).
 
 ---
 
@@ -146,7 +146,7 @@ Organizations require comprehensive, up-to-date, and spatially accurate parcel i
   - docs/BROWNFIELD_PROJECT_DOCUMENTATION.md
   - `docs/archive/legacy-root-md/DATABASE_ARCHITECTURE_ANALYSIS.md`
   - alembic/versions/19c587b33197_add_critical_performance_indexes.py
-  - src/meshic_pipeline/cli.py, src/meshic_pipeline/persistence/models.py, src/meshic_pipeline/run_db_geometric.py
+  - src/suhail_pipeline/cli.py, src/suhail_pipeline/persistence/models.py, src/suhail_pipeline/run_db_geometric.py
 
 ---
 

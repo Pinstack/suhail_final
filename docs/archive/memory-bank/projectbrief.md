@@ -1,4 +1,4 @@
-# Project Brief: Meshic Geospatial Data Pipeline
+# Project Brief: Suhail Geospatial Data Pipeline
 
 ## Project Overview
 Commercial geospatial data processing pipeline for capturing Saudi Arabian land parcel data from MVT tiles. Built to extract and enrich real estate data for client sales and analytics products.

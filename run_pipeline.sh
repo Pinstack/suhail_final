@@ -19,11 +19,11 @@ if [[ -z "${DATABASE_URL:-}" ]]; then
 fi
 
 echo "Seeding pilot tiles for two provinces (riyadh, eastern)..."
-uv run meshic-pipeline seed-tiles --provinces riyadh --provinces eastern --limit 200 --stride 20
+uv run suhail-pipeline seed-tiles --provinces riyadh --provinces eastern --limit 200 --stride 20
 
 echo "Running DB-driven geometric pilot..."
-uv run meshic-pipeline db-geometric --batch-size 200 --concurrency 20 --request-delay 0.05
+uv run suhail-pipeline db-geometric --batch-size 200 --concurrency 20 --request-delay 0.05
 
 echo "Pilot complete. To proceed countrywide:"
-echo "  1) uv run meshic-pipeline seed-tiles"
-echo "  2) uv run meshic-pipeline db-geometric --batch-size 1000 --concurrency 20 --request-delay 0.05"
+echo "  1) uv run suhail-pipeline seed-tiles"
+echo "  2) uv run suhail-pipeline db-geometric --batch-size 1000 --concurrency 20 --request-delay 0.05"

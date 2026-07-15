@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 from sqlalchemy import create_engine, inspect, text, exc
-from meshic_pipeline.config import settings
+from suhail_pipeline.config import settings
 from rich.table import Table as RichTable
 from rich.console import Console
 from sqlalchemy.exc import NoSuchTableError

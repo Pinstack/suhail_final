@@ -1,4 +1,4 @@
-from meshic_pipeline.config import Settings, Environment, ApiConfig
+from suhail_pipeline.config import Settings, Environment, ApiConfig
 
 
 def test_environment_override():

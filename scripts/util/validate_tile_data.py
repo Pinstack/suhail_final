@@ -12,7 +12,7 @@ import sys
 import glob
 import argparse
 import json
-from meshic_pipeline.decoder.mvt_decoder import MVTDecoder
+from suhail_pipeline.decoder.mvt_decoder import MVTDecoder
 from shapely.geometry import mapping
 
 ID_FIELDS = {

@@ -18,7 +18,7 @@ while true; do
     if [[ "$PROCESS_STATUS" == "STOPPED" ]] && [[ "$REMAINING" -gt 0 ]]; then
         echo "[$TIMESTAMP] 🚨 Process stopped with $REMAINING parcels remaining - RESTARTING!"
 
-        nohup bash -lc "cd '$ROOT' && uv run meshic-pipeline full-refresh --batch-size 200" >> logs/enrichment-full.log 2>&1 & echo $! > logs/enrichment-full.pid
+        nohup bash -lc "cd '$ROOT' && uv run suhail-pipeline full-refresh --batch-size 200" >> logs/enrichment-full.log 2>&1 & echo $! > logs/enrichment-full.pid
 
         echo "[$TIMESTAMP] 🔄 Enrichment restarted with PID $(cat logs/enrichment-full.pid)" >> logs/auto_restart.log
 

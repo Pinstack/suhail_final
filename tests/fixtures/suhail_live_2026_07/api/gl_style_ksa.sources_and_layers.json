@@ -1,0 +1,922 @@
+{
+ "sources": {
+  "mapbox://mapbox.satellite": {
+   "url": "mapbox://mapbox.satellite",
+   "type": "raster",
+   "tileSize": 256
+  },
+  "composite": {
+   "url": "mapbox://mapbox.mapbox-streets-v8,suhail-app.c4y35hil,mapbox.mapbox-terrain-v2",
+   "type": "vector"
+  },
+  "province-61000-src": {
+   "type": "geojson",
+   "data": {
+    "type": "Feature",
+    "geometry": {
+     "type": "Point",
+     "coordinates": [
+      42.50618302642124,
+      18.216490450501226
+     ]
+    }
+   }
+  },
+  "ksa": {
+   "type": "vector",
+   "maxzoom": 15,
+   "tiles": [
+    "https://tiles.suhail.ai/maps/ksa/{z}/{x}/{y}.vector.pbf?"
+   ]
+  },
+  "riyadh": {
+   "type": "vector",
+   "maxzoom": 15,
+   "bounds": [
+    41.686026,
+    19.208334,
+    48.1838,
+    27.7021
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/maps/riyadh/{z}/{x}/{y}.vector.pbf?"
+   ]
+  },
+  "al_madenieh": {
+   "type": "vector",
+   "maxzoom": 15,
+   "bounds": [
+    37.084,
+    22.51971,
+    42.1566,
+    27.46665
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/maps/madinah/{z}/{x}/{y}.vector.pbf?"
+   ]
+  },
+  "al_qassim": {
+   "type": "vector",
+   "maxzoom": 15,
+   "bounds": [
+    41.307313,
+    24.4836,
+    44.989467,
+    28.2508
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/maps/qassim/{z}/{x}/{y}.vector.pbf?"
+   ]
+  },
+  "asir_region": {
+   "type": "vector",
+   "maxzoom": 15,
+   "bounds": [
+    41.214223,
+    17.366667,
+    44.440789,
+    20.80266
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/maps/asir/{z}/{x}/{y}.vector.pbf?"
+   ]
+  },
+  "eastern_region": {
+   "type": "vector",
+   "maxzoom": 15,
+   "bounds": [
+    44.670664,
+    19.000517,
+    55.666667,
+    29.141386
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/maps/eastern/{z}/{x}/{y}.vector.pbf?"
+   ]
+  },
+  "makkah_region": {
+   "type": "vector",
+   "maxzoom": 15,
+   "bounds": [
+    38.61693,
+    18.564691,
+    43.83016,
+    23.6952
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/maps/makkah/{z}/{x}/{y}.vector.pbf?"
+   ]
+  },
+  "bahah": {
+   "type": "vector",
+   "maxzoom": 15,
+   "bounds": [
+    40.829164,
+    19.44581,
+    42.129716,
+    20.82938
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/maps/bahah/{z}/{x}/{y}.vector.pbf?"
+   ]
+  },
+  "hail": {
+   "type": "vector",
+   "maxzoom": 15,
+   "bounds": [
+    39.11418,
+    25.25439,
+    44.367661,
+    29.207876
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/maps/hail/{z}/{x}/{y}.vector.pbf?"
+   ]
+  },
+  "jawf": {
+   "type": "vector",
+   "maxzoom": 15,
+   "bounds": [
+    37.005875,
+    28.36794,
+    41.99684,
+    31.749873
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/maps/jawf/{z}/{x}/{y}.vector.pbf?"
+   ]
+  },
+  "jazan": {
+   "type": "vector",
+   "maxzoom": 15,
+   "bounds": [
+    41.38948,
+    16.08843,
+    43.3365,
+    18.060398
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/maps/jazan/{z}/{x}/{y}.vector.pbf?"
+   ]
+  },
+  "najran": {
+   "type": "vector",
+   "maxzoom": 15,
+   "bounds": [
+    43.59569,
+    16.95,
+    52.001753,
+    19.448889
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/maps/najran/{z}/{x}/{y}.vector.pbf?"
+   ]
+  },
+  "northern_borders": {
+   "type": "vector",
+   "maxzoom": 15,
+   "bounds": [
+    37.955253,
+    27.831761,
+    45.464141,
+    32.153962
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/maps/northern_borders/{z}/{x}/{y}.vector.pbf?"
+   ]
+  },
+  "tabuk": {
+   "type": "vector",
+   "maxzoom": 15,
+   "bounds": [
+    34.571234,
+    24.560854,
+    39.923088,
+    29.976269
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/maps/tabuk/{z}/{x}/{y}.vector.pbf?"
+   ]
+  },
+  "base-raster-riyadh": {
+   "type": "raster",
+   "scheme": "tms",
+   "minzoom": 8,
+   "maxzoom": 18,
+   "bounds": [
+    41.686026,
+    19.208334,
+    48.1838,
+    27.7021
+   ],
+   "tiles": [
+    "https://qeye-tiles-prod.obs.me-east-1.myhuaweicloud.com/1/2023-08-01/{z}/{x}/{y}.png"
+   ]
+  },
+  "base-raster-al_madenieh": {
+   "type": "raster",
+   "scheme": "tms",
+   "minzoom": 8,
+   "maxzoom": 18,
+   "bounds": [
+    37.084,
+    22.51971,
+    42.1566,
+    27.46665
+   ],
+   "tiles": [
+    "https://qeye-tiles-prod.obs.me-east-1.myhuaweicloud.com/3/2023-08-01/{z}/{x}/{y}.png"
+   ]
+  },
+  "base-raster-eastern_region": {
+   "type": "raster",
+   "scheme": "tms",
+   "minzoom": 8,
+   "maxzoom": 18,
+   "bounds": [
+    44.670664,
+    19.000517,
+    55.666667,
+    29.141386
+   ],
+   "tiles": [
+    "https://qeye-tiles-prod.obs.me-east-1.myhuaweicloud.com/4/2023-08-01/{z}/{x}/{y}.png"
+   ]
+  },
+  "base-raster-makkah_region": {
+   "type": "raster",
+   "scheme": "tms",
+   "minzoom": 8,
+   "maxzoom": 18,
+   "bounds": [
+    38.61693,
+    18.564691,
+    43.83016,
+    23.6952
+   ],
+   "tiles": [
+    "https://qeye-tiles-prod.obs.me-east-1.myhuaweicloud.com/2/2023-08-01/{z}/{x}/{y}.png"
+   ]
+  },
+  "watheer_1_project_id_61": {
+   "type": "raster",
+   "scheme": "tms",
+   "minzoom": 14,
+   "maxzoom": 19,
+   "bounds": [
+    46.745422050576735,
+    24.51596594131675,
+    46.76191981407351,
+    24.525095488456188
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/tiles/watheer_1_project_id_61/{z}/{x}/{y}.png"
+   ]
+  },
+  "watheer_3_project_id_62": {
+   "type": "raster",
+   "scheme": "tms",
+   "minzoom": 14,
+   "maxzoom": 19,
+   "bounds": [
+    46.73750468401522,
+    24.50762925878948,
+    46.75129332030497,
+    24.516613545746253
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/tiles/watheer_3_project_id_62/{z}/{x}/{y}.png"
+   ]
+  },
+  "sma_rosan": {
+   "type": "raster",
+   "scheme": "tms",
+   "minzoom": 14,
+   "maxzoom": 19,
+   "bounds": [
+    46.93681872420916,
+    24.908261154289747,
+    46.95851464507655,
+    24.92992699957884
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/tiles/SMA_ROSAN/{z}/{x}/{y}.png"
+   ]
+  },
+  "rakiz": {
+   "type": "raster",
+   "scheme": "tms",
+   "minzoom": 14,
+   "maxzoom": 19,
+   "bounds": [
+    46.62224044087486,
+    24.49139443675746,
+    46.62784482347615,
+    24.495102396718096
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/tiles/rakiz/{z}/{x}/{y}.png"
+   ]
+  },
+  "osus": {
+   "type": "raster",
+   "scheme": "tms",
+   "minzoom": 14,
+   "maxzoom": 19,
+   "bounds": [
+    46.85392731555123,
+    24.907714868029046,
+    46.865581535916135,
+    24.918589500320408
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/tiles/osus/{z}/{x}/{y}.png"
+   ]
+  },
+  "thenode": {
+   "type": "raster",
+   "scheme": "tms",
+   "minzoom": 14,
+   "maxzoom": 19,
+   "bounds": [
+    46.96335085311898,
+    24.83532185522587,
+    46.97267736723461,
+    24.843671694476598
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/tiles/thenode/{z}/{x}/{y}.png"
+   ]
+  },
+  "Alzumuruda": {
+   "type": "raster",
+   "scheme": "tms",
+   "minzoom": 14,
+   "maxzoom": 19,
+   "bounds": [
+    43.83640477793267,
+    26.437120622829795,
+    43.859762425786926,
+    26.44498395270118
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/tiles/Alzumuruda/{z}/{x}/{y}.png"
+   ]
+  },
+  "albsateen": {
+   "type": "raster",
+   "scheme": "tms",
+   "minzoom": 14,
+   "maxzoom": 19,
+   "bounds": [
+    39.6699056520946,
+    24.503588462386404,
+    39.681804798599956,
+    24.508643396766473
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/tiles/albsateen/{z}/{x}/{y}.png"
+   ]
+  },
+  "Nobla": {
+   "type": "raster",
+   "scheme": "tms",
+   "minzoom": 14,
+   "maxzoom": 19,
+   "bounds": [
+    39.65688411431529,
+    24.37602165533194,
+    39.67086681578439,
+    24.380175760861277
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/tiles/Nobla/{z}/{x}/{y}.png"
+   ]
+  },
+  "akhial": {
+   "type": "raster",
+   "scheme": "tms",
+   "minzoom": 14,
+   "maxzoom": 19,
+   "bounds": [
+    49.92420628407717,
+    26.353124564993635,
+    49.955896386042355,
+    26.413738134738054
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/tiles/akhial/{z}/{x}/{y}.png"
+   ]
+  },
+  "ajdal": {
+   "type": "raster",
+   "scheme": "tms",
+   "minzoom": 14,
+   "maxzoom": 19,
+   "bounds": [
+    39.26981593177834,
+    21.328977740201424,
+    39.28501100816402,
+    21.35141759744951
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/tiles/ajdal/{z}/{x}/{y}.png"
+   ]
+  },
+  "ajdal-otherSubdivisions": {
+   "type": "raster",
+   "scheme": "tms",
+   "minzoom": 12,
+   "maxzoom": 19,
+   "bounds": [
+    39.267628097,
+    21.336002009,
+    39.309957819,
+    21.363523021
+   ],
+   "tiles": [
+    "https://tiles.suhail.ai/tiles/ajdal-otherSubdivisions/{z}/{x}/{y}.png"
+   ]
+  },
+  "ًProject-Wareef": {
+   "type": "geojson",
+   "data": {
+    "type": "Feature",
+    "geometry": {
+     "type": "Point",
+     "coordinates": [
+      39.288763311466596,
+      21.34695631947318
+     ]
+    }
+   }
+  },
+  "Project-Saden": {
+   "type": "geojson",
+   "data": {
+    "type": "Feature",
+    "geometry": {
+     "type": "Point",
+     "coordinates": [
+      39.25020519297186,
+      21.386766172776674
+     ]
+    }
+   }
+  },
+  "regions": {
+   "type": "geojson",
+   "data": {
+    "type": "FeatureCollection",
+    "features": [
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "12",
+       "ArabicName": "الباحة",
+       "EnglishName": "Al Bahah Region"
+      },
+      "geometry": {
+       "type": "Point",
+       "coordinates": [
+        41.46680824895095,
+        20.15428414166781
+       ]
+      }
+     },
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "15",
+       "ArabicName": "الجوف",
+       "EnglishName": "Al Jawf Region"
+      },
+      "geometry": {
+       "type": "Point",
+       "coordinates": [
+        39.54109227509982,
+        29.979723799811712
+       ]
+      }
+     },
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "9",
+       "ArabicName": "الحدود الشماليه",
+       "EnglishName": "Northern Borders Region"
+      },
+      "geometry": {
+       "type": "Point",
+       "coordinates": [
+        41.892302988053004,
+        30.22633714333982
+       ]
+      }
+     },
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "8",
+       "ArabicName": "حائل",
+       "EnglishName": "Hail Region"
+      },
+      "geometry": {
+       "type": "Point",
+       "coordinates": [
+        41.43400160571424,
+        27.42673497763816
+       ]
+      }
+     },
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "6",
+       "ArabicName": "عسير",
+       "EnglishName": "Asir Region"
+      },
+      "geometry": {
+       "type": "Point",
+       "coordinates": [
+        42.943519352286216,
+        19.15201338425933
+       ]
+      }
+     },
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "5",
+       "ArabicName": "الشرقية",
+       "EnglishName": "Eastern Region"
+      },
+      "geometry": {
+       "type": "Point",
+       "coordinates": [
+        50.16873341480063,
+        23.268309751138542
+       ]
+      }
+     },
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "2",
+       "ArabicName": "مكة المكرمة",
+       "EnglishName": "Makkah Al Mukarramah Region"
+      },
+      "geometry": {
+       "type": "Point",
+       "coordinates": [
+        41.26142010756434,
+        21.634563628812057
+       ]
+      }
+     },
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "11",
+       "ArabicName": "نجران",
+       "EnglishName": "Najran Region"
+      },
+      "geometry": {
+       "type": "Point",
+       "coordinates": [
+        46.870331850227686,
+        18.449846942629176
+       ]
+      }
+     },
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "13",
+       "ArabicName": "المدينة المنورة",
+       "EnglishName": "Al Madinah Al Munawwarah Region"
+      },
+      "geometry": {
+       "type": "Point",
+       "coordinates": [
+        39.580045332006314,
+        24.83919847332798
+       ]
+      }
+     },
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "10",
+       "ArabicName": "الرياض",
+       "EnglishName": "Riyadh"
+      },
+      "geometry": {
+       "type": "Point",
+       "coordinates": [
+        45.585933615839345,
+        23.11687235271373
+       ]
+      }
+     },
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "4",
+       "ArabicName": "القصيم",
+       "EnglishName": "Al Qassim Region"
+      },
+      "geometry": {
+       "type": "Point",
+       "coordinates": [
+        43.33063952265524,
+        26.191745453894846
+       ]
+      }
+     },
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "7",
+       "ArabicName": "تبوك",
+       "EnglishName": "Tabuk Region"
+      },
+      "geometry": {
+       "type": "Point",
+       "coordinates": [
+        37.241569546881514,
+        27.873669253033608
+       ]
+      }
+     },
+     {
+      "type": "Feature",
+      "properties": {
+       "id": "14",
+       "ArabicName": "جازان",
+       "EnglishName": "Jazan Region"
+      },
+      "geometry": {
+       "type": "Point",
+       "coordinates": [
+        42.65388886783398,
+        17.204688900565603
+       ]
+      }
+     }
+    ]
+   }
+  }
+ },
+ "source_layers": {
+  "landcover": {
+   "style_layer_count": 1,
+   "examples": [
+    "landcover"
+   ]
+  },
+  "landuse_overlay": {
+   "style_layer_count": 1,
+   "examples": [
+    "national-park"
+   ]
+  },
+  "landuse": {
+   "style_layer_count": 1,
+   "examples": [
+    "landuse"
+   ]
+  },
+  "waterway": {
+   "style_layer_count": 2,
+   "examples": [
+    "waterway-shadow",
+    "waterway"
+   ]
+  },
+  "water": {
+   "style_layer_count": 2,
+   "examples": [
+    "water-shadow",
+    "water"
+   ]
+  },
+  "structure": {
+   "style_layer_count": 2,
+   "examples": [
+    "land-structure-polygon",
+    "land-structure-line"
+   ]
+  },
+  "building": {
+   "style_layer_count": 2,
+   "examples": [
+    "building-outline",
+    "building"
+   ]
+  },
+  "road": {
+   "style_layer_count": 45,
+   "examples": [
+    "tunnel-street-minor-low",
+    "tunnel-street-minor-case",
+    "tunnel-primary-secondary-tertiary-case"
+   ]
+  },
+  "provinces": {
+   "style_layer_count": 26,
+   "examples": [
+    "provinces_outline@riyadh",
+    "provinces@riyadh",
+    "provinces_outline@al_madenieh"
+   ]
+  },
+  "neighborhoods": {
+   "style_layer_count": 26,
+   "examples": [
+    "neighborhoods@riyadh",
+    "neighborhoods-outline@riyadh",
+    "neighborhoods@al_madenieh"
+   ]
+  },
+  "subdivisions": {
+   "style_layer_count": 26,
+   "examples": [
+    "subdivisions-fill@riyadh",
+    "subdivisions-outline@riyadh",
+    "subdivisions-fill@al_madenieh"
+   ]
+  },
+  "parcels": {
+   "style_layer_count": 39,
+   "examples": [
+    "parcels@riyadh",
+    "parcels-base@riyadh",
+    "parcels outline@riyadh"
+   ]
+  },
+  "building_detection": {
+   "style_layer_count": 13,
+   "examples": [
+    "building_detection@riyadh",
+    "building_detection@al_madenieh",
+    "building_detection@al_qassim"
+   ]
+  },
+  "provinces-centroids": {
+   "style_layer_count": 13,
+   "examples": [
+    "provinces-labels@riyadh",
+    "provinces-labels@al_madenieh",
+    "provinces-labels@al_qassim"
+   ]
+  },
+  "neighborhoods-centroids": {
+   "style_layer_count": 13,
+   "examples": [
+    "neighborhoods-labels@riyadh",
+    "neighborhoods-labels@al_madenieh",
+    "neighborhoods-labels@al_qassim"
+   ]
+  },
+  "streets": {
+   "style_layer_count": 26,
+   "examples": [
+    "streets-lines@riyadh",
+    "streets-width@riyadh",
+    "streets-lines@al_madenieh"
+   ]
+  },
+  "dimensions": {
+   "style_layer_count": 13,
+   "examples": [
+    "dimensions@riyadh",
+    "dimensions@al_madenieh",
+    "dimensions@al_qassim"
+   ]
+  },
+  "parcels-centroids": {
+   "style_layer_count": 26,
+   "examples": [
+    "parcel-labels-dots@riyadh",
+    "parcel-labels-text@riyadh",
+    "parcel-labels-dots@al_madenieh"
+   ]
+  },
+  "sb_shape": {
+   "style_layer_count": 1,
+   "examples": [
+    "sb_shape@riyadh"
+   ]
+  },
+  "sb_area": {
+   "style_layer_count": 1,
+   "examples": [
+    "sb_area@riyadh"
+   ]
+  },
+  "qi_population_metrics": {
+   "style_layer_count": 26,
+   "examples": [
+    "qi_population_metrics@riyadh",
+    "qi_population_metrics_outline@riyadh",
+    "qi_population_metrics@al_madenieh"
+   ]
+  },
+  "metro_lines": {
+   "style_layer_count": 1,
+   "examples": [
+    "metro_lines@riyadh"
+   ]
+  },
+  "bus_lines": {
+   "style_layer_count": 1,
+   "examples": [
+    "bus_lines@riyadh"
+   ]
+  },
+  "metro_stations": {
+   "style_layer_count": 1,
+   "examples": [
+    "metro_stations@riyadh"
+   ]
+  },
+  "riyadh_bus_stations": {
+   "style_layer_count": 1,
+   "examples": [
+    "riyadh_bus_stations@riyadh"
+   ]
+  },
+  "non_saudi_ownership_zones": {
+   "style_layer_count": 26,
+   "examples": [
+    "non_saudi_ownership_zones_fill@riyadh",
+    "non_saudi_ownership_zones_outline@riyadh",
+    "non_saudi_ownership_zones_fill@al_madenieh"
+   ]
+  },
+  "mega_projects": {
+   "style_layer_count": 1,
+   "examples": [
+    "mega_projects@riyadh"
+   ]
+  },
+  "aeroway": {
+   "style_layer_count": 1,
+   "examples": [
+    "aeroway-polygon"
+   ]
+  },
+  "admin": {
+   "style_layer_count": 3,
+   "examples": [
+    "admin-1-boundary",
+    "admin-0-boundary",
+    "admin-0-boundary-disputed"
+   ]
+  },
+  "regions": {
+   "style_layer_count": 14,
+   "examples": [
+    "regions",
+    "regions@riyadh",
+    "regions@al_madenieh"
+   ]
+  },
+  "natural_label": {
+   "style_layer_count": 5,
+   "examples": [
+    "waterway-label",
+    "natural-line-label",
+    "natural-point-label"
+   ]
+  },
+  "poi_label": {
+   "style_layer_count": 1,
+   "examples": [
+    "poi-label copy"
+   ]
+  },
+  "airport_label": {
+   "style_layer_count": 1,
+   "examples": [
+    "airport-label"
+   ]
+  },
+  "Cities_data-11gwc6": {
+   "style_layer_count": 3,
+   "examples": [
+    "settlement-minor-label _",
+    "settlement-major-labels",
+    "capital-label"
+   ]
+  },
+  "place_label": {
+   "style_layer_count": 2,
+   "examples": [
+    "state-label original",
+    "country-label_"
+   ]
+  }
+ }
+}

@@ -9,7 +9,7 @@ from pathlib import Path
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from src.meshic_pipeline.config import settings
+from src.suhail_pipeline.config import settings
 from sqlalchemy import create_engine, text
 from tqdm import tqdm
 

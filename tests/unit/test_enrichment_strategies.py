@@ -1,5 +1,5 @@
 import pytest
-from meshic_pipeline.enrichment import strategies
+from suhail_pipeline.enrichment import strategies
 
 
 def test_quote_table_name_valid():

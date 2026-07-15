@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine, text
-from meshic_pipeline.config import settings
+from suhail_pipeline.config import settings
 
 eng = create_engine(str(settings.database_url))
 with eng.connect() as c:

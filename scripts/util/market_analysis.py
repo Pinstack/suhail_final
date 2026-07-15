@@ -16,7 +16,7 @@ load_dotenv()
 # Add the src directory to the path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from meshic_pipeline.persistence.db import get_db_engine
+from suhail_pipeline.persistence.db import get_db_engine
 from sqlalchemy import text
 
 

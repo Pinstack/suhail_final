@@ -3,7 +3,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import sqlalchemy
-from src.meshic_pipeline.config import settings
+from src.suhail_pipeline.config import settings
 
 def main():
     """

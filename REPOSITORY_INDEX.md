@@ -6,7 +6,7 @@ High-level map of the whole tree for navigation and onboarding. Pair with [docs/
 
 | Path | Role |
 |------|------|
-| [src/meshic_pipeline/](src/meshic_pipeline/) | Installable package: CLI (`cli.py`), geometric/enrichment runners, persistence, enrichment, geometry, decoder, discovery. |
+| [src/suhail_pipeline/](src/suhail_pipeline/) | Installable package: CLI (`cli.py`), geometric/enrichment runners, persistence, enrichment, geometry, decoder, discovery. |
 | [alembic/](alembic/) | Database migrations (`env.py`, `versions/`, `versions_backup/`). |
 | [tests/](tests/) | `pytest` suites: `unit/`, `integration/`. |
 | [scripts/](scripts/) | Operational and utility scripts (`util/`, `db/`, reports). |
@@ -15,7 +15,7 @@ High-level map of the whole tree for navigation and onboarding. Pair with [docs/
 
 | Path | Role |
 |------|------|
-| [pyproject.toml](pyproject.toml) | Project `meshic-pipeline`, dependencies, `[project.scripts]`, pytest config, `[dependency-groups].dev`. |
+| [pyproject.toml](pyproject.toml) | Project `suhail-pipeline`, dependencies, `[project.scripts]`, pytest config, `[dependency-groups].dev`. |
 | [uv.lock](uv.lock) | Locked dependency graph for reproducible installs (`uv sync --frozen`). |
 | [.github/workflows/ci.yml](.github/workflows/ci.yml) | CI: `astral-sh/setup-uv`, `uv sync --all-groups --frozen`, `uv run pytest`. |
 
@@ -57,5 +57,5 @@ High-level map of the whole tree for navigation and onboarding. Pair with [docs/
 
 ## Entrypoints (from `pyproject.toml`)
 
-- `meshic-pipeline` → `meshic_pipeline.cli:app`
-- `check_db` → `meshic_pipeline.utils.db_checker:app`
+- `suhail-pipeline` → `suhail_pipeline.cli:app`
+- `check_db` → `suhail_pipeline.utils.db_checker:app`

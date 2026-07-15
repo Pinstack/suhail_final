@@ -1,5 +1,5 @@
                                                                                                            
- Usage: meshic-pipeline geometric [OPTIONS]                                                                
+ Usage: suhail-pipeline geometric [OPTIONS]                                                                
                                                                                                            
  Run the geometric pipeline (Stage 1).                                                                     
                                                                                                            

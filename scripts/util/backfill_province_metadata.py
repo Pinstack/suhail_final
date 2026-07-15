@@ -18,8 +18,8 @@ from typing import Dict, Optional, Tuple
 import mercantile
 from sqlalchemy import text
 
-from meshic_pipeline.persistence.db import get_db_engine
-from meshic_pipeline.config import settings
+from suhail_pipeline.persistence.db import get_db_engine
+from suhail_pipeline.config import settings
 
 
 SLUG_REGEX = re.compile(r"https?://[^/]+/maps/([^/]+)/")

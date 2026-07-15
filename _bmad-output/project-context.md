@@ -9,12 +9,12 @@ sections_completed:
 
 # Project context for AI agents
 
-Lean rules for implementing code in **meshic-pipeline**. Prefer existing patterns in `src/meshic_pipeline/`. Full narrative lives in `docs/` and `docs/docs-distillate/`.
+Lean rules for implementing code in **suhail-pipeline**. Prefer existing patterns in `src/suhail_pipeline/`. Full narrative lives in `docs/` and `docs/docs-distillate/`.
 
 ## Technology stack and versions
 
 - **Language:** Python 3.9+ (`pyproject.toml`); **CI uses Python 3.11** — match CI when running tests locally.
-- **Package:** `meshic-pipeline` 0.1.0, `src` layout, entrypoints `meshic-pipeline` and `check_db`.
+- **Package:** `suhail-pipeline` 0.1.0, `src` layout, entrypoints `suhail-pipeline` and `check_db`.
 - **DB:** PostgreSQL + PostGIS; SQLAlchemy 2.x, GeoAlchemy2, Alembic; async via `asyncpg` where used.
 - **Geo / ETL:** GeoPandas, Shapely, h3/h3pandas, `mapbox-vector-tile`, mercantile, aiohttp.
 - **CLI / config:** Typer, Pydantic / pydantic-settings, YAML + `.env` for secrets.
@@ -31,7 +31,7 @@ Lean rules for implementing code in **meshic-pipeline**. Prefer existing pattern
 
 ### Code organization
 
-- **Package root:** `src/meshic_pipeline/` — new modules follow existing folders: `persistence/`, `enrichment/`, `geometry/`, `decoder/`, `downloader/`, `discovery/`.
+- **Package root:** `src/suhail_pipeline/` — new modules follow existing folders: `persistence/`, `enrichment/`, `geometry/`, `decoder/`, `downloader/`, `discovery/`.
 - **CLI:** New commands go through `cli.py` with Typer; keep help strings and safe defaults consistent with documented commands in `docs/CLI_COMMAND_AUDIT.md`.
 - **Migrations:** Schema changes require Alembic revisions under `alembic/versions/`; do not hand-edit production without a migration.
 

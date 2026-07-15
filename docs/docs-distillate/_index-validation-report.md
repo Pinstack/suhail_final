@@ -32,7 +32,7 @@ created: "2026-03-20"
 
 - **Per-story narrative and DoD detail:** `docs/stories/STORY-*.md` body text is folded into theme bullets in `03-stories-ops-cli.md`; edge acceptance notes and formatting from each story file are not losslessly encoded.
 - **Line-level ops prose:** `docs/ops/migrations.md`, `province_wide_scraping_plan.md`, and `CLI_COMMAND_AUDIT.md` tables/examples: distillate keeps command names and recommendations, not every example block.
-- **BROWNFIELD_PROJECT_DOCUMENTATION.md:** Long sections (e.g. extended code excerpts, full table attribute lists) are compressed; **counts and DB name `meshic`** are present; some secondary tables and narrative asides may be absent from bullets.
+- **BROWNFIELD_PROJECT_DOCUMENTATION.md:** Long sections (e.g. extended code excerpts, full table attribute lists) are compressed; **counts and DB name `suhail`** are present; some secondary tables and narrative asides may be absent from bullets.
 - **EPIC-001** risk tables and long checklist prose: captured as index/monitoring/stale-reset bullets; not every risk row is duplicated.
 - **Reconstructor self-markers:** `reconstruction-PRD-bundle.md` flags **[POSSIBLE GAP]** for full SQL specs, exit-code matrix, and complete CLI error catalog — these are thin or absent in sources too; treat as “distillate correctly reflects source depth.”
 
@@ -52,7 +52,7 @@ created: "2026-03-20"
 | PRD Stage 1–2 + delta | `docs/PRD.md` §Requirements | `01-requirements-and-product.md` — aligned |
 | Monitoring FR | `docs/PRD.md` §4 | `01` acceptance + `03` EPIC-001/stories — aligned |
 | Scale 2.16M / 76M metrics | PRD context + brownfield | `01` + `02` — aligned |
-| DB name `meshic` | BROWNFIELD doc | `02` — aligned |
+| DB name `suhail` | BROWNFIELD doc | `02` — aligned |
 | STORY-001–008 IDs | stories | `03` — aligned |
 
 ## Recommendation

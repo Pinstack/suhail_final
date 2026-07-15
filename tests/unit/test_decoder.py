@@ -1,4 +1,4 @@
-from meshic_pipeline.decoder.mvt_decoder import MVTDecoder
+from suhail_pipeline.decoder.mvt_decoder import MVTDecoder
 import geopandas as gpd
 import shapely.geometry
 

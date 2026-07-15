@@ -1,7 +1,7 @@
 import geopandas as gpd
 from shapely.geometry import Polygon
 
-from meshic_pipeline.geometry.validator import validate_geometries
+from suhail_pipeline.geometry.validator import validate_geometries
 
 
 def test_validate_geometries_empty():

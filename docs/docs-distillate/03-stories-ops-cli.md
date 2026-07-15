@@ -5,7 +5,7 @@ This section covers implementation stories, CLI inventory, ops, and runbooks. Pa
 - STORY-001: Verify Alembic migration `19c587b33197_add_critical_performance_indexes.py` in staging; run in prod low-traffic; confirm via `pg_indexes` and `EXPLAIN`; record timings in `docs/reports/perf-post-<date>.md`.
 - STORY-001: Acceptance: indexes per `docs/ACCEPTANCE_CRITERIA.md`; p95 < 500 ms; migration without downtime/errors; DoD: reports + runbook.
 - STORY-002: Baseline/post-index p50/p95 for 3 representative queries; `docs/reports/perf-baseline-<date>.md` and `perf-post-<date>.md`; p95 target < 500 ms or remediation plan.
-- STORY-003: Enhance `meshic-pipeline monitor`: `status` (queue by status, oldest `in_progress`, top errors); `recommend` (next action + batch sizes); `schedule-info` (cadence); structured log summary per run.
+- STORY-003: Enhance `suhail-pipeline monitor`: `status` (queue by status, oldest `in_progress`, top errors); `recommend` (next action + batch sizes); `schedule-info` (cadence); structured log summary per run.
 - STORY-004: Schedule `TileURL.reset_stale_in_progress(..., stale_minutes=60)`; log reset count; alert if excessive repeats; runbook + monitoring reflects queue health.
 - STORY-005: Delta enrichment: `--auto-geometric` fresh-table lifecycle; change stats/summary; cron guidance; fresh table dropped on success, retained on failure with warning.
 - STORY-006: Data quality Phase 1: completeness `%` with `neighborhood_id`, `province_id`, `enriched_at`; outlier thresholds `price_of_meter`, `transaction_price`; `docs/reports/data-quality-<date>.md` by province.
@@ -20,12 +20,12 @@ This section covers implementation stories, CLI inventory, ops, and runbooks. Pa
 - Index targets (`parcel_price_metrics`): `neighborhood_id`; composites `(metrics_type, year, month)` and `(neighborhood_id, metrics_type)`.
 - Index targets (`transactions`): `transaction_date`, `transaction_price`.
 - Measurement queries: (1) `parcels ↔ neighborhoods` on `neighborhood_id`; (2) `parcels` filter `transaction_price > 0` and `enriched_at`; (3) time-series `parcel_price_metrics` by `(neighborhood_id, metrics_type, year, month)`.
-- `meshic-pipeline monitor status`: queue counts by `status`, failed count, oldest `in_progress` age; enrichment: total parcels, with `enriched_at`, % with `transaction_price > 0`.
-- `meshic-pipeline monitor recommend`: next action among fast-enrich / incremental / delta with batch sizes.
-- `meshic-pipeline monitor schedule-info`: suggested daily/weekly/monthly cadence from freshness.
-- AC mentions: `meshic-pipeline monitor reset-stale -- --stale-minutes 60`; reports `docs/reports/perf-baseline-*.md` and `docs/reports/perf-post-index-*.md` (naming variant vs stories).
+- `suhail-pipeline monitor status`: queue counts by `status`, failed count, oldest `in_progress` age; enrichment: total parcels, with `enriched_at`, % with `transaction_price > 0`.
+- `suhail-pipeline monitor recommend`: next action among fast-enrich / incremental / delta with batch sizes.
+- `suhail-pipeline monitor schedule-info`: suggested daily/weekly/monthly cadence from freshness.
+- AC mentions: `suhail-pipeline monitor reset-stale -- --stale-minutes 60`; reports `docs/reports/perf-baseline-*.md` and `docs/reports/perf-post-index-*.md` (naming variant vs stories).
 - Risks: index build time/locks → `IF NOT EXISTS`, off-hours; plan regressions → `EXPLAIN ANALYZE`; limit CLI scope vs dashboards.
-- Utilities referenced: `claim_tiles_for_processing(...)`, `TileURL.reset_stale_in_progress(...)` in `src/meshic_pipeline/persistence/models.py`.
+- Utilities referenced: `claim_tiles_for_processing(...)`, `TileURL.reset_stale_in_progress(...)` in `src/suhail_pipeline/persistence/models.py`.
 
 ## CLI inventory and documentation gaps (`CLI_COMMAND_AUDIT.md`)
 - Commands: `geometric` (`--bbox`, `--recreate-db`, `--save-as-temp`); `fast-enrich` (`--batch-size`, `--limit`); `incremental-enrich` (`--batch-size`, `--days-old`, `--limit`); `full-refresh` (`--batch-size`, `--limit`).
@@ -42,9 +42,9 @@ This section covers implementation stories, CLI inventory, ops, and runbooks. Pa
 ## Province-wide scraping (DB-driven MVT)
 - Authoritative: `provinces` metadata; `tile_urls` tile list/status; config from DB; no hard-coded province dicts/YAML tile lists.
 - Downloader: async; province + tiles from DB; caching, retry, concurrency; resumable multi/all-province.
-- CLI examples: `meshic-pipeline geometric --province riyadh`; `meshic-pipeline geometric --all-provinces`; multi `--province riyadh --province makkah`.
+- CLI examples: `suhail-pipeline geometric --province riyadh`; `suhail-pipeline geometric --all-provinces`; multi `--province riyadh --province makkah`.
 - Performance: index `tile_urls` by status/province; spatial/lookup indices on parcels/neighborhoods at >1M/province; ~5000-row chunks (settings-tunable); disk tile cache.
-- CI suggestion: nightly `meshic-pipeline geometric --province riyadh --limit-test`.
+- CI suggestion: nightly `suhail-pipeline geometric --province riyadh --limit-test`.
 - Rollout phases: DB metadata+generator → downloader/refactor → orchestrator+CLI `--all-provinces` → tests/CI → docs → full Riyadh → six provinces (success metrics in doc table).
 - Risks: rate limit (0.05s delay, backoff); memory (stream, chunk tuning); DB province drift (runtime validation).
 
@@ -74,7 +74,7 @@ This section covers implementation stories, CLI inventory, ops, and runbooks. Pa
 - `brew services stop --all`; `brew uninstall postgresql postgresql@14 postgresql@15 postgis`.
 - Remove data dirs: Apple Silicon `rm -rf /opt/homebrew/var/postgres*`; Intel `rm -rf /usr/local/var/postgres*`.
 - `brew install postgis` (or pin `postgresql@14` + postgis); example `initdb --locale=C -E UTF-8 /opt/homebrew/var/postgresql@16`.
-- `brew services start postgresql@16`; `createdb meshic -T template0`; `psql -d meshic -c "CREATE EXTENSION postgis;"`.
+- `brew services start postgresql@16`; `createdb suhail -T template0`; `psql -d suhail -c "CREATE EXTENSION postgis;"`.
 - Python: from repo root, `uv sync --all-groups` (see `README.md`).
 - Alembic: init, configure, autogenerate initial revision, manual spatial index checks, `uv run alembic upgrade head`.
-- Verify: `psql -d meshic -c "\dt"`, `\d+ your_spatial_table`, `SELECT * FROM geometry_columns;`; run app tests.
+- Verify: `psql -d suhail -c "\dt"`, `\d+ your_spatial_table`, `SELECT * FROM geometry_columns;`; run app tests.

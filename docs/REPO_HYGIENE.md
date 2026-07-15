@@ -15,7 +15,7 @@ Prioritized for **disk win** and **git index sanity**. Derived from a 2026-03-20
 ## Done in this hygiene pass
 
 - Removed **symlink skill trees** and empty `.cursor/`, `.claude/`, `.agent/` directories.
-- **`git rm`** tracked junk: `.cursor/rules` (missing on disk), `src/meshic_pipeline/.DS_Store`, `logs/*.pid`.
+- **`git rm`** tracked junk: `.cursor/rules` (missing on disk), `src/suhail_pipeline/.DS_Store`, `logs/*.pid`.
 - **`.gitignore`:** `logs/*.pid` (plus existing `.DS_Store`, `.venv_py39_backup/`).
 
 ## Recommended next steps (highest impact first)

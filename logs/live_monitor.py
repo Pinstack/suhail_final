@@ -9,7 +9,7 @@ import time
 from datetime import datetime, timedelta
 from tqdm import tqdm
 from sqlalchemy import create_engine, text
-from meshic_pipeline.config import settings
+from suhail_pipeline.config import settings
 
 class PipelineMonitor:
     def __init__(self):

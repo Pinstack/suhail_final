@@ -1,18 +1,18 @@
 This section covers architecture, schema, and ground-truth production state. Part 2 of 3.
 
 ## Identity and scope
-- Meshic / Suhail Final: two-stage geospatial pipeline for Saudi Arabian parcel intelligence (MVT geometry + Suhail API enrichment).
+- Suhail / Suhail Final: two-stage geospatial pipeline for Saudi Arabian parcel intelligence (MVT geometry + Suhail API enrichment).
 - Lean architecture doc dated 2025-10-16 v0.1; brownfield doc “current state”; brownfield project doc dated 2025-10-16 analyst Mary; production narrative cites 2.16M+ parcels in executive summary.
 
 ## Inputs and storage
 - Inputs: province-specific Mapbox Vector Tiles (MVT); Suhail APIs (transactions, building rules, price metrics).
-- System of record: PostgreSQL + PostGIS; control plane: Typer CLI `meshic-pipeline`.
+- System of record: PostgreSQL + PostGIS; control plane: Typer CLI `suhail-pipeline`.
 
 ## Stage 1 geometric
 - DB-queued tile downloads, decode, stitch, validate, persist; seed from `provinces.bbox_z15` into `tile_urls`.
 - Workers claim with `SELECT ... FOR UPDATE SKIP LOCKED`; statuses pending → in_progress → processed/failed.
 - Downloader: aiohttp concurrent fetch with retry/backoff; decoder: MVT → EPSG:4326; stitcher: PostGIS dissolve across tiles (temp tables); persister: schema-driven upsert.
-- Files: `src/meshic_pipeline/run_db_geometric.py`, `decoder/mvt_decoder.py`, `geometry/stitcher.py`, `persistence/postgis_persister.py`, `persistence/table_management.py`; brownfield also cites `run_geometric_pipeline.py` for Stage 1 MVT processing.
+- Files: `src/suhail_pipeline/run_db_geometric.py`, `decoder/mvt_decoder.py`, `geometry/stitcher.py`, `persistence/postgis_persister.py`, `persistence/table_management.py`; brownfield also cites `run_geometric_pipeline.py` for Stage 1 MVT processing.
 - Flow: seed `tile_urls` → claim batch → fetch → decode (Arabic column normalization) → validate CRS/geometry → stitch → persist temp then canonical → update queue processed/failed.
 - Adaptive geometric concurrency 5–20; architecture doc: multiple geometric workers share `tile_urls` queue.
 - Brownfield project doc: ~0.05s delay between requests; chunked DB writes ~5000 rows per batch; garbage collection triggers for large runs.
@@ -25,14 +25,14 @@ This section covers architecture, schema, and ground-truth production state. Par
 - universal-metrics: all parcels including those without transaction_price.
 - delta-enrich: parcels with changed transaction_price via MVT comparison; optional auto geometric; FULL OUTER JOIN `parcels` vs fresh table on `parcel_objectid`.
 - API client batch/async; transform JSON → SQLAlchemy; upsert with conflict handling; update `parcels.enriched_at`; brownfield project doc notes `ON CONFLICT DO NOTHING` on persistence path.
-- Files: `src/meshic_pipeline/run_enrichment_pipeline.py`, `enrichment/strategies.py`, `enrichment/api_client.py`, `persistence/enrichment_persister.py`; brownfield adds `enrichment/processor.py`, `metrics_only_processor.py`.
+- Files: `src/suhail_pipeline/run_enrichment_pipeline.py`, `enrichment/strategies.py`, `enrichment/api_client.py`, `persistence/enrichment_persister.py`; brownfield adds `enrichment/processor.py`, `metrics_only_processor.py`.
 
 ## Suhail HTTP surface
 - `/parcel/buildingRules`; `/api/parcel/metrics/priceOfMeter`; `/transactions`; API key/session; rate limiting and retry/backoff referenced.
 
 ## Queue and models
 - `tile_urls(id PK, url UNIQUE, z/x/y, status, retry_count, last_checked_at, error_message, ...)`.
-- `TileURL.claim_tiles_for_processing(..., SKIP LOCKED)` and `reset_stale_in_progress(..., stale_minutes=60)` in `src/meshic_pipeline/persistence/models.py`.
+- `TileURL.claim_tiles_for_processing(..., SKIP LOCKED)` and `reset_stale_in_progress(..., stale_minutes=60)` in `src/suhail_pipeline/persistence/models.py`.
 - Stale protection: periodic reset stuck in_progress tiles; schedule example stale_minutes=60.
 
 ## Core tables and keys
@@ -55,7 +55,7 @@ This section covers architecture, schema, and ground-truth production state. Par
 - `building_rules`: 130,112 rows.
 - `tile_urls`: 34,726 rows; processed 33,938 (97.7%); in_progress 788 (2.3%).
 - `provinces`: 12; `neighborhoods`: 812.
-- Database name `meshic` (not `meshic_pipeline` as some docs); owner `postgres`.
+- Database name `suhail` (not `suhail_pipeline` as some docs); owner `postgres`.
 
 ## Older / alternate scale figures (deduped caveat)
 - Brownfield architecture doc: 1M+ parcels, 45K+ transactions, 68K+ building rules, 752K+ parcel_price_metrics — superseded by ground-truth table counts where they conflict.
@@ -74,18 +74,18 @@ This section covers architecture, schema, and ground-truth production state. Par
 - Composite: `smart-pipeline`, `province-pipeline`, `saudi-pipeline`.
 - Ops: `seed-tiles` (province, provinces, region-slugs, stride, limit), `discovery-summary`, `monitor status|recommend|schedule-info`.
 - Command count: ground-truth doc states 18 commands in 5 categories; brownfield architecture says 15+; architecture lists representative subset without total.
-- Entry: `src/meshic_pipeline/cli.py`.
+- Entry: `src/suhail_pipeline/cli.py`.
 
 ## Configuration
-- `src/meshic_pipeline/config.py`: Pydantic settings; DB URL, API endpoints, layers, batch sizes; provinces loaded from DB via `load_provinces_from_db`; failure falls back to empty provinces with warning.
+- `src/suhail_pipeline/config.py`: Pydantic settings; DB URL, API endpoints, layers, batch sizes; provinces loaded from DB via `load_provinces_from_db`; failure falls back to empty provinces with warning.
 - `pipeline_config.yaml` + environment variables; province tile URL template pattern `https://tiles.suhail.ai/maps/{slug}/{z}/{x}/{y}.vector.pbf` (Riyadh example in doc).
 - Secrets: `.env`; no secrets in code; least-privilege DB role; UTF-8 Arabic.
 
 ## Tech stack
-- Python 3.9+; package `meshic-pipeline` v0.1.0 per doc snippet; SQLAlchemy 2.0+ async; GeoAlchemy2; GeoPandas, Shapely, h3; Alembic; Typer; aiohttp; mapbox-vector-tile/protobuf for MVT.
+- Python 3.9+; package `suhail-pipeline` v0.1.0 per doc snippet; SQLAlchemy 2.0+ async; GeoAlchemy2; GeoPandas, Shapely, h3; Alembic; Typer; aiohttp; mapbox-vector-tile/protobuf for MVT.
 
 ## Repo layout
-- `src/meshic_pipeline/` cli, config, decoder, discovery, downloader, enrichment, geometry, persistence, `pipeline_orchestrator.py`, utils; `alembic/`, `tests/`, `scripts/`, `logs/`, `docs/`, `pyproject.toml`.
+- `src/suhail_pipeline/` cli, config, decoder, discovery, downloader, enrichment, geometry, persistence, `pipeline_orchestrator.py`, utils; `alembic/`, `tests/`, `scripts/`, `logs/`, `docs/`, `pyproject.toml`.
 
 ## NFR targets (architecture)
 - Geometric: adaptive concurrency, minimal retries; query p95 < 500 ms post-index for core joins/metrics reads.
@@ -101,7 +101,7 @@ This section covers architecture, schema, and ground-truth production state. Par
 - Risks: missing indexes, stuck in_progress tiles, API rate limits, outdated stakeholder docs.
 
 ## Deployment and ops
-- Dev/staging/prod with shared migrations; local: PostgreSQL+PostGIS, `uv sync --all-groups`, `uv run meshic-pipeline …`, `uv run alembic upgrade head`.
+- Dev/staging/prod with shared migrations; local: PostgreSQL+PostGIS, `uv sync --all-groups`, `uv run suhail-pipeline …`, `uv run alembic upgrade head`.
 - Temp table policy: pipeline-owned `temp_*` only.
 
 ## Roadmap and recommendations (compressed)

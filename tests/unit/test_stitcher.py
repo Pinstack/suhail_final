@@ -1,5 +1,5 @@
 import geopandas as gpd
-from meshic_pipeline.geometry.stitcher import GeometryStitcher
+from suhail_pipeline.geometry.stitcher import GeometryStitcher
 
 class DummyPersister:
     def __init__(self):

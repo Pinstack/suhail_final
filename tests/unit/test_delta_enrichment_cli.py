@@ -1,7 +1,7 @@
 from typer.testing import CliRunner
 
-from meshic_pipeline.run_enrichment_pipeline import app
-import meshic_pipeline.run_enrichment_pipeline as rep
+from suhail_pipeline.run_enrichment_pipeline import app
+import suhail_pipeline.run_enrichment_pipeline as rep
 
 runner = CliRunner()
 

@@ -78,7 +78,7 @@ def downgrade():
 
 ## 6. **Update Version Control**
 - Commit all config, migration, and documentation changes to git with a clear message:
-  - `git add src/meshic_pipeline/config.py alembic/versions/ pipeline_table_uniqueness_review.md WHAT_TO_DO_NEXT_PIPELINE_TABLES.md`
+  - `git add src/suhail_pipeline/config.py alembic/versions/ pipeline_table_uniqueness_review.md WHAT_TO_DO_NEXT_PIPELINE_TABLES.md`
   - `git commit -m "Robustify pipeline table upsert/replace logic and document uniqueness strategy"`
 
 ---

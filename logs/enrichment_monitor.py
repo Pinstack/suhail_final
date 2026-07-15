@@ -7,7 +7,7 @@ from pathlib import Path
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from src.meshic_pipeline.config import settings
+from src.suhail_pipeline.config import settings
 
 def monitor_enrichment():
     engine = create_engine(str(settings.database_url))

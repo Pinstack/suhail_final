@@ -2,7 +2,7 @@ import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point
 
-from meshic_pipeline.persistence.postgis_persister import PostGISPersister
+from suhail_pipeline.persistence.postgis_persister import PostGISPersister
 
 class MockPersister(PostGISPersister):
     def __init__(self):

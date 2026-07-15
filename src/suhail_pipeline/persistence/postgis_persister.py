@@ -1,0 +1,710 @@
+from __future__ import annotations
+
+import hashlib
+import logging
+from typing import List
+import uuid
+
+import geopandas as gpd
+import pandas as pd
+from sqlalchemy import create_engine, text, inspect
+from sqlalchemy.engine import Engine
+from sqlalchemy.sql import quoted_name
+import re
+
+logger = logging.getLogger(__name__)
+
+_IDENTIFIER_RE = re.compile(r"^[A-Za-z0-9_]+$")
+
+
+def _quote_identifier(name: str) -> str:
+    """Return a safely quoted identifier or raise ValueError."""
+    if not _IDENTIFIER_RE.match(name):
+        raise ValueError(f"Unsafe identifier: {name}")
+    return str(quoted_name(name, quote=True))
+
+# Time-series market fields now emitted inline on the parcels / neighborhoods /
+# subdivisions MVT layers (source of truth: live tile decode, 2026-07). Kept as a
+# helper so the four windows (1w/1m/6m/12m) stay in sync across layers.
+_MARKET_TIMESERIES = {
+    'transaction_price_1w': 'float64',
+    'transaction_price_1m': 'float64',
+    'transaction_price_6m': 'float64',
+    'transaction_price_12m': 'float64',
+    'price_of_meter_1w': 'float64',
+    'price_of_meter_1m': 'float64',
+    'price_of_meter_6m': 'float64',
+    'price_of_meter_12m': 'float64',
+    'transactions_count_1w': 'int64',
+    'transactions_count_1m': 'int64',
+    'transactions_count_6m': 'int64',
+    'transactions_count_12m': 'int64',
+    'transaction_date_1w': 'datetime64[ns]',
+    'transaction_date_1m': 'datetime64[ns]',
+    'transaction_date_6m': 'datetime64[ns]',
+    'transaction_date_12m': 'datetime64[ns]',
+}
+
+# Add a canonical schema map for all layers
+SCHEMA_MAP = {
+    'parcels': {
+        'parcel_objectid': 'int64',
+        'geometry': 'geometry',
+        'landuseagroup': 'string',
+        'landuseadetailed': 'string',
+        'subdivision_no': 'string',
+        'transaction_price': 'float64',
+        'zoning_id': 'int64',
+        'zoning_group': 'string',
+        'neighborhood_id': 'int64',
+        'neighborhood_ar': 'string',
+        'block_no': 'string',
+        'subdivision_id': 'int64',
+        'price_of_meter': 'float64',
+        'shape_area': 'float64',
+        'zoning_color': 'string',
+        'ruleid': 'string',
+        'province_id': 'int64',
+        'municipality_ar': 'string',
+        'parcel_id': 'int64',
+        'parcel_no': 'string',
+        **_MARKET_TIMESERIES,
+        'created_at': 'datetime64[ns]',
+        'updated_at': 'datetime64[ns]',
+        'is_active': 'bool',
+        'geometry_hash': 'string',
+        'enriched_at': 'datetime64[ns]',
+    },
+    'parcels-centroids': {
+        'parcel_no': 'string',
+        'geometry': 'geometry',
+        'transaction_date': 'datetime64[ns]',
+        'transaction_price': 'float64',
+        'price_of_meter': 'float64',
+        'transactions_count': 'int64',
+        **_MARKET_TIMESERIES,
+    },
+    'neighborhoods': {
+        'neighborhood_id': 'int64',
+        'geometry': 'geometry',
+        'neighborhood_name': 'string',
+        'neighborhood_ar': 'string',
+        'region_id': 'int64',
+        'province_id': 'int64',
+        'price_of_meter': 'float64',
+        'shape_area': 'float64',
+        'transaction_price': 'float64',
+        'zoning_id': 'int64',
+        'zoning_color': 'string',
+        'zoning_group': 'string',
+        **_MARKET_TIMESERIES,
+        'geometry_hash': 'string',
+    },
+    'neighborhoods-centroids': {
+        'id': 'int64',
+        'neighborhood_id': 'int64',
+        'geometry': 'geometry',
+        'neighborhood_name': 'string',
+        'neighborh_aname': 'string',
+        'province_id': 'int64',
+    },
+    'subdivisions': {
+        'subdivision_id': 'int64',
+        'geometry': 'geometry',
+        'subdivision_no': 'string',
+        'subdivision_name_ar': 'string',
+        'neighborhood_id': 'int64',
+        'region_id': 'int64',
+        'shape_area': 'float64',
+        'transaction_price': 'float64',
+        'price_of_meter': 'float64',
+        'zoning_id': 'int64',
+        'zoning_color': 'string',
+        'province_id': 'int64',
+        **_MARKET_TIMESERIES,
+    },
+    # `dimensions` (per-parcel edge measurements) is multi-row-per-parcel with no
+    # natural unique key. It is persisted with a tile-scoped delete+append write
+    # (see TILE_SCOPED_LAYERS / write_tile_scoped): `source_tile` records the
+    # originating tile so a reprocessed tile replaces exactly its own rows.
+    'dimensions': {
+        'parcel_objectid': 'int64',
+        'geometry': 'geometry',
+        'length_m': 'float64',
+        'azimuth': 'float64',
+        'province_id': 'int64',
+        'source_tile': 'string',
+    },
+    # `streets` remains keyless / not yet enabled (needs the same accumulate
+    # semantics as dimensions before it can be persisted across a province run).
+    # The tile `provinces` layer is intentionally omitted: it collides with the
+    # `provinces` metadata table (populated from the regions API) and has no unique key.
+    'streets': {
+        'geometry': 'geometry',
+        'name_ar': 'string',
+        'name_en': 'string',
+        'width': 'float64',
+    },
+    'metro_lines': {
+        'id': 'int64',
+        'geometry': 'geometry',
+        'track_color': 'string',
+        'track_length': 'float64',
+        'track_name': 'string',
+    },
+    'bus_lines': {
+        # Native live-tile field names (2026-07): color/type/busroute/origin/originar.
+        'geometry': 'geometry',
+        'busroute': 'string',
+        'color': 'string',
+        'type': 'string',
+        'origin': 'string',
+        'originar': 'string',
+    },
+    'metro_stations': {
+        'station_code': 'string',
+        'geometry': 'geometry',
+        'station_name': 'string',
+        'station_long': 'float64',
+        'station_lat': 'float64',
+    },
+    'riyadh_bus_stations': {
+        'station_code': 'string',
+        'geometry': 'geometry',
+        'station_name': 'string',
+        'station_long': 'float64',
+        'station_lat': 'float64',
+    },
+    'qi_population_metrics': {
+        'grid_id': 'string',
+        'geometry': 'geometry',
+        'region_id': 'int64',
+        'population_density': 'string',
+        'rent_apartment': 'string',
+        'rent_villa': 'string',
+        'rent_shop': 'string',
+        'rent_office': 'string',
+        'purchasing_power': 'string',
+        'weighted_median_income_monthly': 'string',
+        'poi_count': 'string',
+    },
+    'qi_stripes': {
+        'strip_id': 'string',
+        'geometry': 'geometry',
+        'centroid_longitude': 'float64',
+        'centroid_latitude': 'float64',
+    },
+    # `building_detection` is keyless in the source; we synthesize a stable bd_id
+    # (see SYNTHETIC_PK_CONFIG) from region + class + prediction_year + geometry so
+    # the existing upsert path accumulates it and versions it by prediction year.
+    'building_detection': {
+        'bd_id': 'int64',
+        'geometry': 'geometry',
+        'class_pred': 'string',
+        'prediction_year': 'int64',
+        'region_id': 'int64',
+        'source_tile': 'string',
+    },
+    'non_saudi_ownership_zones': {
+        'id': 'int64',
+        'geometry': 'geometry',
+        'name_ar': 'string',
+        'name_en': 'string',
+        'is_show': 'bool',
+        'region_id': 'int64',
+        'province_id': 'int64',
+    },
+}
+
+# Layers persisted with a tile-scoped delete+append (keyless, multi-row-per-key).
+# Each batch deletes the rows for the tiles it re-decoded (via ``source_tile``) and
+# appends fresh ones, so reruns are idempotent and multi-tile runs accumulate.
+TILE_SCOPED_LAYERS = {"dimensions"}
+
+# Layers with no natural unique key that get a deterministic synthetic primary key
+# derived from stable content + geometry, so the normal upsert path accumulates them.
+# Format: layer -> (id_column, [key_columns]).
+SYNTHETIC_PK_CONFIG = {
+    "building_detection": ("bd_id", ["region_id", "class_pred", "prediction_year"]),
+}
+
+
+def compute_synthetic_pk(gdf: gpd.GeoDataFrame, layer_name: str) -> gpd.GeoDataFrame:
+    """Add a deterministic BIGINT primary key for keyless layers (SYNTHETIC_PK_CONFIG).
+
+    The key is a hash of the configured content columns plus the geometry, so the
+    same feature always hashes to the same id (idempotent upsert, cross-tile-overlap
+    dedup) while distinct features stay distinct.
+    """
+    cfg = SYNTHETIC_PK_CONFIG.get(layer_name)
+    if cfg is None or gdf.empty:
+        return gdf
+    id_col, key_cols = cfg
+    geom_col = gdf.geometry.name
+
+    def _key(row) -> int:
+        parts = [str(row.get(c)) for c in key_cols]
+        geom = row[geom_col]
+        parts.append(geom.wkb_hex if geom is not None and not geom.is_empty else "")
+        digest = hashlib.sha1("|".join(parts).encode("utf-8")).hexdigest()
+        # 60 bits keeps it comfortably inside a signed BIGINT.
+        return int(digest[:15], 16)
+
+    out = gdf.copy()
+    out[id_col] = out.apply(_key, axis=1)
+    return out
+
+
+def ensure_neighborhood_centroids_primary_key(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Ensure neighborhoods-centroids rows have integer `id` for upsert (matches DB PK)."""
+    if gdf.empty:
+        return gdf
+    out = gdf.copy()
+    if "id" in out.columns and out["id"].notna().any():
+        return out
+    if "neighborhood_id" in out.columns:
+        out["id"] = out["neighborhood_id"]
+        return out
+
+    def _fid(row: pd.Series) -> int:
+        geom_wkt = row.geometry.wkt if row.geometry is not None else ""
+        label = row.get("neighborh_aname") if row.get("neighborh_aname") is not None else row.get("neighborhood_name")
+        base = "|".join(str(x) for x in (geom_wkt, label, row.get("province_id")))
+        return int(hashlib.sha256(base.encode("utf-8")).hexdigest()[:15], 16) % (2**31 - 1)
+
+    out["id"] = out.apply(_fid, axis=1)
+    return out
+
+
+def ensure_neighborhood_stubs_for_parcels(gdf: gpd.GeoDataFrame, engine: Engine) -> None:
+    """Insert minimal neighborhoods so parcel upserts satisfy parcels_neighborhood_id_fkey."""
+    if gdf.empty or "neighborhood_id" not in gdf.columns:
+        return
+    try:
+        existing_df = pd.read_sql("SELECT neighborhood_id FROM neighborhoods", engine)
+        existing = {int(x) for x in existing_df["neighborhood_id"]} if not existing_df.empty else set()
+        incoming = {int(x) for x in gdf["neighborhood_id"].dropna().unique()}
+        missing = incoming - existing
+        if not missing:
+            return
+        meta = gdf.dropna(subset=["neighborhood_id"]).drop_duplicates(subset=["neighborhood_id"])
+        pid_by_nid: dict[int, int | None] = {}
+        for _, row in meta.iterrows():
+            nid = int(row["neighborhood_id"])
+            if nid in pid_by_nid:
+                continue
+            p = row.get("province_id")
+            pid_by_nid[nid] = int(p) if pd.notna(p) else None
+        rows = [
+            {
+                "neighborhood_id": nid,
+                "neighborhood_name": f"Stub_neighborhood_{nid}",
+                "neighborhood_ar": f"عبور_{nid}",
+                "province_id": pid_by_nid.get(nid),
+            }
+            for nid in sorted(missing)
+        ]
+        pd.DataFrame(rows).to_sql("neighborhoods", engine, if_exists="append", index=False, method="multi")
+        logger.info("Inserted %d neighborhood stub(s) prior to parcel upsert", len(rows))
+    except Exception as e:
+        logger.warning("Could not pre-insert neighborhood stubs for parcels: %s", e)
+
+
+def ensure_subdivision_stubs_for_parcels(gdf: gpd.GeoDataFrame, engine: Engine) -> None:
+    """Insert minimal subdivisions so parcel upserts satisfy subdivision FK when present."""
+    if gdf.empty or "subdivision_id" not in gdf.columns:
+        return
+    try:
+        existing_df = pd.read_sql("SELECT subdivision_id FROM subdivisions", engine)
+        existing = {int(x) for x in existing_df["subdivision_id"]} if not existing_df.empty else set()
+        incoming = {int(x) for x in gdf["subdivision_id"].dropna().unique()}
+        missing = incoming - existing
+        if not missing:
+            return
+        meta = gdf.dropna(subset=["subdivision_id"]).drop_duplicates(subset=["subdivision_id"])
+        pid_by_sid: dict[int, int | None] = {}
+        for _, row in meta.iterrows():
+            sid = int(row["subdivision_id"])
+            if sid in pid_by_sid:
+                continue
+            p = row.get("province_id")
+            pid_by_sid[sid] = int(p) if pd.notna(p) else None
+        rows = [
+            {
+                "subdivision_id": sid,
+                "subdivision_no": str(sid),
+                "province_id": pid_by_sid.get(sid),
+            }
+            for sid in sorted(missing)
+        ]
+        pd.DataFrame(rows).to_sql("subdivisions", engine, if_exists="append", index=False, method="multi")
+        logger.info("Inserted %d subdivision stub(s) prior to parcel upsert", len(rows))
+    except Exception as e:
+        logger.warning("Could not pre-insert subdivision stubs for parcels: %s", e)
+
+
+class PostGISPersister:
+    # Define expected integer ID fields for validation
+    INTEGER_ID_FIELDS = {
+        'parcel_id', 'zoning_id', 'subdivision_id', 'neighborhood_id',
+        'province_id', 'region_id', 'parcel_objectid', 'id',
+    }
+    
+    # Define expected numeric/float fields for proper schema creation
+    NUMERIC_FIELDS = {
+        'shape_area', 'transaction_price', 'price_of_meter', 'area', 'price'
+    }
+    
+    # Define string/varchar fields that should remain as large IDs (but as strings)
+    STRING_ID_FIELDS = {
+        'parcel_no', 'subdivision_no', 'block_no', 'cluster_id'
+    }
+
+    def __init__(self, database_url: str):
+        self.database_url = database_url
+        self.engine: Engine = create_engine(database_url, future=True)
+        # Ensure PostGIS extension is available before any writes; this is idempotent
+        with self.engine.connect() as conn:
+            try:
+                conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis"))
+                conn.commit()  # Make sure the extension creation is committed
+            except Exception as exc:
+                logger.error("Failed to ensure PostGIS extension: %s", exc)
+                raise
+
+    def _validate_and_cast_types(self, gdf: gpd.GeoDataFrame, layer_name: str) -> gpd.GeoDataFrame:
+        """
+        Validate and cast data types in GeoDataFrame before persistence, using the canonical schema for the layer.
+        Additionally, cast any column containing 'date' in its name to datetime64[ns] for robustness.
+        """
+        schema = SCHEMA_MAP.get(layer_name)
+        validated_gdf = gdf.copy()
+        if schema:
+            for col, dtype in schema.items():
+                if col in validated_gdf.columns:
+                    try:
+                        if dtype in ('int64', 'Int64'):
+                            # Accept int, float (if .is_integer()), or string (parseable as int/float and .is_integer())
+                            def robust_int(val):
+                                if val is None:
+                                    return None
+                                if isinstance(val, int):
+                                    return val
+                                if isinstance(val, float):
+                                    return int(val) if val.is_integer() else None
+                                if isinstance(val, str):
+                                    try:
+                                        float_val = float(val)
+                                        return int(float_val) if float_val.is_integer() else None
+                                    except Exception:
+                                        return None
+                                return None
+                            validated_gdf[col] = (
+                                validated_gdf[col]
+                                .apply(lambda v: robust_int(v))
+                                .astype("Int64")
+                            )
+                        elif dtype == 'float64':
+                            # Accept int, float, or string (parseable as float)
+                            def robust_float(val):
+                                if val is None:
+                                    return None
+                                if isinstance(val, (int, float)):
+                                    return float(val)
+                                if isinstance(val, str):
+                                    try:
+                                        return float(val)
+                                    except Exception:
+                                        return None
+                                return None
+                            validated_gdf[col] = validated_gdf[col].apply(lambda v: robust_float(v))
+                        elif dtype == 'string':
+                            validated_gdf[col] = validated_gdf[col].astype('string')
+                        elif dtype == 'datetime64[ns]':
+                            validated_gdf[col] = pd.to_datetime(validated_gdf[col], errors='coerce')
+                        elif dtype == 'bool':
+                            validated_gdf[col] = validated_gdf[col].astype('boolean')
+                        # geometry handled by GeoPandas
+                    except Exception as e:
+                        logger.warning(f"Failed to cast {col} to {dtype}: {e}")
+        # Always cast any column with 'date' in its name to datetime64[ns]
+        for col in validated_gdf.columns:
+            if 'date' in col and not pd.api.types.is_datetime64_any_dtype(validated_gdf[col]):
+                try:
+                    validated_gdf[col] = pd.to_datetime(validated_gdf[col], errors='coerce')
+                except Exception as e:
+                    logger.warning(f"Failed to force-cast {col} to datetime64[ns]: {e}")
+        return validated_gdf
+
+    def create_table_from_gdf(
+        self,
+        gdf: gpd.GeoDataFrame,
+        table_name: str,
+        schema: str = "public",
+        known_columns: List[str] | None = None,
+        geometry_type: str | None = None,
+    ) -> None:
+        """
+        Creates an empty PostGIS table with a specified schema.
+        If known_columns is provided, it uses that to build the schema.
+        Otherwise, it infers the schema from the sample GeoDataFrame.
+        """
+        if not known_columns:
+            # Fallback to original behavior if no explicit schema is given
+            try:
+                empty_gdf = gdf.iloc[0:0]
+                empty_gdf.to_postgis(
+                    table_name,
+                    self.engine,
+                    schema=schema,
+                    if_exists="replace",
+                    index=False,
+                )
+                logger.info("Successfully created table %s.%s from GDF schema", schema, table_name)
+            except Exception as e:
+                logger.error("Failed to create table %s.%s from GDF: %s", schema, table_name, e)
+                raise
+            return
+
+        # --- Build CREATE TABLE statement from known_columns ---
+        column_defs = []
+        for col_name in known_columns:
+            if col_name.lower() == "geometry":
+                geom_type = geometry_type.upper() if geometry_type else "GEOMETRY"
+                column_defs.append(f'{_quote_identifier(col_name)} GEOMETRY({geom_type}, 4326)')
+            elif col_name in self.INTEGER_ID_FIELDS:
+                # Use BIGINT for integer ID fields
+                column_defs.append(f'{_quote_identifier(col_name)} BIGINT')
+            elif col_name in self.NUMERIC_FIELDS:
+                # Use DOUBLE PRECISION for numeric fields (price, area, etc.)
+                column_defs.append(f'{_quote_identifier(col_name)} DOUBLE PRECISION')
+            elif col_name in self.STRING_ID_FIELDS:
+                # Use VARCHAR for string-based identifiers
+                column_defs.append(f'{_quote_identifier(col_name)} VARCHAR(50)')
+            else:
+                # Default to TEXT for other fields (names, descriptions, etc.)
+                column_defs.append(f'{_quote_identifier(col_name)} TEXT')
+
+        schema_q = _quote_identifier(schema)
+        table_q = _quote_identifier(table_name)
+        create_sql = f'CREATE TABLE {schema_q}.{table_q} ({", ".join(column_defs)});'
+        
+        try:
+            with self.engine.connect() as conn:
+                conn.execute(text(f'DROP TABLE IF EXISTS {schema_q}.{table_q} CASCADE'))
+                conn.execute(text(create_sql))
+                conn.commit()
+            logger.info("Successfully created table %s.%s from known columns", schema, table_name)
+        except Exception as e:
+            logger.error("Failed to create table %s.%s with SQL: %s", schema, table_name, e)
+            raise
+
+    # ------------------------------------------------------------------
+    def recreate_database(self) -> None:
+        """Drop and recreate the target database (requires superuser)."""
+        url = self.engine.url
+        # Dispose any existing pooled connections tied to the old database before dropping
+        self.engine.dispose()
+        # Connect to postgres maintenance DB
+        admin_url = url.set(database="postgres")
+        admin_engine = create_engine(admin_url, future=True, isolation_level="AUTOCOMMIT")
+        db_name = url.database
+        with admin_engine.connect() as conn:
+            db_q = _quote_identifier(db_name)
+            conn.execute(text(f"DROP DATABASE IF EXISTS {db_q}"))
+            conn.execute(text(f"CREATE DATABASE {db_q} TEMPLATE template0"))
+        # Recreate engine for the fresh database and ensure PostGIS extension
+        self.engine = create_engine(self.database_url, future=True)
+        with self.engine.connect() as conn:
+            conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis"))
+            conn.commit()
+        logger.info("Database %s recreated", db_name)
+
+    # ------------------------------------------------------------------
+    def _upsert(self, gdf: gpd.GeoDataFrame, table_name: str, id_column: str, schema: str, chunksize: int) -> None:
+        """Performs an 'upsert' operation (INSERT ON CONFLICT) for a GeoDataFrame."""
+        temp_table_name = f"temp_upsert_{table_name}_{str(uuid.uuid4())[:8]}"
+        logger.info("Performing upsert on %s.%s using ID column '%s'", schema, table_name, id_column)
+        try:
+            # 1. Write the new data to a temporary table. This is more robust for large datasets.
+            gdf.to_postgis(
+                temp_table_name,
+                self.engine,
+                schema=schema,
+                if_exists="replace",
+                index=False,
+                chunksize=chunksize,
+            )
+            # 2. Construct the ON CONFLICT query.
+            cols = [_quote_identifier(c) for c in gdf.columns]
+            cols_str = ", ".join(cols)
+            update_cols = [f'{_quote_identifier(c)} = EXCLUDED.{_quote_identifier(c)}' for c in gdf.columns if c != id_column]
+            update_str = ", ".join(update_cols)
+            id_col_quoted = _quote_identifier(id_column)
+            schema_q = _quote_identifier(schema)
+            table_q = _quote_identifier(table_name)
+            temp_q = _quote_identifier(temp_table_name)
+            sql = f'''
+            INSERT INTO {schema_q}.{table_q} ({cols_str})
+            SELECT {cols_str} FROM {schema_q}.{temp_q}
+            ON CONFLICT ({id_col_quoted})
+            DO UPDATE SET {update_str};
+            '''
+            with self.engine.begin() as conn:
+                result = conn.execute(text(sql))
+            logger.info("Upsert complete. Affected %d rows in %s.%s.", result.rowcount, schema, table_name)
+        except Exception as e:
+            logger.error("Upsert failed for table %s: %s", table_name, e)
+            raise
+        finally:
+            self.drop_table(temp_table_name, schema)
+            logger.debug("Dropped temporary upsert table: %s", temp_table_name)
+
+    def write_tile_scoped(
+        self,
+        gdf: gpd.GeoDataFrame,
+        layer_name: str,
+        table: str,
+        scope_col: str = "source_tile",
+        schema: str = "public",
+        chunksize: int = 5000,
+        geometry_type: str | None = None,
+    ) -> None:
+        """Idempotent accumulate write for keyless / multi-row-per-key layers.
+
+        Deletes the existing rows for exactly the tiles present in ``gdf`` (via
+        ``scope_col``) and appends the new rows. Reprocessing a tile replaces only
+        that tile's rows; different tiles accumulate. Used for TILE_SCOPED_LAYERS.
+        """
+        if gdf.empty:
+            return
+        if scope_col not in gdf.columns:
+            raise ValueError(
+                f"write_tile_scoped requires a '{scope_col}' column on layer '{layer_name}'"
+            )
+
+        validated_gdf = self._validate_and_cast_types(gdf, layer_name=layer_name)
+        tile_keys = sorted(
+            str(v) for v in validated_gdf[scope_col].dropna().unique()
+        )
+
+        inspector = inspect(self.engine)
+        if not inspector.has_table(table, schema=schema):
+            self.create_table_from_gdf(
+                validated_gdf.iloc[0:0],
+                table,
+                schema=schema,
+                known_columns=list(validated_gdf.columns),
+                geometry_type=geometry_type or "GEOMETRY",
+            )
+
+        schema_q = _quote_identifier(schema)
+        table_q = _quote_identifier(table)
+        scope_q = _quote_identifier(scope_col)
+        if tile_keys:
+            with self.engine.begin() as conn:
+                conn.execute(
+                    text(
+                        f'DELETE FROM {schema_q}.{table_q} '
+                        f'WHERE {scope_q} = ANY(:keys)'
+                    ),
+                    {"keys": tile_keys},
+                )
+        validated_gdf.to_postgis(
+            table,
+            self.engine,
+            schema=schema,
+            if_exists="append",
+            index=False,
+            chunksize=chunksize,
+        )
+        logger.info(
+            "Tile-scoped write: %d rows into %s.%s across %d tile(s)",
+            len(validated_gdf),
+            schema,
+            table,
+            len(tile_keys),
+        )
+
+    def write(
+        self,
+        gdf: gpd.GeoDataFrame,
+        layer_name: str,
+        table: str,
+        if_exists: str = "append",
+        id_column: str | None = None,
+        schema: str = "public",
+        chunksize: int = 5000,
+        geometry_type: str | None = None,
+    ) -> None:
+        """
+        Write a GeoDataFrame to the database, using schema-driven type enforcement. layer_name is now required.
+        """
+        # Enforce Point-only for centroids layers, metro_stations, and riyadh_bus_stations
+        if layer_name.endswith('-centroids') or layer_name in ['metro_stations', 'riyadh_bus_stations']:
+            non_point_count = (~gdf.geometry.type.isin(['Point'])).sum()
+            if non_point_count > 0:
+                logger.warning(f"Layer '{layer_name}': Dropping {non_point_count} non-Point geometries before DB write.")
+            gdf = gdf[gdf.geometry.type == 'Point']
+        validated_gdf = self._validate_and_cast_types(gdf, layer_name=layer_name)
+        dtype = None
+        if geometry_type:
+            try:
+                from geoalchemy2 import Geometry
+
+                srid = validated_gdf.geometry.crs.to_epsg() or 4326
+                dtype = {validated_gdf.geometry.name: Geometry(geometry_type.upper(), srid=srid)}
+            except Exception as exc:
+                logger.warning("Failed to apply geometry override '%s': %s", geometry_type, exc)
+
+        inspector = inspect(self.engine)
+        table_exists = inspector.has_table(table, schema=schema)
+
+        if if_exists == "replace":
+            self.drop_table(table, schema)
+            table_exists = False
+
+        if not table_exists:
+            self.create_table_from_gdf(
+                validated_gdf.iloc[0:0],
+                table,
+                schema=schema,
+                known_columns=list(validated_gdf.columns),
+                geometry_type=geometry_type or "GEOMETRY",
+            )
+
+        if if_exists == "append" and id_column:
+            self._upsert(validated_gdf, table, id_column, schema, chunksize)
+        else:
+            validated_gdf.to_postgis(
+                table,
+                self.engine,
+                schema=schema,
+                if_exists="append" if table_exists or if_exists == "append" else "replace",
+                index=False,
+                chunksize=chunksize,
+                dtype=dtype,
+            )
+            logger.info(
+                "Persisted %d features to %s.%s using mode '%s'",
+                len(validated_gdf),
+                schema,
+                table,
+                if_exists,
+            )
+
+    def read_sql(self, sql: str, geom_col: str = "geometry") -> gpd.GeoDataFrame:
+        """Executes a SQL query and returns the result as a GeoDataFrame."""
+        return gpd.read_postgis(sql, self.engine, geom_col=geom_col)
+
+    # Convenience -------------------------------------------------------
+    def drop_table(self, table: str, schema: str = "public") -> None:
+        schema_q = _quote_identifier(schema)
+        table_q = _quote_identifier(table)
+        with self.engine.begin() as conn:
+            conn.execute(text(f'DROP TABLE IF EXISTS {schema_q}.{table_q} CASCADE'))
+
+    def execute(self, sql: str) -> None:
+        """Executes a raw SQL statement."""
+        with self.engine.begin() as conn:
+            conn.execute(text(sql)) 

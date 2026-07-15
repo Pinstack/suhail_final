@@ -27,7 +27,7 @@
 | 17 | `/opt/homebrew/var/postgresql@17` | **~6.5 GB** | **5432** |
 | 18 | `/opt/homebrew/var/postgresql@18` | ~73 MB | default **5432** (commented `#port = 5432`) |
 
-**Interpretation:** The large **@17** cluster likely holds historical work (e.g. former `meshic` DB). **@18** is the current target for this project (`suhail_pipeline` per repo `.env.example`).
+**Interpretation:** The large **@17** cluster likely holds historical work (e.g. former `suhail` DB). **@18** is the current target for this project (`suhail_pipeline` per repo `.env.example`).
 
 ## `brew services` snapshot
 

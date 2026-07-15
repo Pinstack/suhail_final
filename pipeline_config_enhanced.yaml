@@ -76,7 +76,7 @@ layers:
 
 # Integration examples (documentation)
 usage_examples:
-  single_province: "python -m meshic_pipeline.cli province-geometric riyadh"
-  all_saudi: "python -m meshic_pipeline.cli saudi-arabia-geometric"
-  efficient_mode: "python -m meshic_pipeline.cli saudi-arabia-geometric --strategy efficient"
-  complete_pipeline: "python -m meshic_pipeline.cli province-pipeline al_qassim" 
+  single_province: "python -m suhail_pipeline.cli province-geometric riyadh"
+  all_saudi: "python -m suhail_pipeline.cli saudi-arabia-geometric"
+  efficient_mode: "python -m suhail_pipeline.cli saudi-arabia-geometric --strategy efficient"
+  complete_pipeline: "python -m suhail_pipeline.cli province-pipeline al_qassim" 

@@ -10,10 +10,10 @@ import yaml
 src_path = Path(__file__).parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
-from meshic_pipeline.config import settings
-from meshic_pipeline.downloader.async_tile_downloader import AsyncTileDownloader
-from meshic_pipeline.enrichment.api_client import SuhailAPIClient
-from meshic_pipeline.logging_utils import get_logger
+from suhail_pipeline.config import settings
+from suhail_pipeline.downloader.async_tile_downloader import AsyncTileDownloader
+from suhail_pipeline.enrichment.api_client import SuhailAPIClient
+from suhail_pipeline.logging_utils import get_logger
 
 logger = get_logger(__name__)
 

@@ -47,11 +47,11 @@
   ```
 - [ ] **8. Create the Project Database:** **Crucially, use `template0`** to ensure a pristine, extension-free starting point.
   ```sh
-  createdb meshic -T template0
+  createdb suhail -T template0
   ```
 - [ ] **9. Enable PostGIS Extension:** Activate PostGIS within your newly created database.
   ```sh
-  psql -d meshic -c "CREATE EXTENSION postgis;"
+  psql -d suhail -c "CREATE EXTENSION postgis;"
   ```
 
 ---
@@ -87,16 +87,16 @@
   uv run alembic upgrade head
   ```
 - [ ] **16. Verify the Schema in PSQL:**
-  - [ ] Check for tables: `psql -d meshic -c "\dt"`
-  - [ ] Inspect a spatial table's structure: `psql -d meshic -c "\d+ your_spatial_table"`
-  - [ ] Confirm PostGIS tracking: `psql -d meshic -c "SELECT * FROM geometry_columns;"`
+  - [ ] Check for tables: `psql -d suhail -c "\dt"`
+  - [ ] Inspect a spatial table's structure: `psql -d suhail -c "\d+ your_spatial_table"`
+  - [ ] Confirm PostGIS tracking: `psql -d suhail -c "SELECT * FROM geometry_columns;"`
 - [ ] **17. Run Application Tests:** Execute your project's test suite to confirm that the database connection, schema, and spatial queries work as expected.
 
 ---
 
 **Reference DB URL:**
 ```
-postgresql+psycopg2://raedmundjennings@localhost:5432/meshic
+postgresql+psycopg2://raedmundjennings@localhost:5432/suhail
 ```
 
 ---

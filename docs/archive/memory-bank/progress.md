@@ -31,7 +31,7 @@
 **Status**: Complete
 
 **Tasks**:
-- [x] **Package Installation**: Install meshic-pipeline with `uv sync --all-groups`
+- [x] **Package Installation**: Install suhail-pipeline with `uv sync --all-groups`
 - [x] **Environment Activation**: Source virtual environment
 - [x] **Database Connection**: Verify PostgreSQL/PostGIS connectivity
 - [x] **Configuration Validation**: Confirm pipeline settings
@@ -47,7 +47,7 @@
 - **Purpose**: Confirm basic pipeline functionality with fresh database
 
 **Tasks**:
-- [x] **Execute Geometric Pipeline**: Run `meshic-pipeline geometric`
+- [x] **Execute Geometric Pipeline**: Run `suhail-pipeline geometric`
 - [x] **Verify Database Population**: Check parcels and reference tables
 - [x] **Validate Data Types**: Confirm proper schema alignment
 - [x] **Check Foreign Keys**: Verify relationship integrity
@@ -63,7 +63,7 @@
 **Status**: Complete
 
 **Tasks**:
-- [x] **API Integration Test**: Run `meshic-pipeline fast-enrich --limit 100` (**Success: 100 parcels processed, 10 transactions, 0 building rules, 200 price metrics added**)
+- [x] **API Integration Test**: Run `suhail-pipeline fast-enrich --limit 100` (**Success: 100 parcels processed, 10 transactions, 0 building rules, 200 price metrics added**)
 - [x] **Success Rate Monitoring**: Track enrichment coverage percentage (see Results below)
 - [x] **Endpoint Validation**: All 3 API endpoints responsive (transactions, building rules, price metrics)
 - [x] **Data Quality Check**: Enrichment data written to DB, no errors
@@ -308,20 +308,20 @@ CREATE INDEX idx_parcel_price_metrics_neighborhood_id ON parcel_price_metrics(ne
 > For a complete, up-to-date audit, see [`docs/CLI_COMMAND_AUDIT.md`](../docs/CLI_COMMAND_AUDIT.md) and the README.
 
 ### Core Commands
-- `meshic-pipeline geometric [--bbox ...] [--recreate-db] [--save-as-temp ...]`
-- `meshic-pipeline fast-enrich [--batch-size ...] [--limit ...]`
-- `meshic-pipeline incremental-enrich [--batch-size ...] [--days-old ...] [--limit ...]`
-- `meshic-pipeline full-refresh [--batch-size ...] [--limit ...]`
-- `meshic-pipeline delta-enrich [--batch-size ...] [--limit ...] [--fresh-table ...] [--auto-geometric] [--show-details/--no-details]`
+- `suhail-pipeline geometric [--bbox ...] [--recreate-db] [--save-as-temp ...]`
+- `suhail-pipeline fast-enrich [--batch-size ...] [--limit ...]`
+- `suhail-pipeline incremental-enrich [--batch-size ...] [--days-old ...] [--limit ...]`
+- `suhail-pipeline full-refresh [--batch-size ...] [--limit ...]`
+- `suhail-pipeline delta-enrich [--batch-size ...] [--limit ...] [--fresh-table ...] [--auto-geometric] [--show-details/--no-details]`
 
 ### Advanced/Composite Commands
-- `meshic-pipeline smart-pipeline [--geometric-first] [--batch-size ...] [--bbox ...]`
-- `meshic-pipeline monitor <status|recommend|schedule-info>`
-- `meshic-pipeline province-geometric <province> [--strategy ...] [--recreate-db] [--save-as-temp ...]`
-- `meshic-pipeline saudi-arabia-geometric [--strategy ...] [--recreate-db] [--save-as-temp ...]`
-- `meshic-pipeline discovery-summary`
-- `meshic-pipeline province-pipeline <province> [--strategy ...] [--batch-size ...] [--geometric-first]`
-- `meshic-pipeline saudi-pipeline [--strategy ...] [--batch-size ...] [--geometric-first]`
+- `suhail-pipeline smart-pipeline [--geometric-first] [--batch-size ...] [--bbox ...]`
+- `suhail-pipeline monitor <status|recommend|schedule-info>`
+- `suhail-pipeline province-geometric <province> [--strategy ...] [--recreate-db] [--save-as-temp ...]`
+- `suhail-pipeline saudi-arabia-geometric [--strategy ...] [--recreate-db] [--save-as-temp ...]`
+- `suhail-pipeline discovery-summary`
+- `suhail-pipeline province-pipeline <province> [--strategy ...] [--batch-size ...] [--geometric-first]`
+- `suhail-pipeline saudi-pipeline [--strategy ...] [--batch-size ...] [--geometric-first]`
 
 ### Phase-by-Phase Command Usage
 - **Baseline/3x3 Grid:**

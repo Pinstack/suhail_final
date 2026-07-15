@@ -1,5 +1,5 @@
-from meshic_pipeline.config import settings
-from meshic_pipeline.utils.tile_list_generator import tiles_from_bbox_z
+from suhail_pipeline.config import settings
+from suhail_pipeline.utils.tile_list_generator import tiles_from_bbox_z
 
 
 def test_provinces_loaded(monkeypatch):
