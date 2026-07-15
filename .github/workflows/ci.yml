@@ -43,4 +43,11 @@ jobs:
       - name: Sync dependencies (locked)
         run: uv sync --all-groups --frozen --python ${{ matrix.python-version }}
       - name: Run tests
+        env:
+          # The app instantiates Settings() at import time, which requires a valid
+          # DATABASE_URL (PostgresDsn). The test suite is fully mocked and never opens
+          # a real connection, so a well-formed dummy DSN is sufficient to let the
+          # package import and the suite collect/run. Add a `postgres` service block
+          # here (e.g. postgis/postgis image) if/when tests exercise a live database.
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/suhail_pipeline
         run: uv run pytest
