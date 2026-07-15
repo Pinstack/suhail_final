@@ -342,6 +342,14 @@ correctness fixes; nothing removes existing behaviour.
 - Per-feature provenance (`source_tile_z/x/y`, `fetched_at`) and `geometry_hash` computation.
 - Collapse the drifting layer-schema definitions (`SCHEMA_MAP` / models / config) into one
   declarative spec + a schema-drift CI check.
+- **Quarantine of dropped features** — a `quarantined_features` table capturing malformed
+  geometries / unmappable rows the pipeline currently drops silently (decoder feature-loop
+  `except: continue`, empty-geometry validation, null-PK filtering), plus a `province_id_mapping`
+  lookup. Prototyped on the abandoned `autotune-error-reporting` branch (evaluated and dropped:
+  ~1yr stale, mostly superseded, no consumer). **Not built here on purpose** — it's only worth it
+  once real, quantified data-loss is observed and a consumer (report/alert) exists; building an
+  unmonitored quarantine table now would be speculative. Build fresh against current code if a
+  need is demonstrated.
 
 ## 7. End-to-end validation results (live, 2026-07-15)
 
