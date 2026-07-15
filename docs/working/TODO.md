@@ -1,4 +1,4 @@
-# Meshic Geospatial Pipeline Implementation Plan
+# Suhail Geospatial Pipeline Implementation Plan
 
 ## 🚦 **Next Actions Summary (as of DB-Driven Pipeline Phase)**
 
@@ -15,9 +15,9 @@
 
 ---
 
-# Meshic Geospatial Pipeline Implementation Plan
+# Suhail Geospatial Pipeline Implementation Plan
 
-This document outlines the implementation plan for the Meshic Geospatial Data Pipeline following the transition to a fully DB-driven pipeline. All tile discovery and orchestration is now managed via the `tile_urls` table in the database, supporting province-wide and all-Saudi scrapes with resumable processing.
+This document outlines the implementation plan for the Suhail Geospatial Data Pipeline following the transition to a fully DB-driven pipeline. All tile discovery and orchestration is now managed via the `tile_urls` table in the database, supporting province-wide and all-Saudi scrapes with resumable processing.
 
 ## 🎯 **Current Project Status**
 
@@ -52,7 +52,7 @@ This document outlines the implementation plan for the Meshic Geospatial Data Pi
 
 **Tasks**:
 - [x] **Source Environment**: Activate `.venv` before running commands
-- [x] **Run Geometric Pipeline**: `meshic-pipeline geometric` (or `python -m meshic_pipeline.cli geometric`)
+- [x] **Run Geometric Pipeline**: `suhail-pipeline geometric` (or `python -m suhail_pipeline.cli geometric`)
 - [x] **Verify Database Population**: Check parcels, neighborhoods, subdivisions tables
 - [x] **Validate Schema**: Confirm data types and foreign key relationships
 - [x] **Performance Check**: Measure processing time and memory usage
@@ -116,7 +116,7 @@ git tag v0.1.1-3x3-validated
 **Prerequisites**: 3x3 baseline test completed successfully
 
 **Tasks**:
-- [x] **Test Fast Enrichment**: `meshic-pipeline fast-enrich --limit 100` (and full batch)
+- [x] **Test Fast Enrichment**: `suhail-pipeline fast-enrich --limit 100` (and full batch)
 - [x] **Monitor Success Rate**: Track enrichment coverage percentage
 - [x] **Verify API Integration**: Check all 3 API endpoints working
 - [x] **Data Quality Check**: Ensure no garbage data in enrichment tables
@@ -208,22 +208,22 @@ uv add -e .
 source .venv/bin/activate  # or appropriate activation for your shell
 
 # Verify installation
-meshic-pipeline --help
+suhail-pipeline --help
 ```
 
 ### **Testing Commands**
 ```bash
 # Basic geometric pipeline (3x3 grid)
-meshic-pipeline geometric
+suhail-pipeline geometric
 
 # Alternative if package not in PATH
-python -m meshic_pipeline.cli geometric
+python -m suhail_pipeline.cli geometric
 
 # Enrichment testing
-meshic-pipeline fast-enrich --limit 100
+suhail-pipeline fast-enrich --limit 100
 
 # Monitor pipeline status
-meshic-pipeline monitor status
+suhail-pipeline monitor status
 
 # Database validation
 python scripts/check_db.py
@@ -391,18 +391,18 @@ Provide minimal pytest examples for each module to guide future implementations.
 ### **1. Environment Setup**
 - [ ] Install dependencies using `uv add -e .`
 - [x] Activate the virtual environment: `source .venv/bin/activate`
-- [x] Verify package installation: `meshic-pipeline --help` or `python -m meshic_pipeline.cli --help`
-  - meshic-pipeline CLI is available and functional
+- [x] Verify package installation: `suhail-pipeline --help` or `python -m suhail_pipeline.cli --help`
+  - suhail-pipeline CLI is available and functional
 - [x] Check database connectivity and configuration
   - Database is accessible and tables are present (see `list-tables` output)
 
 ### **2. Run Baseline 3x3 Riyadh Test**
-- [x] Execute geometric pipeline: `meshic-pipeline geometric`
+- [x] Execute geometric pipeline: `suhail-pipeline geometric`
   - **Note:** Pipeline ran successfully for most layers, but failed for 'parcels' due to `invalid input syntax for type bigint: "9.0"` (zoning_id). All other layers processed and persisted as expected. This error must be fixed before scaling or enrichment.
 - [x] Verify database population: Check that parcels and reference tables are populated
 - [x] Validate schema: Confirm data types and foreign key relationships
 - [ ] Monitor performance: Record processing time and memory usage
-- [x] Run enrichment pipeline: `meshic-pipeline fast-enrich --limit 100` (validated and operational)
+- [x] Run enrichment pipeline: `suhail-pipeline fast-enrich --limit 100` (validated and operational)
 
 ## Comprehensive Debugging & Remediation Plan for Pipeline/DB Issues (July 2025)
 
@@ -480,7 +480,7 @@ Provide minimal pytest examples for each module to guide future implementations.
 ### Handoff Notes
 - This checklist is designed for another developer to pick up and systematically resolve the pipeline/DB issues.
 - Please document all findings and fixes directly in this file or in a new issue tracker as appropriate.
-- If you need more context, review the pipeline logs, stitched GeoJSONs, and the code in `src/meshic_pipeline/`.
+- If you need more context, review the pipeline logs, stitched GeoJSONs, and the code in `src/suhail_pipeline/`.
 
 ## ✅ Baseline Validation Results (July 2025)
 - All tests run successfully (`unit_test_results.txt`)
@@ -503,7 +503,7 @@ Provide minimal pytest examples for each module to guide future implementations.
 ## Notes
 - Enrichment pipeline must be run as:
   ```bash
-  PYTHONPATH=$(pwd) python src/meshic_pipeline/run_enrichment_pipeline.py fast-enrich --limit 100
+  PYTHONPATH=$(pwd) python src/suhail_pipeline/run_enrichment_pipeline.py fast-enrich --limit 100
   ```
 - Pydantic deprecation warning is present but does not affect current functionality.
 

@@ -18,11 +18,11 @@ This document captures the **CURRENT STATE** of the Suhail Final geospatial data
 
 ### Critical Files for Understanding the System
 
-- **Main CLI**: `src/meshic_pipeline/cli.py` (Comprehensive command-line interface with 15+ commands)
-- **Configuration**: `pipeline_config.yaml`, `src/meshic_pipeline/config.py` (Multi-environment configuration)
-- **Geometric Pipeline**: `src/meshic_pipeline/run_geometric_pipeline.py` (Stage 1: MVT processing)
-- **Enrichment Pipeline**: `src/meshic_pipeline/run_enrichment_pipeline.py` (Stage 2: Business intelligence)
-- **Database Models**: `src/meshic_pipeline/persistence/models.py` (SQLAlchemy/PostGIS models)
+- **Main CLI**: `src/suhail_pipeline/cli.py` (Comprehensive command-line interface with 15+ commands)
+- **Configuration**: `pipeline_config.yaml`, `src/suhail_pipeline/config.py` (Multi-environment configuration)
+- **Geometric Pipeline**: `src/suhail_pipeline/run_geometric_pipeline.py` (Stage 1: MVT processing)
+- **Enrichment Pipeline**: `src/suhail_pipeline/run_enrichment_pipeline.py` (Stage 2: Business intelligence)
+- **Database Models**: `src/suhail_pipeline/persistence/models.py` (SQLAlchemy/PostGIS models)
 - **Database Schema**: `schema_dump.sql` (Complete PostgreSQL schema with 20+ tables)
 
 ### Current Implementation State
@@ -65,7 +65,7 @@ Suhail Final is a sophisticated geospatial data processing pipeline that transfo
 
 ```
 /Users/raedmund/Projects/suhail_final/
-├── src/meshic_pipeline/           # ✅ IMPLEMENTED: Core pipeline modules
+├── src/suhail_pipeline/           # ✅ IMPLEMENTED: Core pipeline modules
 │   ├── cli.py                     # ✅ IMPLEMENTED: CLI with 15+ commands
 │   ├── config.py                  # ✅ IMPLEMENTED: Pydantic configuration
 │   ├── decoder/                   # ✅ IMPLEMENTED: MVT tile decoding
@@ -142,7 +142,7 @@ The enrichment system integrates with Suhail APIs through sophisticated patterns
 ### Critical Technical Debt
 
 1. **Complex CLI Architecture**
-   - Location: `src/meshic_pipeline/cli.py`
+   - Location: `src/suhail_pipeline/cli.py`
    - Impact: 15+ commands with subprocess calls instead of direct imports
    - Status: ⚠️ **MAINTENANCE**: Some commands use subprocess instead of direct function calls
 
@@ -194,7 +194,7 @@ The enrichment system integrates with Suhail APIs through sophisticated patterns
 2. **Dependencies**: `uv sync --all-groups` for reproducible dependency management
 3. **Database**: Local PostgreSQL with PostGIS extensions
 4. **Configuration**: Environment variables + YAML config files
-5. **Execution**: `meshic-pipeline` CLI with 15+ commands
+5. **Execution**: `suhail-pipeline` CLI with 15+ commands
 
 ### Build and Deployment Process (Actual)
 
@@ -253,25 +253,25 @@ uv run pytest tests/integration     # Integration tests
 
 ```bash
 # Geometric pipeline (Stage 1)
-meshic-pipeline geometric --bbox 46.4 24.3 47.0 24.8
-meshic-pipeline province-geometric riyadh --strategy optimal
-meshic-pipeline saudi-arabia-geometric --strategy efficient
+suhail-pipeline geometric --bbox 46.4 24.3 47.0 24.8
+suhail-pipeline province-geometric riyadh --strategy optimal
+suhail-pipeline saudi-arabia-geometric --strategy efficient
 
 # Enrichment pipeline (Stage 2) - Multiple strategies
-meshic-pipeline fast-enrich --batch-size 400                    # New parcels only
-meshic-pipeline incremental-enrich --days-old 7 --batch-size 100  # Weekly updates
-meshic-pipeline delta-enrich --auto-geometric                  # Change detection
-meshic-pipeline full-refresh --batch-size 50                   # Complete refresh
+suhail-pipeline fast-enrich --batch-size 400                    # New parcels only
+suhail-pipeline incremental-enrich --days-old 7 --batch-size 100  # Weekly updates
+suhail-pipeline delta-enrich --auto-geometric                  # Change detection
+suhail-pipeline full-refresh --batch-size 50                   # Complete refresh
 
 # Monitoring and management
-meshic-pipeline monitor status          # Current status
-meshic-pipeline monitor recommend       # Smart recommendations
-meshic-pipeline monitor schedule-info   # Scheduling guidance
+suhail-pipeline monitor status          # Current status
+suhail-pipeline monitor recommend       # Smart recommendations
+suhail-pipeline monitor schedule-info   # Scheduling guidance
 
 # Complete workflows
-meshic-pipeline smart-pipeline --batch-size 300 --geometric-first
-meshic-pipeline province-pipeline riyadh --strategy optimal --batch-size 300
-meshic-pipeline saudi-pipeline --strategy efficient --batch-size 500
+suhail-pipeline smart-pipeline --batch-size 300 --geometric-first
+suhail-pipeline province-pipeline riyadh --strategy optimal --batch-size 300
+suhail-pipeline saudi-pipeline --strategy efficient --batch-size 500
 
 # Database management
 alembic upgrade head                    # Apply migrations

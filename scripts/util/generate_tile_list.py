@@ -6,7 +6,7 @@ import geopandas as gpd
 from shapely.ops import unary_union
 from tqdm import tqdm
 
-from meshic_pipeline.decoder.mvt_decoder import MVTDecoder
+from suhail_pipeline.decoder.mvt_decoder import MVTDecoder
 
 # --- Configuration ---
 LOG_LEVEL = logging.INFO

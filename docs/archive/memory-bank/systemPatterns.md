@@ -3,7 +3,7 @@
 ## 🏗️ **Core Architecture: DB-Driven, Functional Async Design**
 
 ### **Design Philosophy**
-The Meshic pipeline uses **database-driven, functional async patterns** for high-performance geospatial data processing at scale. All tile discovery and orchestration is managed via the `tile_urls` table in the database, supporting province-wide and all-Saudi scrapes with resumable processing.
+The Suhail pipeline uses **database-driven, functional async patterns** for high-performance geospatial data processing at scale. All tile discovery and orchestration is managed via the `tile_urls` table in the database, supporting province-wide and all-Saudi scrapes with resumable processing.
 
 ### **Key Architectural Principles**
 1. **DB-Driven Tile Orchestration**: All tiles to be processed are stored in the `tile_urls` table; pipeline queries for pending/failed tiles and updates status as it processes.

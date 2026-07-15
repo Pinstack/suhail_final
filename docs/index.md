@@ -26,7 +26,7 @@ Generated and curated reference for humans and LLMs. Descriptions reflect file p
 - **[Delta_enrichment_PRD.md](./Delta_enrichment_PRD.md)** — Product requirements for delta enrichment and `delta-enrich` CLI.
 - **[handoff_upsert_bottleneck.md](./handoff_upsert_bottleneck.md)** — Reference-data bottleneck analysis (municipalities/neighborhoods).
 - **[pipeline_table_uniqueness_review.md](./pipeline_table_uniqueness_review.md)** — Upsert keys and table uniqueness review.
-- **[PRD.md](./PRD.md)** — Main product requirements: Meshic geospatial pipeline.
+- **[PRD.md](./PRD.md)** — Main product requirements: Suhail geospatial pipeline.
 - **[PROJECT_BRIEF.md](./PROJECT_BRIEF.md)** — Executive brief: goals, MVP, personas.
 - **[province_wide_scraping_plan.md](./province_wide_scraping_plan.md)** — DB-driven province and national scrape rollout plan.
 - **[technical-decisions-template.md](./technical-decisions-template.md)** — Template for recording ADRs or technical decisions.

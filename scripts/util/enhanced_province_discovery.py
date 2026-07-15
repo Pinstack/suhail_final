@@ -16,7 +16,7 @@ from shapely.geometry import box, Point
 import typer
 import time
 
-from meshic_pipeline.decoder.mvt_decoder import MVTDecoder
+from suhail_pipeline.decoder.mvt_decoder import MVTDecoder
 
 # --- Enhanced Configuration ---
 LOG_LEVEL = logging.INFO

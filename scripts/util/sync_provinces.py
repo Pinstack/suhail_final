@@ -8,7 +8,7 @@ import os
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
 # Database connection string (read from environment or default)
-DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://localhost/meshic')
+DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://localhost/suhail')
 
 def fetch_provinces():
     url = 'https://api2.suhail.ai/regions'

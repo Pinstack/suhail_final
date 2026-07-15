@@ -13,11 +13,11 @@ This document expands the **docs distillate** (architecture-and-data section plu
 
 ## System identity and scope
 
-**Meshic / Suhail Final** is a **two-stage geospatial pipeline** for **Saudi Arabian parcel intelligence**: **MVT geometry** ingestion plus **Suhail API enrichment**. The lean architecture document is dated **2025-10-16**, version **0.1**; the brownfield document describes **current state**; the brownfield project documentation is dated **2025-10-16** (analyst Mary). An executive summary in production narrative cites **2.16M+ parcels**.
+**Suhail / Suhail Final** is a **two-stage geospatial pipeline** for **Saudi Arabian parcel intelligence**: **MVT geometry** ingestion plus **Suhail API enrichment**. The lean architecture document is dated **2025-10-16**, version **0.1**; the brownfield document describes **current state**; the brownfield project documentation is dated **2025-10-16** (analyst Mary). An executive summary in production narrative cites **2.16M+ parcels**.
 
 ## Inputs, system of record, and control plane
 
-**Inputs** are **province-specific Mapbox Vector Tiles (MVT)** and **Suhail APIs** for **transactions**, **building rules**, and **price metrics**. The **system of record** is **PostgreSQL with PostGIS**. The **control plane** is the **Typer** CLI **`meshic-pipeline`**.
+**Inputs** are **province-specific Mapbox Vector Tiles (MVT)** and **Suhail APIs** for **transactions**, **building rules**, and **price metrics**. The **system of record** is **PostgreSQL with PostGIS**. The **control plane** is the **Typer** CLI **`suhail-pipeline`**.
 
 ## Stage 1: geometric pipeline (architecture)
 
@@ -25,7 +25,7 @@ The geometric stage performs **DB-queued tile downloads**, **decode**, **stitch*
 
 The **downloader** uses **aiohttp** with **concurrent fetch**, **retry**, and **backoff**. The **decoder** converts **MVT to EPSG:4326**. The **stitcher** uses **PostGIS dissolve** across tiles (**temporary tables**). The **persister** performs **schema-driven upsert**.
 
-Implementation paths cited: **`src/meshic_pipeline/run_db_geometric.py`**, **`decoder/mvt_decoder.py`**, **`geometry/stitcher.py`**, **`persistence/postgis_persister.py`**, **`persistence/table_management.py`**. Brownfield also references **`run_geometric_pipeline.py`** for Stage 1 MVT processing **[POSSIBLE GAP: relationship and deprecation story between `run_db_geometric` and `run_geometric_pipeline`].**
+Implementation paths cited: **`src/suhail_pipeline/run_db_geometric.py`**, **`decoder/mvt_decoder.py`**, **`geometry/stitcher.py`**, **`persistence/postgis_persister.py`**, **`persistence/table_management.py`**. Brownfield also references **`run_geometric_pipeline.py`** for Stage 1 MVT processing **[POSSIBLE GAP: relationship and deprecation story between `run_db_geometric` and `run_geometric_pipeline`].**
 
 End-to-end flow: **seed `tile_urls`** → **claim batch** → **fetch** → **decode** (with **Arabic column normalization**) → **validate CRS/geometry** → **stitch** → **persist temp then canonical** → **update queue** to processed or failed. **Adaptive geometric concurrency** is described as **5–20**; **multiple geometric workers** share the **`tile_urls`** queue. Brownfield project notes include roughly **0.05s delay between requests**, **chunked DB writes** around **5000 rows per batch**, and **garbage collection** triggers for large runs.
 
@@ -51,7 +51,7 @@ Endpoints named: **`/parcel/buildingRules`**; **`/api/parcel/metrics/priceOfMete
 
 **`tile_urls`** includes **`id` PK**, **`url` UNIQUE**, **z/x/y**, **`status`**, **`retry_count`**, **`last_checked_at`**, **`error_message`**, and further columns implied by ellipsis in the distillate.
 
-**`TileURL.claim_tiles_for_processing(..., SKIP LOCKED)`** and **`reset_stale_in_progress(..., stale_minutes=60)`** live in **`src/meshic_pipeline/persistence/models.py`**. **Stale protection** means **periodic reset** of stuck **`in_progress`** tiles; schedule example **`stale_minutes=60`**.
+**`TileURL.claim_tiles_for_processing(..., SKIP LOCKED)`** and **`reset_stale_in_progress(..., stale_minutes=60)`** live in **`src/suhail_pipeline/persistence/models.py`**. **Stale protection** means **periodic reset** of stuck **`in_progress`** tiles; schedule example **`stale_minutes=60`**.
 
 ## Core relational schema (distilled)
 
@@ -71,7 +71,7 @@ Endpoints named: **`/parcel/buildingRules`**; **`/api/parcel/metrics/priceOfMete
 
 ## Production scale (ground-truth narrative)
 
-**`parcels`:** **2,163,003** rows. **`parcel_price_metrics`:** **76,080,728** rows. **`transactions`:** **70,787** rows. **`building_rules`:** **130,112** rows. **`tile_urls`:** **34,726** rows; **processed 33,938 (97.7%)**; **`in_progress` 788 (2.3%)**. **`provinces`:** **12**; **`neighborhoods`:** **812**. Database name **`meshic`** (not **`meshic_pipeline`** as some documents suggest); owner **`postgres`**.
+**`parcels`:** **2,163,003** rows. **`parcel_price_metrics`:** **76,080,728** rows. **`transactions`:** **70,787** rows. **`building_rules`:** **130,112** rows. **`tile_urls`:** **34,726** rows; **processed 33,938 (97.7%)**; **`in_progress` 788 (2.3%)**. **`provinces`:** **12**; **`neighborhoods`:** **812**. Database name **`suhail`** (not **`suhail_pipeline`** as some documents suggest); owner **`postgres`**.
 
 ## Superseded and memory-bank figures
 
@@ -93,19 +93,19 @@ Alembic revision **`19c587b33197_add_critical_performance_indexes.py`** is the r
 
 **Command count:** ground-truth doc states **18 commands in 5 categories**; brownfield architecture says **15+**; architecture lists a **representative subset** without a single total **[POSSIBLE GAP: authoritative canonical list and category mapping]**.
 
-**Entry point:** **`src/meshic_pipeline/cli.py`**.
+**Entry point:** **`src/suhail_pipeline/cli.py`**.
 
 ## Configuration (architecture)
 
-**`src/meshic_pipeline/config.py`:** **Pydantic settings**; **DB URL**, **API endpoints**, **layers**, **batch sizes**; **provinces** loaded from DB via **`load_provinces_from_db`**; failure **falls back to empty provinces with warning**. **`pipeline_config.yaml`** plus **environment variables**. Example tile URL template: **`https://tiles.suhail.ai/maps/{slug}/{z}/{x}/{y}.vector.pbf`** (Riyadh example). **Secrets** in **`.env`**; **no secrets in code**; **least-privilege DB role**; **UTF-8 Arabic**.
+**`src/suhail_pipeline/config.py`:** **Pydantic settings**; **DB URL**, **API endpoints**, **layers**, **batch sizes**; **provinces** loaded from DB via **`load_provinces_from_db`**; failure **falls back to empty provinces with warning**. **`pipeline_config.yaml`** plus **environment variables**. Example tile URL template: **`https://tiles.suhail.ai/maps/{slug}/{z}/{x}/{y}.vector.pbf`** (Riyadh example). **Secrets** in **`.env`**; **no secrets in code**; **least-privilege DB role**; **UTF-8 Arabic**.
 
 ## Technology stack
 
-**Python 3.9+**; package **`meshic-pipeline` v0.1.0** per doc snippet; **SQLAlchemy 2.0+ async**; **GeoAlchemy2**; **GeoPandas**, **Shapely**, **h3**; **Alembic**; **Typer**; **aiohttp**; **mapbox-vector-tile/protobuf** for MVT.
+**Python 3.9+**; package **`suhail-pipeline` v0.1.0** per doc snippet; **SQLAlchemy 2.0+ async**; **GeoAlchemy2**; **GeoPandas**, **Shapely**, **h3**; **Alembic**; **Typer**; **aiohttp**; **mapbox-vector-tile/protobuf** for MVT.
 
 ## Repository layout
 
-**`src/meshic_pipeline/`** — cli, config, decoder, discovery, downloader, enrichment, geometry, persistence, **`pipeline_orchestrator.py`**, utils; **`alembic/`**, **`tests/`**, **`scripts/`**, **`logs/`**, **`docs/`**, **`pyproject.toml`**.
+**`src/suhail_pipeline/`** — cli, config, decoder, discovery, downloader, enrichment, geometry, persistence, **`pipeline_orchestrator.py`**, utils; **`alembic/`**, **`tests/`**, **`scripts/`**, **`logs/`**, **`docs/`**, **`pyproject.toml`**.
 
 ## Non-functional targets (architecture)
 
@@ -123,7 +123,7 @@ Alembic revision **`19c587b33197_add_critical_performance_indexes.py`** is the r
 
 ## Deployment and operations
 
-**Dev, staging, prod** share **migrations**. **Local:** PostgreSQL+PostGIS, **`uv sync --all-groups`**, **`uv run meshic-pipeline`**, **`uv run alembic upgrade head`**. **Temp table policy:** **pipeline-owned `temp_*` only**.
+**Dev, staging, prod** share **migrations**. **Local:** PostgreSQL+PostGIS, **`uv sync --all-groups`**, **`uv run suhail-pipeline`**, **`uv run alembic upgrade head`**. **Temp table policy:** **pipeline-owned `temp_*` only**.
 
 **Migrations (`docs/ops/migrations.md` themes):** Prereqs **`DATABASE_URL`** in **`.env`**; Postgres + PostGIS. Upgrade via **`uv run python scripts/db/upgrade.py`** or **`uv run alembic upgrade head`**. Downgrade via **`uv run python scripts/db/downgrade.py -1`** or **`... base`**. Critical indexes migration includes **`temp_*` cleanup**; apply in **low-traffic** windows with **baseline/post timings**. **Repair incomplete province metadata** with **`uv run python scripts/util/backfill_province_metadata.py --province-id <id>`** before **auto-geometric delta** pipelines.
 
@@ -145,7 +145,7 @@ Upsert-enabled examples: **`parcels_centroids.parcel_no`**; **`metro_stations.st
 
 ## Province-wide scraping and DB-driven MVT (themes)
 
-**Authoritative** sources: **`provinces`** metadata; **`tile_urls`** list and status; **config from DB**; **no hard-coded province dicts** or YAML tile lists. **Downloader:** async; province and tiles from DB; caching, retry, concurrency; **resumable** multi/all-province. **CLI examples:** **`meshic-pipeline geometric --province riyadh`**; **`--all-provinces`**; multi **`--province`** flags. **Performance:** index **`tile_urls`** by status/province; spatial/lookup indices on parcels/neighborhoods at **>1M/province**; **~5000-row chunks**; **disk tile cache**. **CI suggestion:** nightly geometric with **`--province riyadh --limit-test`**. **Rollout phases** span metadata+generator through full Riyadh and six provinces with success metrics in a doc table **[POSSIBLE GAP: exact phase gates and metric table not reproduced here]**.
+**Authoritative** sources: **`provinces`** metadata; **`tile_urls`** list and status; **config from DB**; **no hard-coded province dicts** or YAML tile lists. **Downloader:** async; province and tiles from DB; caching, retry, concurrency; **resumable** multi/all-province. **CLI examples:** **`suhail-pipeline geometric --province riyadh`**; **`--all-provinces`**; multi **`--province`** flags. **Performance:** index **`tile_urls`** by status/province; spatial/lookup indices on parcels/neighborhoods at **>1M/province**; **~5000-row chunks**; **disk tile cache**. **CI suggestion:** nightly geometric with **`--province riyadh --limit-test`**. **Rollout phases** span metadata+generator through full Riyadh and six provinces with success metrics in a doc table **[POSSIBLE GAP: exact phase gates and metric table not reproduced here]**.
 
 ## CLI audit themes (documentation vs implementation)
 
@@ -153,11 +153,11 @@ Inventory includes flags such as **`--bbox`**, **`--recreate-db`**, **`--save-as
 
 ## Clean slate protocol (destructive local reset only)
 
-**Warning:** wipes **local** PostgreSQL/PostGIS data; **dev-only**. Steps include stopping Homebrew services, uninstalling Postgres/PostGIS variants, removing data directories (**Apple Silicon** vs **Intel** paths), reinstalling PostGIS/Postgres (example **`postgresql@16`**), **`createdb meshic`**, **`CREATE EXTENSION postgis`**, Python venv and Alembic workflow, verification queries. **[POSSIBLE GAP: full ordered checklist and version pinning policy for teams not on Homebrew/macOS.]**
+**Warning:** wipes **local** PostgreSQL/PostGIS data; **dev-only**. Steps include stopping Homebrew services, uninstalling Postgres/PostGIS variants, removing data directories (**Apple Silicon** vs **Intel** paths), reinstalling PostGIS/Postgres (example **`postgresql@16`**), **`createdb suhail`**, **`CREATE EXTENSION postgis`**, Python venv and Alembic workflow, verification queries. **[POSSIBLE GAP: full ordered checklist and version pinning policy for teams not on Homebrew/macOS.]**
 
 ## EPIC-001 cross-reference (performance and monitoring)
 
-EPIC-001 scope: **Alembic critical indexes**; **baseline→post measurements**; **CLI monitoring** for tile queue and enrichment coverage; **automate stale tile resets**; **out of scope:** full **Prometheus/Grafana**. Migration **`19c587b33197_add_critical_performance_indexes.py`**: indexes plus **safe cleanup** of stray **`temp_*`**. Monitor commands expose **queue counts**, **failed count**, **oldest `in_progress` age**, enrichment **totals and percentages**. **`monitor recommend`** chooses next action among **fast-enrich / incremental / delta** with **batch sizes**. **`schedule-info`** suggests **daily/weekly/monthly** cadence from freshness. Acceptance mentions **`meshic-pipeline monitor reset-stale -- --stale-minutes 60`**; report naming variants (**`perf-post-<date>.md`** vs **`perf-post-index-*.md`**) appear across stories and AC **[POSSIBLE GAP: single standard report filename pattern]**.
+EPIC-001 scope: **Alembic critical indexes**; **baseline→post measurements**; **CLI monitoring** for tile queue and enrichment coverage; **automate stale tile resets**; **out of scope:** full **Prometheus/Grafana**. Migration **`19c587b33197_add_critical_performance_indexes.py`**: indexes plus **safe cleanup** of stray **`temp_*`**. Monitor commands expose **queue counts**, **failed count**, **oldest `in_progress` age**, enrichment **totals and percentages**. **`monitor recommend`** chooses next action among **fast-enrich / incremental / delta** with **batch sizes**. **`schedule-info`** suggests **daily/weekly/monthly** cadence from freshness. Acceptance mentions **`suhail-pipeline monitor reset-stale -- --stale-minutes 60`**; report naming variants (**`perf-post-<date>.md`** vs **`perf-post-index-*.md`**) appear across stories and AC **[POSSIBLE GAP: single standard report filename pattern]**.
 
 ## References cited in architecture distillate
 

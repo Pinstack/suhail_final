@@ -1,6 +1,6 @@
 import pytest
 from typer.testing import CliRunner
-from meshic_pipeline.cli import app
+from suhail_pipeline.cli import app
 import asyncio
 from unittest.mock import AsyncMock
 
@@ -42,7 +42,7 @@ def test_geometric_command_runs(monkeypatch, args, expected):
     (["--limit", "10"], "delta enrichment"),
 ])
 def test_delta_enrich_command_runs(monkeypatch, args, expected):
-    import meshic_pipeline.run_enrichment_pipeline as rep
+    import suhail_pipeline.run_enrichment_pipeline as rep
     monkeypatch.setattr(rep, "get_async_db_engine", lambda: None)
     monkeypatch.setattr(rep, "_table_exists", AsyncMock(return_value=True))
     monkeypatch.setattr(rep, "get_delta_parcel_ids_with_details", AsyncMock(return_value=([], {})))
@@ -95,7 +95,7 @@ def test_monitor_command(monkeypatch, action, should_succeed):
 ])
 def test_fast_enrich_command(monkeypatch, args):
     # Mock enrichment function
-    import meshic_pipeline.run_enrichment_pipeline as rep
+    import suhail_pipeline.run_enrichment_pipeline as rep
     monkeypatch.setattr(rep, "fast_enrich", lambda *a, **k: None)
     result = runner.invoke(app, ["fast-enrich"] + args)
     assert result.exit_code == 0
@@ -107,7 +107,7 @@ def test_fast_enrich_command(monkeypatch, args):
     ["--limit", "5"],
 ])
 def test_incremental_enrich_command(monkeypatch, args):
-    import meshic_pipeline.run_enrichment_pipeline as rep
+    import suhail_pipeline.run_enrichment_pipeline as rep
     monkeypatch.setattr(rep, "incremental_enrich", lambda *a, **k: None)
     result = runner.invoke(app, ["incremental-enrich"] + args)
     assert result.exit_code == 0
@@ -118,7 +118,7 @@ def test_incremental_enrich_command(monkeypatch, args):
     ["--limit", "2"],
 ])
 def test_full_refresh_command(monkeypatch, args):
-    import meshic_pipeline.run_enrichment_pipeline as rep
+    import suhail_pipeline.run_enrichment_pipeline as rep
     monkeypatch.setattr(rep, "full_refresh", lambda *a, **k: None)
     result = runner.invoke(app, ["full-refresh"] + args)
     assert result.exit_code == 0
@@ -188,7 +188,7 @@ def test_geometric_help_output():
 # Enhance delta-enrich output assertion
 
 def test_delta_enrich_auto_geometric_output(monkeypatch):
-    import meshic_pipeline.run_enrichment_pipeline as rep
+    import suhail_pipeline.run_enrichment_pipeline as rep
     monkeypatch.setattr(rep, "get_async_db_engine", lambda: None)
     monkeypatch.setattr(rep, "_table_exists", AsyncMock(return_value=True))
     monkeypatch.setattr(rep, "get_delta_parcel_ids_with_details", AsyncMock(return_value=([], {})))

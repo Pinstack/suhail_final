@@ -132,7 +132,7 @@ The most important finding is that **16,807 tiles from 3 major regions were succ
 3. Fixing this could instantly populate 10 empty provinces
 
 **Next investigation should focus on:**
-- `src/meshic_pipeline/run_db_geometric.py` - province assignment logic
+- `src/suhail_pipeline/run_db_geometric.py` - province assignment logic
 - Province polygon boundaries in PostGIS
 - Spatial join queries and coordinate transformations
 

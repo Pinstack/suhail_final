@@ -3,12 +3,12 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "meshic-pipeline"
+name = "suhail-pipeline"
 version = "0.1.0"
 authors = [
   { name="Suhail.AI", email="engineering@suhail.ai" },
 ]
-description = "Meshic data processing pipeline"
+description = "Suhail data processing pipeline"
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
@@ -43,8 +43,8 @@ dependencies = [
 ]
 
 [project.scripts]
-check_db = "meshic_pipeline.utils.db_checker:app"
-meshic-pipeline = "meshic_pipeline.cli:app"
+check_db = "suhail_pipeline.utils.db_checker:app"
+suhail-pipeline = "suhail_pipeline.cli:app"
 
 [tool.setuptools.packages.find]
 where = ["src"]

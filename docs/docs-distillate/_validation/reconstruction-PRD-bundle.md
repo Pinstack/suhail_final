@@ -106,7 +106,7 @@ Production must contain the listed indexes (verified via **`pg_indexes`**): on *
 
 ### Epic 2 — Monitoring
 
-**`meshic-pipeline monitor status`:** queue counts by status, top errors, age of oldest **`in_progress`**. **`recommend`:** scheduling guidance (next enrichment strategy, batch sizes). **`schedule-info`:** recommended cadence from freshness. A **scheduled job** resets stale **`in_progress`** after a **configurable threshold** (example **60 minutes**), logging the count affected. **Tiles per hour** and **enrichment counts per run** appear in logs, with **optional CSV or dashboard export**.
+**`suhail-pipeline monitor status`:** queue counts by status, top errors, age of oldest **`in_progress`**. **`recommend`:** scheduling guidance (next enrichment strategy, batch sizes). **`schedule-info`:** recommended cadence from freshness. A **scheduled job** resets stale **`in_progress`** after a **configurable threshold** (example **60 minutes**), logging the count affected. **Tiles per hour** and **enrichment counts per run** appear in logs, with **optional CSV or dashboard export**.
 
 ### Epic 3 — Delta productization
 
@@ -146,7 +146,7 @@ Out of delta PRD scope: **GUI**, **advanced query optimization**, **upstream MVT
 
 ## Process and references (PRD metadata)
 
-PRD author **Mary** (Business Analyst); date **2025-10-16**; project **level 2** (focused PRD plus solutioning handoff). Technical references named in the distillate include **`docs/BROWNFIELD_PROJECT_DOCUMENTATION.md`**, Alembic revision **`19c587b33197_add_critical_performance_indexes.py`**, **`src/meshic_pipeline/cli.py`**, **`models.py`**, and **`run_db_geometric.py`**.
+PRD author **Mary** (Business Analyst); date **2025-10-16**; project **level 2** (focused PRD plus solutioning handoff). Technical references named in the distillate include **`docs/BROWNFIELD_PROJECT_DOCUMENTATION.md`**, Alembic revision **`19c587b33197_add_critical_performance_indexes.py`**, **`src/suhail_pipeline/cli.py`**, **`models.py`**, and **`run_db_geometric.py`**.
 
 ## Index and distillate housekeeping
 

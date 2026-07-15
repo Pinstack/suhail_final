@@ -8,7 +8,7 @@
 
 - **Type:** Python data platform — geospatial ETL + API enrichment (PostGIS, MVT, Typer CLI).
 - **Maturity:** Production-scale dataset documented in `BROWNFIELD_PROJECT_DOCUMENTATION.md` (millions of parcels and metrics).
-- **Package:** `meshic-pipeline` (`pyproject.toml`), source layout under `src/meshic_pipeline/`.
+- **Package:** `suhail-pipeline` (`pyproject.toml`), source layout under `src/suhail_pipeline/`.
 
 ## Authoritative documentation
 

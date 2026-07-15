@@ -1,7 +1,7 @@
-# Province-Wide Scraping Plan for Meshic Geospatial Pipeline
+# Province-Wide Scraping Plan for Suhail Geospatial Pipeline
 
 ## 1  Overview
-This document specifies the DB-driven approach for scraping **all six Saudi provinces** using Mapbox Vector Tiles (MVT) and persisting them into the Meshic PostGIS schema.
+This document specifies the DB-driven approach for scraping **all six Saudi provinces** using Mapbox Vector Tiles (MVT) and persisting them into the Suhail PostGIS schema.
 
 The plan addresses:
 1. Centralised province metadata (now stored in the database)
@@ -50,9 +50,9 @@ Shortcomings for province-wide rollout (now resolved):
 * `--province` (multi-use) and `--all-provinces` flags.
 * Examples
   ```bash
-  meshic-pipeline geometric --province riyadh
-  meshic-pipeline geometric --all-provinces
-  meshic-pipeline geometric --province riyadh --province makkah
+  suhail-pipeline geometric --province riyadh
+  suhail-pipeline geometric --all-provinces
+  suhail-pipeline geometric --province riyadh --province makkah
   ```
 * Help text updated accordingly.
 
@@ -71,7 +71,7 @@ Shortcomings for province-wide rollout (now resolved):
 ### 3.8 Documentation & CI
 * This doc (updated) reflects the DB-driven approach.
 * README and CLI `--help` examples updated.
-* CI job runs `meshic-pipeline geometric --province riyadh --limit-test` nightly.
+* CI job runs `suhail-pipeline geometric --province riyadh --limit-test` nightly.
 
 ---
 

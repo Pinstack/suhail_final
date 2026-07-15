@@ -1,4 +1,4 @@
-# Suhail Product Requirements Document (PRD): Meshic Geospatial Data Pipeline
+# Suhail Product Requirements Document (PRD): Suhail Geospatial Data Pipeline
 
 Author: Mary (Business Analyst)
 Date: 2025-10-16

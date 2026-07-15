@@ -122,8 +122,8 @@ source .venv/bin/activate
 uv add -e .
 
 # Core testing commands
-meshic-pipeline geometric               # 3x3 baseline test
-meshic-pipeline fast-enrich --limit 100  # Enrichment validation
+suhail-pipeline geometric               # 3x3 baseline test
+suhail-pipeline fast-enrich --limit 100  # Enrichment validation
 python scripts/check_db.py             # Database validation
 ```
 
@@ -226,20 +226,20 @@ See `docs/archive/legacy-root-md/DATABASE_ARCHITECTURE_ANALYSIS.md` for comprehe
 > For a complete, up-to-date audit, see [`docs/CLI_COMMAND_AUDIT.md`](../docs/CLI_COMMAND_AUDIT.md) and the README.
 
 ### Core Commands
-- `meshic-pipeline geometric [--bbox ...] [--recreate-db] [--save-as-temp ...]`
-- `meshic-pipeline fast-enrich [--batch-size ...] [--limit ...]`
-- `meshic-pipeline incremental-enrich [--batch-size ...] [--days-old ...] [--limit ...]`
-- `meshic-pipeline full-refresh [--batch-size ...] [--limit ...]`
-- `meshic-pipeline delta-enrich [--batch-size ...] [--limit ...] [--fresh-table ...] [--auto-geometric] [--show-details/--no-details]`
+- `suhail-pipeline geometric [--bbox ...] [--recreate-db] [--save-as-temp ...]`
+- `suhail-pipeline fast-enrich [--batch-size ...] [--limit ...]`
+- `suhail-pipeline incremental-enrich [--batch-size ...] [--days-old ...] [--limit ...]`
+- `suhail-pipeline full-refresh [--batch-size ...] [--limit ...]`
+- `suhail-pipeline delta-enrich [--batch-size ...] [--limit ...] [--fresh-table ...] [--auto-geometric] [--show-details/--no-details]`
 
 ### Advanced/Composite Commands
-- `meshic-pipeline smart-pipeline [--geometric-first] [--batch-size ...] [--bbox ...]`
-- `meshic-pipeline monitor <status|recommend|schedule-info>`
-- `meshic-pipeline province-geometric <province> [--strategy ...] [--recreate-db] [--save-as-temp ...]`
-- `meshic-pipeline saudi-arabia-geometric [--strategy ...] [--recreate-db] [--save-as-temp ...]`
-- `meshic-pipeline discovery-summary`
-- `meshic-pipeline province-pipeline <province> [--strategy ...] [--batch-size ...] [--geometric-first]`
-- `meshic-pipeline saudi-pipeline [--strategy ...] [--batch-size ...] [--geometric-first]`
+- `suhail-pipeline smart-pipeline [--geometric-first] [--batch-size ...] [--bbox ...]`
+- `suhail-pipeline monitor <status|recommend|schedule-info>`
+- `suhail-pipeline province-geometric <province> [--strategy ...] [--recreate-db] [--save-as-temp ...]`
+- `suhail-pipeline saudi-arabia-geometric [--strategy ...] [--recreate-db] [--save-as-temp ...]`
+- `suhail-pipeline discovery-summary`
+- `suhail-pipeline province-pipeline <province> [--strategy ...] [--batch-size ...] [--geometric-first]`
+- `suhail-pipeline saudi-pipeline [--strategy ...] [--batch-size ...] [--geometric-first]`
 
 ### Workflow Recommendations
 - **Baseline/Small Grid:** Use `geometric` and `fast-enrich` for initial validation.

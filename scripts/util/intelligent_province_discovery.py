@@ -14,7 +14,7 @@ from shapely.ops import unary_union
 from shapely.geometry import box
 import typer
 
-from meshic_pipeline.decoder.mvt_decoder import MVTDecoder
+from suhail_pipeline.decoder.mvt_decoder import MVTDecoder
 
 # --- Enhanced Configuration ---
 LOG_LEVEL = logging.INFO

@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from meshic_pipeline.downloader.async_tile_downloader import AsyncTileDownloader
+from suhail_pipeline.downloader.async_tile_downloader import AsyncTileDownloader
 
 class FakeResponse:
     def __init__(self, status=200, data=b"data"):

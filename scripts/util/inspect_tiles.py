@@ -1,7 +1,7 @@
 import os
 import glob
 import re
-from meshic_pipeline.decoder.mvt_decoder import MVTDecoder
+from suhail_pipeline.decoder.mvt_decoder import MVTDecoder
 
 from collections import defaultdict
 

@@ -6,7 +6,7 @@ Owner: Platform Engineering
 Status: Ready for Dev
 
 ## Goal
-Provide actionable status and recommendations via `meshic-pipeline monitor`.
+Provide actionable status and recommendations via `suhail-pipeline monitor`.
 
 ## Tasks
 - Ensure `monitor status` outputs: tile queue counts by status, oldest in_progress age, top errors.

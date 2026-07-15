@@ -1,4 +1,4 @@
-# Technical Context: Meshic Geospatial Pipeline
+# Technical Context: Suhail Geospatial Pipeline
 
 ## 🛠️ **Technology Stack**
 
@@ -46,7 +46,7 @@ Stage 2: PostGIS → API Enrichment → Enhanced PostGIS
 ## 🔄 **Current Implementation Status**
 
 ### **Environment Setup: READY**
-- **Package**: meshic-pipeline ready for installation via `uv add -e .`
+- **Package**: suhail-pipeline ready for installation via `uv add -e .`
 - **Dependencies**: All required packages specified in pyproject.toml
 - **Configuration**: Province-specific settings configured in pipeline_config.yaml
 - **Database**: Fresh schema with spatial extensions enabled
@@ -92,7 +92,7 @@ Stage 2: PostGIS → API Enrichment → Enhanced PostGIS
 database:
   host: ${DB_HOST:localhost}
   port: ${DB_PORT:5432}
-  name: ${DB_NAME:meshic_pipeline}
+  name: ${DB_NAME:suhail_pipeline}
 
 processing:
   max_concurrent_downloads: 5
@@ -112,8 +112,8 @@ source .venv/bin/activate
 uv add -e .
 
 # Core testing commands
-meshic-pipeline geometric               # 3x3 baseline test
-meshic-pipeline fast-enrich --limit 100  # Enrichment validation
+suhail-pipeline geometric               # 3x3 baseline test
+suhail-pipeline fast-enrich --limit 100  # Enrichment validation
 python scripts/check_db.py             # Database validation
 ```
 

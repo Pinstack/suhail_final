@@ -9,7 +9,7 @@ from pathlib import Path
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from src.meshic_pipeline.config import settings
+from src.suhail_pipeline.config import settings
 from sqlalchemy import create_engine
 
 def check_process_running(pid_file):
@@ -89,7 +89,7 @@ def main():
             if not process_running and remaining > 0:
                 print(f"\n⚠️  WARNING: Process stopped but {remaining:,} parcels remain!")
                 print(f"📝 Check logs/enrichment-full.log for errors")
-                print(f"🔄 You may need to restart: meshic-pipeline full-refresh")
+                print(f"🔄 You may need to restart: suhail-pipeline full-refresh")
                 break
                 
         except KeyboardInterrupt:

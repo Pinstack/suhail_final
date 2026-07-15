@@ -1,5 +1,5 @@
                                                                                                            
- Usage: python -m src.meshic_pipeline.run_geometric_pipeline                                               
+ Usage: python -m src.suhail_pipeline.run_geometric_pipeline                                               
             [OPTIONS]                                                                                      
                                                                                                            
  🚀 Enhanced geometric processing pipeline with province discovery.                                        

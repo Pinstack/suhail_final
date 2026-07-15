@@ -8,7 +8,7 @@ Status: Draft for Architecture Review
 
 ## 1. Objective & Scope
 
-Improve query performance and operational visibility for the Meshic pipeline by:
+Improve query performance and operational visibility for the Suhail pipeline by:
 - Applying critical indexes (safe, additive) via Alembic.
 - Establishing baseline → post-change performance measurements.
 - Providing monitoring outputs for tile queue health and enrichment coverage.
@@ -48,12 +48,12 @@ Out of scope: Full observability stack (Prometheus/Grafana). This phase focuses 
 
 ### 3.3 Monitoring Outputs (CLI)
 
-- `meshic-pipeline monitor status` should include:
+- `suhail-pipeline monitor status` should include:
   - Tile queue summary: counts by `status`, number of failed, oldest `in_progress` age
   - Enrichment coverage: total parcels, parcels with `enriched_at`, % with `transaction_price > 0`
-- `meshic-pipeline monitor recommend`:
+- `suhail-pipeline monitor recommend`:
   - Next best action (fast-enrich / incremental / delta) with recommended batch sizes
-- `meshic-pipeline monitor schedule-info`:
+- `suhail-pipeline monitor schedule-info`:
   - Suggested cadence (daily/weekly/monthly) based on current freshness
 
 ### 3.4 Stale Reset Automation
@@ -78,7 +78,7 @@ Out of scope: Full observability stack (Prometheus/Grafana). This phase focuses 
 
 - All specified indexes exist in production; Alembic migration completes without downtime.
 - Sample query timings captured (baseline vs post-index) at `docs/reports/perf-baseline-*.md` and `docs/reports/perf-post-index-*.md`.
-- Monitoring outputs present and informative; stale reset job operational (`meshic-pipeline monitor reset-stale -- --stale-minutes 60`).
+- Monitoring outputs present and informative; stale reset job operational (`suhail-pipeline monitor reset-stale -- --stale-minutes 60`).
 - Investigate any regressions (e.g., broad metrics aggregation still performs full table scan—documented for follow-up tuning).
 
 ---
@@ -105,5 +105,5 @@ Out of scope: Full observability stack (Prometheus/Grafana). This phase focuses 
 
 - docs/BROWNFIELD_PROJECT_DOCUMENTATION.md
 - alembic/versions/19c587b33197_add_critical_performance_indexes.py
-- src/meshic_pipeline/persistence/models.py (TileURL methods)
+- src/suhail_pipeline/persistence/models.py (TileURL methods)
 - docs/PRD.md, docs/ACCEPTANCE_CRITERIA.md

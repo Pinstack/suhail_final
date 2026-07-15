@@ -1,6 +1,6 @@
 """add_critical_performance_indexes
 
-Critical database performance optimizations for the Meshic pipeline.
+Critical database performance optimizations for the Suhail pipeline.
 Based on docs/archive/legacy-root-md/DATABASE_ARCHITECTURE_ANALYSIS.md recommendations.
 
 Provides 60-80% performance improvement through safe index additions.

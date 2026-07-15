@@ -94,9 +94,9 @@ This section covers requirements, product scope, and acceptance themes. Part 1 o
 - Index migrations via Alembic without downtime; baseline and post-migration timings recorded and linked in runbook.
 
 ## Acceptance: monitoring (Epic 2)
-- `meshic-pipeline monitor status`: queue counts by status, top errors, age of oldest `in_progress`.
-- `meshic-pipeline monitor recommend`: scheduling guidance (next enrichment strategy, batch sizes).
-- `meshic-pipeline monitor schedule-info`: recommended cadence from freshness.
+- `suhail-pipeline monitor status`: queue counts by status, top errors, age of oldest `in_progress`.
+- `suhail-pipeline monitor recommend`: scheduling guidance (next enrichment strategy, batch sizes).
+- `suhail-pipeline monitor schedule-info`: recommended cadence from freshness.
 - Scheduled job resets stale `in_progress` after configurable threshold (example 60 minutes); log count affected.
 - Tiles/hour and enrichment counts per run in logs; optional CSV or dashboard export.
 
@@ -146,4 +146,4 @@ This section covers requirements, product scope, and acceptance themes. Part 1 o
 
 ## PRD process and references
 - PRD author Mary (Business Analyst); date 2025-10-16; project level 2 (focused PRD + solutioning handoff).
-- Technical references: `docs/BROWNFIELD_PROJECT_DOCUMENTATION.md`, `docs/archive/legacy-root-md/DATABASE_ARCHITECTURE_ANALYSIS.md`, Alembic index migration `19c587b33197_add_critical_performance_indexes.py`, `src/meshic_pipeline/cli.py`, `models.py`, `run_db_geometric.py`.
+- Technical references: `docs/BROWNFIELD_PROJECT_DOCUMENTATION.md`, `docs/archive/legacy-root-md/DATABASE_ARCHITECTURE_ANALYSIS.md`, Alembic index migration `19c587b33197_add_critical_performance_indexes.py`, `src/suhail_pipeline/cli.py`, `models.py`, `run_db_geometric.py`.

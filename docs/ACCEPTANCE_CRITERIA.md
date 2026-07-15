@@ -1,4 +1,4 @@
-# Acceptance Criteria: Meshic Geospatial Data Pipeline
+# Acceptance Criteria: Suhail Geospatial Data Pipeline
 
 Date: 2025-10-16
 Author: Mary (Business Analyst)
@@ -29,9 +29,9 @@ Author: Mary (Business Analyst)
 ## Epic 2: Monitoring & Alerting
 
 - Monitoring CLI
-  - `meshic-pipeline monitor status` outputs tile queue counts by status, top errors, and age of oldest `in_progress`.
-  - `meshic-pipeline monitor recommend` outputs actionable scheduling guidance (which enrichment strategy to run next, with batch sizes).
-  - `meshic-pipeline monitor schedule-info` displays recommended cadence (daily/weekly/monthly) based on data freshness.
+  - `suhail-pipeline monitor status` outputs tile queue counts by status, top errors, and age of oldest `in_progress`.
+  - `suhail-pipeline monitor recommend` outputs actionable scheduling guidance (which enrichment strategy to run next, with batch sizes).
+  - `suhail-pipeline monitor schedule-info` displays recommended cadence (daily/weekly/monthly) based on data freshness.
 - Stale Reset
   - Scheduled job resets stale `in_progress` tiles after configurable threshold (e.g., 60 minutes) using built-in method.
   - Reset operations are logged with count of tiles affected.
