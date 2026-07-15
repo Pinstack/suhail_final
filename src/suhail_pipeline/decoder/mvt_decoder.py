@@ -143,7 +143,17 @@ class MVTDecoder:
         """
         if not tile_data:
             return {}
-            
+
+        # Guard against non-MVT payloads: the tile server can return an HTML error
+        # or maintenance page (or other text) instead of a vector tile. MVT is
+        # binary protobuf and never starts with '<', so a leading angle bracket
+        # means this isn't a tile — skip cleanly instead of raising a DecodeError.
+        if tile_data.lstrip()[:1] == b"<":
+            logger.warning(
+                "Tile %s/%s/%s payload looks like HTML/non-MVT, skipping decode.", z, x, y
+            )
+            return {}
+
         decoded_tile = mapbox_vector_tile.decode(tile_data)
         output_layers: Dict[str, List[Dict[str, Any]]] = {}
 
